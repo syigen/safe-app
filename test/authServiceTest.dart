@@ -11,22 +11,23 @@ void main() {
     supabase = SupabaseClient(
       'https://htdopvquzxdywjsqwkpb.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0ZG9wdnF1enhkeXdqc3F3a3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU3MTQ0MTAsImV4cCI6MjA1MTI5MDQxMH0.v-1gCbQV1Yd2ipeVBz3p-gY6TwP75fuqEbHzHitc4ZA',
+      authOptions: const AuthClientOptions(authFlowType: AuthFlowType.implicit),
     );
     authService = AuthServices(client: supabase);
   });
 
   group('Authentication Integration Tests', () {
     test('Sign In with Email and Password', () async {
-      final email = 'hasinpramodyahasin@gmail.com';
-      final password = 'Pramo@123';
+      final email = 'hasinpramodyahasin1736145566886@gmail.com';
+      final password = 'TestPassword123!';
 
       try {
         final response = await authService.signInWithEmailandPassword(email, password);
 
         if (response.session != null) {
           print('Sign In Successful:');
-          print('   - Email: $email');
-          print('   - Password: $password');
+          print('Email: $email');
+          print('Password: $password');
         } else {
           print('Sign In Failed: No session created');
         }
@@ -36,7 +37,7 @@ void main() {
     });
 
     test('Sign Up with Email and Password', () async {
-      final email = 'newuser${DateTime.now().millisecondsSinceEpoch}@example.com';
+      final email = 'hasinpramodya${DateTime.now().millisecondsSinceEpoch}@gmail.com';
       final password = 'TestPassword123!';
 
       try {
