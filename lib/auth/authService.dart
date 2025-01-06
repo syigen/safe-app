@@ -4,7 +4,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart'; // For kIsWeb check
 
 class AuthServices{
-  final SupabaseClient supabase = Supabase.instance.client;
+  final SupabaseClient supabase ;
+
+  AuthServices({required SupabaseClient? client})  // Add 'required' and make it nullable
+      : supabase = client ?? Supabase.instance.client;
 
 
   Future<AuthResponse> signInWithEmailandPassword(String email , String password) async{
