@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:safe_app/pages/registration_page.dart';
 import '../widgets/social_login_button.dart';
 
 class LoginPage extends StatefulWidget {
@@ -150,7 +151,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   TextButton(
                     onPressed: () {
-                      // Navigate to the register page screen
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const RegistrationPage()),
+                      );
                     },
                     child: const Text(
                       'Register Now',
