@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/location_provider.dart';
 import '../providers/marker_provider.dart';
+import '../styles/map_styles.dart';
 
 class GoogleMapsScreen extends ConsumerStatefulWidget {
   @override
@@ -11,6 +12,25 @@ class GoogleMapsScreen extends ConsumerStatefulWidget {
 
 class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
   late GoogleMapController _controller;
+  BitmapDescriptor customIcon = BitmapDescriptor.defaultMarker;
+  String visibleMarkerId = 'current_location'; // Track which marker is visible
+
+  @override
+  void initState() {
+    customMarker();
+    super.initState();
+  }
+
+  void customMarker() {
+    BitmapDescriptor.asset(
+      ImageConfiguration(),
+      "assets/map/pinpoint_logo.png",
+    ).then((icon) {
+      setState(() {
+        customIcon = icon;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,14 +46,16 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
 
     final CameraPosition _initialPosition = CameraPosition(
       target: LatLng(locationData.latitude!, locationData.longitude!),
-      zoom: 14,
+      zoom: 15,
     );
 
+    // Current location marker
     final currentLocationMarker = Marker(
       markerId: MarkerId('current_location'),
       position: LatLng(locationData.latitude!, locationData.longitude!),
       infoWindow: InfoWindow(title: 'Current Location'),
-      icon: BitmapDescriptor.defaultMarker,
+      icon: customIcon,
+      visible: visibleMarkerId == 'current_location', // Only visible if active
     );
 
     return Scaffold(
@@ -43,28 +65,41 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
         myLocationButtonEnabled: true,
         onMapCreated: (controller) {
           _controller = controller;
+          _controller.setMapStyle(mapStyle);
           _controller.animateCamera(CameraUpdate.newLatLngZoom(
             LatLng(locationData.latitude!, locationData.longitude!),
-            14,
+            15,
           ));
         },
-        markers: markers.isEmpty
-            ? {currentLocationMarker}
-            : markers,
+        markers: {
+          // Update visibility dynamically based on the currently active marker
+          ...markers.map((marker) => marker.copyWith(
+            visibleParam: marker.markerId.value == visibleMarkerId,
+          )),
+          currentLocationMarker,
+        },
         onTap: (LatLng position) {
+          // Create a new marker for the tapped position
           final newMarker = Marker(
             markerId: MarkerId('selected_location'),
             position: position,
             infoWindow: InfoWindow(title: 'Pinned Location'),
-            icon: BitmapDescriptor.defaultMarker,
+            icon: customIcon,
+            visible: true, // Always visible when added
           );
 
+          // Update the marker state to include the new marker
           ref.read(markerProvider.notifier).addMarker(newMarker);
 
-          _controller.animateCamera(CameraUpdate.newLatLngZoom(position, 14));
+          // Set the tapped marker as the visible one
+          setState(() {
+            visibleMarkerId = 'selected_location';
+          });
+
+          // Zoom into the newly tapped location
+          _controller.animateCamera(CameraUpdate.newLatLngZoom(position, 15));
         },
       ),
     );
   }
 }
-
