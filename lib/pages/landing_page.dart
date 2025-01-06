@@ -7,14 +7,34 @@ class LandingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Stack(
-        children: [
-          BackgroundImage(),
-          LogoSection(),
-          TextContent(),
-          BottomButton(),
-        ],
+    return Scaffold(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
+            children: [
+              const BackgroundImage(),
+              SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: const IntrinsicHeight(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: LogoSection()),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: TextContent(),
+                        ),
+                        SizedBox(height: 20),
+                        BottomButton(),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -43,22 +63,18 @@ class LogoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const SizedBox(height: 215),
-        Center(
-          child: SizedBox(
-            width: 220,
-            height: 220,
-            child: Image.asset(
-              'assets/images/logo.png',
-              fit: BoxFit.contain,
-            ),
-          ),
+    final screenSize = MediaQuery.of(context).size;
+    final logoSize = screenSize.width * 0.5;
+
+    return Center(
+      child: SizedBox(
+        width: logoSize,
+        height: logoSize,
+        child: Image.asset(
+          'assets/images/logo.png',
+          fit: BoxFit.contain,
         ),
-      ],
+      ),
     );
   }
 }
@@ -69,39 +85,38 @@ class TextContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: const [
-        SizedBox(height: 700),
-        Padding(
-          padding: EdgeInsets.only(left: 20),
-          child: Text(
+    final screenSize = MediaQuery.of(context).size;
+    final isSmallScreen = screenSize.width < 600;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 30),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
             'Safe App',
             style: TextStyle(
-              fontSize: 40,
+              fontSize: isSmallScreen ? 32 : 40,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
-        ),
-        SizedBox(height: 10),
-        Padding(
-          padding: EdgeInsets.only(left: 20),
-          child: Text(
+          SizedBox(height: screenSize.height * 0.02),
+          Text(
             'Your ultimate guide to\nhuman-wildlife coexistence',
-            textAlign: TextAlign.left,
+            textAlign: TextAlign.left, // Aligns text to the left
             style: TextStyle(
-              fontSize: 18,
+              fontSize: isSmallScreen ? 16 : 18,
               fontWeight: FontWeight.bold,
               color: Colors.white70,
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
+
 
 // Button to navigate to the next screen
 class BottomButton extends StatelessWidget {
@@ -109,36 +124,34 @@ class BottomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Padding(
-        padding: const EdgeInsets.only(
-          bottom: 40.0,
-          left: 10.0,
-          right: 10.0,
-          top: 0.0,
-        ),
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const LoginPage()),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF00DF81),
-            minimumSize: const Size(380, 50),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(13),
-            ),
+    final screenSize = MediaQuery.of(context).size;
+    final buttonWidth = screenSize.width * 0.9;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: screenSize.height * 0.05,
+        left: screenSize.width * 0.05,
+        right: screenSize.width * 0.05,
+      ),
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF00DF81),
+          minimumSize: Size(buttonWidth, 50),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(13),
           ),
-          child: const Text(
-            'Get Started Now',
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.black,
-            ),
+        ),
+        child: Text(
+          'Get Started Now',
+          style: TextStyle(
+            fontSize: screenSize.width < 600 ? 18 : 20,
+            color: Colors.black,
           ),
         ),
       ),
