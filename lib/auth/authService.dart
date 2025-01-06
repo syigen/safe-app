@@ -1,5 +1,4 @@
-import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart'; // For kIsWeb check
 
