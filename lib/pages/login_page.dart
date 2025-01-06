@@ -39,29 +39,23 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 40),
 
-              // Social Login Buttons
+              // Use the SocialLoginButton widget
               SocialLoginButton(
                 text: 'Continue with Google',
                 iconPath: 'assets/logo/google.png',
-                onTap: () {
-                  // Add Google login functionality here
-                },
+                onTap: () {},
               ),
               const SizedBox(height: 16),
               SocialLoginButton(
                 text: 'Continue with Facebook',
                 iconPath: 'assets/logo/facebook.png',
-                onTap: () {
-                  // Add Facebook login functionality here
-                },
+                onTap: () {},
               ),
               const SizedBox(height: 16),
               SocialLoginButton(
                 text: 'Continue with Apple',
                 iconPath: 'assets/logo/apple.png',
-                onTap: () {
-                  // Add Apple login functionality here
-                },
+                onTap: () {},
               ),
               const SizedBox(height: 32),
 
@@ -163,6 +157,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 24),
+              // Register Link
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
