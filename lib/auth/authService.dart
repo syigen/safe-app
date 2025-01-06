@@ -1,6 +1,6 @@
 
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter/foundation.dart'; // For kIsWeb check
+import 'package:flutter/foundation.dart';
 
 class AuthServices{
   final SupabaseClient supabase ;
@@ -36,7 +36,7 @@ class AuthServices{
     try {
       await supabase.auth.signInWithOAuth(
         OAuthProvider.google,
-        redirectTo: kIsWeb ? null : 'my.scheme://my-host', // Replace with your app's scheme
+        redirectTo: kIsWeb ? null : 'my.scheme://my-host',
         authScreenLaunchMode: kIsWeb
             ? LaunchMode.platformDefault
             : LaunchMode.externalApplication,
@@ -50,7 +50,7 @@ class AuthServices{
     try {
       await supabase.auth.signInWithOAuth(
         OAuthProvider.github,
-        redirectTo: kIsWeb ? null : 'my.scheme://my-host', // Replace with your app's scheme
+        redirectTo: kIsWeb ? null : 'my.scheme://my-host',
         authScreenLaunchMode: kIsWeb
             ? LaunchMode.platformDefault
             : LaunchMode.externalApplication,
