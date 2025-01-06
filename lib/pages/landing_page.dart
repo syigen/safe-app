@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:safe_app/pages/login_page.dart';
 
 // Landing Page
 class LandingPage extends StatelessWidget {
@@ -68,10 +69,10 @@ class TextContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
-      children: const [
+      children: [
         SizedBox(height: 700),
         Padding(
           padding: EdgeInsets.only(left: 20),
@@ -120,6 +121,10 @@ class BottomButton extends StatelessWidget {
         child: ElevatedButton(
           onPressed: () {
             // Navigate to the login page screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginPage()),
+            );
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF00DF81),
