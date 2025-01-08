@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'bottom_panel.dart';
 
 final selectedLocationProvider = StateProvider<LatLng?>((ref) => null);
+final addressProvider = StateProvider<String>((ref) => '');
 
 class GoogleMapsScreen extends ConsumerStatefulWidget {
   @override
@@ -22,8 +23,6 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
   BitmapDescriptor customIcon = BitmapDescriptor.defaultMarker;
   String visibleMarkerId = 'current_location';
   late LatLng currentLocation;
-  String currentAddress = '';  // For default location
-  String selectedAddress = ''; // For user-selected location
   bool showCustomWindow = false;
   LatLng? selectedLocation;
 
@@ -60,13 +59,10 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
       );
       Placemark place = placemarks[0];
 
+      ref.read(addressProvider.notifier).state = "${place.street}";
+
       setState(() {
-        if (isCurrentLocation) {
-          currentAddress = "${place.street}";
-        } else {
-          selectedAddress = "${place.street}";
-          selectedLocation = position;
-        }
+        selectedLocation = isCurrentLocation ? null : position;
         showCustomWindow = true;
       });
     } catch (e) {
@@ -78,6 +74,7 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
   Widget build(BuildContext context) {
     final locationData = ref.watch(locationProvider);
     final markers = ref.watch(markerProvider);
+    final currentAddress = ref.watch(addressProvider);
 
     if (locationData == null) {
       return Scaffold(
@@ -87,7 +84,6 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
 
     currentLocation = LatLng(locationData.latitude!, locationData.longitude!);
 
-    // Get address for current location when it's first loaded
     if (currentAddress.isEmpty) {
       getAddressFromCoordinates(currentLocation, true);
     }
@@ -111,10 +107,6 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
                 markerId: MarkerId('current_location'),
                 position: currentLocation,
                 icon: customIcon,
-                infoWindow: InfoWindow(
-                  title: 'Current Location',
-                  snippet: currentAddress,
-                ),
                 visible: visibleMarkerId == 'current_location',
                 onTap: () {
                   getAddressFromCoordinates(currentLocation, true);
@@ -125,10 +117,6 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
                   markerId: MarkerId('selected_location'),
                   position: selectedLocation!,
                   icon: customIcon,
-                  infoWindow: InfoWindow(
-                    title: 'Selected Location',
-                    snippet: selectedAddress,
-                  ),
                   visible: visibleMarkerId == 'selected_location',
                   onTap: () {
                     getAddressFromCoordinates(selectedLocation!, false);
@@ -168,9 +156,7 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
                   children: [
                     Flexible(
                       child: Text(
-                        visibleMarkerId == 'current_location'
-                            ? currentAddress
-                            : selectedAddress,
+                        currentAddress,
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 14,
@@ -196,7 +182,8 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
                 ),
               ),
             ),
-          BottomPanel(),
+          BottomPanel(currentAddress, selectedLocation ?? LatLng(0.0, 0.0)),
+
           Positioned(
             right: 16,
             top: 80,
@@ -204,17 +191,22 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
               onPressed: () {
                 setState(() {
                   visibleMarkerId = 'current_location';
-                  showCustomWindow = true;  // Show info window for current location
+                  showCustomWindow = true;
                 });
-                _controller.animateCamera(CameraUpdate.newLatLngZoom(
-                  currentLocation,
-                  15,
-                ));
+                // Fetch and update the current address when FAB is pressed
+                getAddressFromCoordinates(currentLocation, true);
+                _controller.animateCamera(
+                  CameraUpdate.newLatLngZoom(
+                    currentLocation,
+                    15,
+                  ),
+                );
               },
               backgroundColor: Color(0xFF021B1A),
               child: Icon(Icons.my_location, color: Colors.white),
             ),
           ),
+
         ],
       ),
     );
