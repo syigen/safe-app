@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 
 class LoadingPage extends StatefulWidget {
   const LoadingPage({super.key});
@@ -29,87 +28,44 @@ class _LoadingPageState extends State<LoadingPage> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Background image
-          Image.asset(
-            'assets/background_loading_page.png',
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/loading_background.png'),
             fit: BoxFit.cover,
           ),
-          // Loading content
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // Logo
-                    Image.asset(
-                      'assets/images/logo_loading_page.png',
-                      width: 230,
-                      height: 230,
-                    ),
-                    // Rotating progress indicator
-                    AnimatedBuilder(
-                      animation: _controller,
-                      builder: (_, child) {
-                        return Transform.rotate(
-                          angle: _controller.value * 2 * math.pi,
-                          child: CustomPaint(
-                            size: const Size(230, 220),
-                            painter: LoadingArcPainter(),
-                          ),
-                        );
-                      },
-                    ),
-                    // Loading text
-                    const Positioned(
-                      bottom: -60,
-                      child: Text(
-                        'Loading...',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
+        ),
+        child: Center(
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Image.asset(
+                'assets/images/loading_logo.png',
+                width: 200,
+                height: 200,
+              ),
+              RotationTransition(
+                turns: _controller,
+                child: Image.asset(
+                  'assets/images/loading.png',
+                  width: 200,
+                  height: 200,
                 ),
-              ],
-            ),
+              ),
+              const Positioned(
+                top: 89,
+                child: Text(
+                  'Loading...',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
-}
-
-class LoadingArcPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF00FF9A) // Bright green color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 10.0
-      ..strokeCap = StrokeCap.round;
-
-    final rect = Rect.fromCircle(
-      center: Offset(size.width / 2, size.height / 2),
-      radius: size.width / 2.5,
-    );
-
-    canvas.drawArc(
-      rect,
-      0,
-      math.pi * 1.5,
-      false,
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
