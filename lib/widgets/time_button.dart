@@ -5,6 +5,7 @@ class TimeButton extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onPressed;
 
+
   TimeButton({
     required this.text,
     required this.isSelected,
@@ -20,6 +21,7 @@ class TimeButton extends StatelessWidget {
           backgroundColor: MaterialStateProperty.all(
             isSelected ? Color(0xFF00FF9D) : Colors.transparent,
           ),
+          alignment: Alignment.center,
           side: MaterialStateProperty.all(
             BorderSide(color: Color(0xFF00FF9D)),
           ),
@@ -29,8 +31,9 @@ class TimeButton extends StatelessWidget {
             ),
           ),
           padding: MaterialStateProperty.all(
-            EdgeInsets.symmetric(vertical: 12),
+            EdgeInsets.all(15),
           ),
+
         ),
         child: Text(
           text,
