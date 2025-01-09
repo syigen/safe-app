@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -376,8 +376,8 @@ class HomeScreen extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(width: 5),
-                    Icon(
+                    const SizedBox(width: 5),
+                    const Icon(
                       Icons.arrow_forward,
                       size: 20,
                       color: Colors.white,
@@ -431,8 +431,8 @@ class HomeScreen extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(width: 5),
-                    Icon(
+                    const SizedBox(width: 5),
+                    const Icon(
                       Icons.arrow_forward,
                       size: 20,
                       color: Colors.white,
