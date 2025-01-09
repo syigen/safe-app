@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:safe_app/pages/registration_page.dart';
+import 'package:safe_app/auth/auth_service.dart';
 import '../widgets/social_login_button.dart';
 
 class LoginPage extends StatefulWidget {
@@ -11,6 +12,9 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _obscureText = true;
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final AuthService _authService = AuthService(authClient: SupabaseAuthClient());
 
   @override
   Widget build(BuildContext context) {
@@ -35,25 +39,32 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 40),
 
-              // Use the SocialLoginButton widget
+              // Social Login Buttons
               SocialLoginButton(
                 text: 'Continue with Google',
                 iconPath: 'assets/logo/google.png',
-                onTap: () {},
+                onTap: () {
+                  // Add Google login functionality here
+                },
               ),
               const SizedBox(height: 16),
               SocialLoginButton(
                 text: 'Continue with Facebook',
                 iconPath: 'assets/logo/facebook.png',
-                onTap: () {},
+                onTap: () {
+                  // Add Facebook login functionality here
+                },
               ),
               const SizedBox(height: 16),
               SocialLoginButton(
                 text: 'Continue with Apple',
                 iconPath: 'assets/logo/apple.png',
-                onTap: () {},
+                onTap: () {
+                  // Add Apple login functionality here
+                },
               ),
               const SizedBox(height: 32),
+
               // Divider
               const Row(
                 children: [
@@ -69,19 +80,21 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
               const SizedBox(height: 32),
+
               // Email Field
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: const Color(0xFF00FF9D)),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const TextField(
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
+                child: TextField(
+                  controller: emailController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
                     hintText: 'Email',
                     hintStyle: TextStyle(color: Colors.white54),
-                    prefixIcon:
-                    Icon(Icons.email_outlined, color: Color(0xFF00FF9D)),
+                    prefixIcon: Icon(Icons.email_outlined,
+                        color: Color(0xFF00FF9D)),
                     border: InputBorder.none,
                     contentPadding:
                     EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -89,6 +102,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 16),
+
               // Password Field
               Container(
                 decoration: BoxDecoration(
@@ -96,6 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: TextField(
+                  controller: passwordController,
                   obscureText: _obscureText,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
@@ -121,9 +136,16 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 24),
+
               // Login Button
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  _authService.login(
+                    context: context,
+                    email: emailController.text.trim(),
+                    password: passwordController.text.trim(),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00FF9D),
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -141,7 +163,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 24),
-              // Register Link
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -151,7 +172,10 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const RegistrationPage()),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const RegistrationPage()),
                       );
                     },
                     child: const Text(
