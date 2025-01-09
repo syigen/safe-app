@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:safe_app/pages/home_page.dart';
 
 class LoadingPage extends StatefulWidget {
   const LoadingPage({super.key});
@@ -13,10 +14,20 @@ class _LoadingPageState extends State<LoadingPage> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
+
+    // Initialize the animation controller
     _controller = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat();
+
+    // Delay for 1.5 seconds, then navigate to the home page
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    });
   }
 
   @override

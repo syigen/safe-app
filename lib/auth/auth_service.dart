@@ -1,9 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:safe_app/pages/home_page.dart';
+import 'package:safe_app/pages/loading_page.dart';
 import 'package:safe_app/pages/login_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+// Abstracting the Supabase client interaction
+abstract class AuthClient {
+  Future<AuthResponse> login(String email, String password);
+  Future<AuthResponse> register(String email, String password);
+}
+
+class SupabaseAuthClient implements AuthClient {
+  @override
+  Future<AuthResponse> login(String email, String password) async {
+    return Supabase.instance.client.auth.signInWithPassword(
+      email: email,
+      password: password,
+    );
+  }
+
+  @override
+  Future<AuthResponse> register(String email, String password) async {
+    return Supabase.instance.client.auth.signUp(
+      email: email,
+      password: password,
+    );
+  }
+}
+
 class AuthService {
+  final AuthClient authClient;
+
+  AuthService({required this.authClient});
+
   Future<void> login({
     required BuildContext context,
     required String email,
@@ -20,10 +48,7 @@ class AuthService {
     }
 
     try {
-      final response = await Supabase.instance.client.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
+      final response = await authClient.login(email, password);
 
       if (response.session != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -35,7 +60,7 @@ class AuthService {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => const LoadingPage()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -86,10 +111,7 @@ class AuthService {
     }
 
     try {
-      final response = await Supabase.instance.client.auth.signUp(
-        email: email,
-        password: password,
-      );
+      final response = await authClient.register(email, password);
 
       if (response.user != null) {
         ScaffoldMessenger.of(context).showSnackBar(

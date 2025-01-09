@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:safe_app/auth/auth_service.dart';
 import 'package:safe_app/pages/registration_page.dart';
+import 'package:safe_app/auth/auth_service.dart';
 import '../widgets/social_login_button.dart';
 
 class LoginPage extends StatefulWidget {
@@ -14,7 +14,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _obscureText = true;
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final AuthService _authService = AuthService();
+  final AuthService _authService = AuthService(authClient: SupabaseAuthClient());
 
   @override
   Widget build(BuildContext context) {
@@ -39,23 +39,29 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 40),
 
-              // Use the SocialLoginButton widget
+              // Social Login Buttons
               SocialLoginButton(
                 text: 'Continue with Google',
                 iconPath: 'assets/logo/google.png',
-                onTap: () {},
+                onTap: () {
+                  // Add Google login functionality here
+                },
               ),
               const SizedBox(height: 16),
               SocialLoginButton(
                 text: 'Continue with Facebook',
                 iconPath: 'assets/logo/facebook.png',
-                onTap: () {},
+                onTap: () {
+                  // Add Facebook login functionality here
+                },
               ),
               const SizedBox(height: 16),
               SocialLoginButton(
                 text: 'Continue with Apple',
                 iconPath: 'assets/logo/apple.png',
-                onTap: () {},
+                onTap: () {
+                  // Add Apple login functionality here
+                },
               ),
               const SizedBox(height: 32),
 
@@ -157,7 +163,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 24),
-              // Register Link
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

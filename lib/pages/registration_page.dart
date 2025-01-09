@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/social_login_button.dart';
 import 'login_page.dart';
+import 'package:safe_app/auth/auth_service.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
@@ -12,6 +13,9 @@ class RegistrationPage extends StatefulWidget {
 class RegistrationPageState extends State<RegistrationPage> {
   bool _obscureText = true;
   String _password = '';
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final AuthService _authService = AuthService(authClient: SupabaseAuthClient());
 
   bool get hasEightChars => _password.length >= 8;
   bool get hasOneDigit => _password.contains(RegExp(r'[0-9]'));
@@ -40,7 +44,7 @@ class RegistrationPageState extends State<RegistrationPage> {
               ),
               const SizedBox(height: 40),
 
-              // Use the SocialLoginButton widget
+              // Social Login Buttons
               SocialLoginButton(
                 text: 'Continue with Google',
                 iconPath: 'assets/logo/google.png',
@@ -74,14 +78,17 @@ class RegistrationPageState extends State<RegistrationPage> {
                 ],
               ),
               const SizedBox(height: 32),
+
+              // Email Field
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: const Color(0xFF00FF9D)),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const TextField(
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
+                child: TextField(
+                  controller: emailController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
                     hintText: 'Email',
                     hintStyle: TextStyle(color: Colors.white54),
                     prefixIcon:
@@ -93,12 +100,15 @@ class RegistrationPageState extends State<RegistrationPage> {
                 ),
               ),
               const SizedBox(height: 16),
+
+              // Password Field
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: const Color(0xFF00FF9D)),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: TextField(
+                  controller: passwordController,
                   obscureText: _obscureText,
                   style: const TextStyle(color: Colors.white),
                   onChanged: (value) {
@@ -129,6 +139,8 @@ class RegistrationPageState extends State<RegistrationPage> {
                 ),
               ),
               const SizedBox(height: 8),
+
+              // Password Validation Indicators
               Row(
                 children: [
                   Expanded(
@@ -147,8 +159,7 @@ class RegistrationPageState extends State<RegistrationPage> {
                     child: Container(
                       height: 3,
                       decoration: BoxDecoration(
-                        color:
-                        hasOneDigit ? const Color(0xFF00FF9D) : Colors.grey,
+                        color: hasOneDigit ? const Color(0xFF00FF9D) : Colors.grey,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -174,8 +185,19 @@ class RegistrationPageState extends State<RegistrationPage> {
               const SizedBox(height: 8),
               _validationItem('Has one letter?', hasOneLetter),
               const SizedBox(height: 24),
+
+              // Register Button
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  _authService.register(
+                    context: context,
+                    email: emailController.text.trim(),
+                    password: passwordController.text.trim(),
+                    hasEightChars: hasEightChars,
+                    hasOneDigit: hasOneDigit,
+                    hasOneLetter: hasOneLetter,
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00FF9D),
                   padding: const EdgeInsets.symmetric(vertical: 16),
