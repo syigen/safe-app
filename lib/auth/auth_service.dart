@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:safe_app/pages/loading_page.dart';
 import 'package:safe_app/pages/login_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// Abstracting the Supabase client interaction
 abstract class AuthClient {
   Future<AuthResponse> login(String email, String password);
   Future<AuthResponse> register(String email, String password);
@@ -32,17 +32,52 @@ class AuthService {
 
   AuthService({required this.authClient});
 
+  void _showToast({
+    required String message,
+    required Color backgroundColor,
+    required Color textColor,
+  }) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.TOP,
+      backgroundColor: backgroundColor,
+      textColor: textColor,
+      fontSize: 16.0,
+    );
+  }
+
+  String _getErrorMessage(AuthException error) {
+    switch (error.statusCode) {
+      case '400':
+        if (error.message.contains('Invalid login credentials')) {
+          return 'Invalid email or password. Please try again.';
+        }
+        return 'Invalid request. Please check your input and try again.';
+      case '401':
+        return 'Unauthorized. Please check your credentials.';
+      case '422':
+        if (error.message.contains('Password should be at least 6 characters')) {
+          return 'Password should be at least 6 characters long.';
+        }
+        return 'Invalid input. Please check your details and try again.';
+      case '429':
+        return 'Too many requests. Please try again later.';
+      default:
+        return 'An unexpected error occurred. Please try again.';
+    }
+  }
+
   Future<void> login({
     required BuildContext context,
     required String email,
     required String password,
   }) async {
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Email and password cannot be empty.'),
-          backgroundColor: Colors.red,
-        ),
+      _showToast(
+        message: 'Email and password cannot be empty.',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
       );
       return;
     }
@@ -51,11 +86,10 @@ class AuthService {
       final response = await authClient.login(email, password);
 
       if (response.session != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login successful!'),
-            backgroundColor: Colors.green,
-          ),
+        _showToast(
+          message: 'Login successful!',
+          backgroundColor: const Color(0xFF00DF81),
+          textColor: Colors.white,
         );
 
         Navigator.pushReplacement(
@@ -63,19 +97,23 @@ class AuthService {
           MaterialPageRoute(builder: (context) => const LoadingPage()),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login failed. Please check your credentials.'),
-            backgroundColor: Colors.red,
-          ),
+        _showToast(
+          message: 'Login failed. Please check your credentials.',
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
         );
       }
+    } on AuthException catch (e) {
+      _showToast(
+        message: _getErrorMessage(e),
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Login failed: $e'),
-          backgroundColor: Colors.red,
-        ),
+      _showToast(
+        message: 'An unexpected error occurred. Please try again.',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
       );
     }
   }
@@ -89,23 +127,19 @@ class AuthService {
     required bool hasOneLetter,
   }) async {
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Email and password cannot be empty.'),
-          backgroundColor: Colors.red,
-        ),
+      _showToast(
+        message: 'Email and password cannot be empty.',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
       );
       return;
     }
 
     if (!hasEightChars || !hasOneDigit || !hasOneLetter) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Password must have at least 8 characters, one digit, and one letter.',
-          ),
-          backgroundColor: Colors.red,
-        ),
+      _showToast(
+        message: 'Password must have at least 8 characters, one digit, and one letter.',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
       );
       return;
     }
@@ -114,11 +148,10 @@ class AuthService {
       final response = await authClient.register(email, password);
 
       if (response.user != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Registration successful!'),
-            backgroundColor: Colors.green,
-          ),
+        _showToast(
+          message: 'Registration successful!',
+          backgroundColor: const Color(0xFF00DF81),
+          textColor: Colors.white,
         );
 
         Navigator.pushReplacement(
@@ -126,19 +159,31 @@ class AuthService {
           MaterialPageRoute(builder: (context) => const LoginPage()),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Registration failed.'),
-            backgroundColor: Colors.red,
-          ),
+        _showToast(
+          message: 'Registration failed. Please try again.',
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+      }
+    } on AuthException catch (e) {
+      if (e.statusCode == '422' && e.message.contains('already registered')) {
+        _showToast(
+          message: 'This email is already registered. Please use a different email or try logging in.',
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+      } else {
+        _showToast(
+          message: _getErrorMessage(e),
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Registration failed: $e'),
-          backgroundColor: Colors.red,
-        ),
+      _showToast(
+        message: 'An unexpected error occurred. Please try again.',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
       );
     }
   }
