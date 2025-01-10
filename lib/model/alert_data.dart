@@ -30,6 +30,7 @@ class AlertData {
   String toString() {
     return 'Location: $location\n'
         'Date: $date\n'
+        'Time: $time\n'
         'Elephant Count: $elephantCount\n'
         'Casualty: $casualtyOption\n'
         'Special Notes: $specialNote\n'
