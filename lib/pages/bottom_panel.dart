@@ -44,6 +44,18 @@ class _BottomPanelState extends State<BottomPanel> {
   @override
   void initState() {
     super.initState();
+    _elephantCountController.text = _selectedElephantCount.toString();
+
+    _elephantCountController.addListener(() {
+      final count = int.tryParse(_elephantCountController.text);
+      if (count != null) {
+        setState(() {
+          _selectedElephantCount = count;
+        });
+      }
+    });
+
+
     _locationController.text = '${widget.selectedLocation.latitude}, ${widget.selectedLocation.longitude}';
     _dateController.text = DateFormat('d MMMM').format(DateTime.now());
     _timeController.text = DateFormat('h:mm a').format(DateTime.now());
@@ -112,7 +124,7 @@ class _BottomPanelState extends State<BottomPanel> {
       _alertDataList.add(alertData);
     });
 
-    print('Stored Alert Data: ${_alertDataList.last}');
+    print('Stored Alert Data: ${_alertDataList.last}');// prints temporary data
   }
 
   @override
@@ -190,7 +202,7 @@ class _BottomPanelState extends State<BottomPanel> {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: List.generate(20, (index) {
-          final number = index == 19 ? '20+' : '${index + 1}';
+          final number = index == 19 ? '20' : '${index + 1}';
           final isSelected = _selectedElephantCount == (index == 19 ? 20 : index + 1);
           return Padding(
             padding: EdgeInsets.all(10),
@@ -199,6 +211,7 @@ class _BottomPanelState extends State<BottomPanel> {
                 setState(() {
                   _selectedElephantCount = index == 19 ? 20 : index + 1;
                   _elephantCountController.text = _selectedElephantCount.toString();
+                  print('Elephant Count updated: $_selectedElephantCount');  // Debug print
                 });
               },
               child: Container(
@@ -227,6 +240,7 @@ class _BottomPanelState extends State<BottomPanel> {
       ),
     );
   }
+
 
   Widget _buildTimeButtons() {
     return Row(
