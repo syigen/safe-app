@@ -12,6 +12,7 @@ import '../components/send_button.dart';
 import '../components/special_notes_section.dart';
 import '../styles/constants.dart';
 import '../model/alert_data.dart';
+import '../utils/size_config.dart';
 import '../widgets/image_picker_button.dart';
 import '../widgets/time_button.dart';
 
@@ -124,11 +125,14 @@ class _BottomPanelState extends State<BottomPanel> {
       _alertDataList.add(alertData);
     });
 
-    print('Stored Alert Data: ${_alertDataList.last}');// prints temporary data
+
   }
 
   @override
   Widget build(BuildContext context) {
+    // Initialize SizeConfig
+    SizeConfig().init(context);
+
     return NotificationListener<DraggableScrollableNotification>(
       onNotification: (notification) {
         setState(() {
@@ -138,14 +142,17 @@ class _BottomPanelState extends State<BottomPanel> {
       },
       child: DraggableScrollableSheet(
         controller: _draggableController,
-        initialChildSize: 0.35,
+        // Make initial size responsive based on screen height
+        initialChildSize: SizeConfig.screenHeight > 700 ? 0.4 : 0.35,
         minChildSize: 0.35,
         maxChildSize: 0.95,
         builder: (context, scrollController) {
           return Container(
             decoration: BoxDecoration(
               color: backgroundColor,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(SizeConfig.blockSizeHorizontal * 5), // Responsive radius
+              ),
             ),
             child: SingleChildScrollView(
               controller: scrollController,
@@ -156,6 +163,7 @@ class _BottomPanelState extends State<BottomPanel> {
       ),
     );
   }
+
 
   Widget _buildCollapsedView() {
     return Padding(
@@ -198,6 +206,8 @@ class _BottomPanelState extends State<BottomPanel> {
   }
 
   Widget _buildElephantCountSelector() {
+    final buttonSize = SizeConfig.blockSizeHorizontal * 12; // 12% of screen width
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -205,18 +215,17 @@ class _BottomPanelState extends State<BottomPanel> {
           final number = index == 19 ? '20' : '${index + 1}';
           final isSelected = _selectedElephantCount == (index == 19 ? 20 : index + 1);
           return Padding(
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.all(SizeConfig.blockSizeHorizontal * 2),
             child: GestureDetector(
               onTap: () {
                 setState(() {
                   _selectedElephantCount = index == 19 ? 20 : index + 1;
                   _elephantCountController.text = _selectedElephantCount.toString();
-                  print('Elephant Count updated: $_selectedElephantCount');  // Debug print
                 });
               },
               child: Container(
-                width: 50,
-                height: 50,
+                width: buttonSize,
+                height: buttonSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: isSelected ? primaryColor : Colors.transparent,
@@ -230,6 +239,7 @@ class _BottomPanelState extends State<BottomPanel> {
                     number,
                     style: TextStyle(
                       color: isSelected ? Colors.black : primaryColor,
+                      fontSize: SizeConfig.blockSizeHorizontal * 3.5,
                     ),
                   ),
                 ),
