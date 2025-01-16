@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:safe_app/pages/landing_page.dart';
+import 'package:safe_app/pages/home_page.dart';
 import 'package:safe_app/pages/login_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -35,7 +35,7 @@ class AuthService {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const LandingPage()),
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
