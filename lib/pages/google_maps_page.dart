@@ -9,6 +9,7 @@ import 'dart:ui' as ui;
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'bottom_panel.dart';
+import 'dart:math' as math;
 
 final selectedLocationProvider = StateProvider<LatLng?>((ref) => null);
 final addressProvider = StateProvider<String>((ref) => '');
@@ -34,21 +35,27 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
 
 
   Future<void> customMarker() async {
-    final ByteData data = await rootBundle.load('assets/map/pinpoint_logo.png');
-    final ui.Codec codec = await ui.instantiateImageCodec(
-      data.buffer.asUint8List(),
-      targetWidth: 100,
-      targetHeight: 100,
+    final data = await rootBundle.load('assets/map/pinpoint_logo.png');
+
+    // Calculate marker size based on screen width with a minimum size
+    double screenWidth = MediaQuery.of(context).size.width;
+    final markerSize = math.max(
+        80, // Minimum size in pixels
+        (screenWidth * 0.30).round() // 15% of screen width
     );
-    final ui.FrameInfo fi = await codec.getNextFrame();
-    final Uint8List resizedImageData = (await fi.image.toByteData(
+
+    final codec = await ui.instantiateImageCodec(
+      data.buffer.asUint8List(),
+      targetWidth: markerSize,
+      targetHeight: markerSize,
+    );
+    final fi = await codec.getNextFrame();
+    final resizedImageData = (await fi.image.toByteData(
       format: ui.ImageByteFormat.png,
     ))!.buffer.asUint8List();
 
-    final BitmapDescriptor resizedIcon = BitmapDescriptor.fromBytes(resizedImageData);
-
     setState(() {
-      customIcon = resizedIcon;
+      customIcon = BitmapDescriptor.fromBytes(resizedImageData);
     });
   }
 
