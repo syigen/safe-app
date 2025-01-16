@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:safe_app/pages/login_page.dart';
 
 // Landing Page
 class LandingPage extends StatelessWidget {
@@ -119,7 +120,11 @@ class BottomButton extends StatelessWidget {
         ),
         child: ElevatedButton(
           onPressed: () {
-            // Navigate to the login page screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const LoginPage()),
+            );
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF00DF81),
