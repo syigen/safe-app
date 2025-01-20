@@ -1,3 +1,8 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ *
+ */
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:safe_app/pages/loading_page.dart';

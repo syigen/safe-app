@@ -1,3 +1,8 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ *
+ */
+
 import 'package:flutter/material.dart';
 import 'package:safe_app/pages/registration_page.dart';
 import 'package:safe_app/auth/auth_service.dart';

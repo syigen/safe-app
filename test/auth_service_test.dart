@@ -1,3 +1,8 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ *
+ */
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:safe_app/auth/auth_service.dart';
