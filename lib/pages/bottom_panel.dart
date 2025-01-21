@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:safe_app/pages/success_alert_page.dart';
 import '../components/casualties_section.dart';
 import '../components/date_time_fields.dart';
 import '../components/elephant_count_field.dart';
@@ -20,7 +21,7 @@ class BottomPanel extends StatefulWidget {
   final String selectedAddress;
   final LatLng selectedLocation;
 
-  BottomPanel(this.selectedAddress, this.selectedLocation);
+  BottomPanel(this.selectedAddress, this.selectedLocation );
 
   @override
   _BottomPanelState createState() => _BottomPanelState();
@@ -124,7 +125,7 @@ class _BottomPanelState extends State<BottomPanel> {
     setState(() {
       _alertDataList.add(alertData);
     });
-
+    print(alertData);
 
   }
 
@@ -140,6 +141,7 @@ class _BottomPanelState extends State<BottomPanel> {
         });
         return true;
       },
+
       child: DraggableScrollableSheet(
         controller: _draggableController,
         // Make initial size responsive based on screen height
@@ -325,6 +327,20 @@ class _BottomPanelState extends State<BottomPanel> {
               print('Elephant Count before validation: $_selectedElephantCount'); // Debug print
               if (_validateForm()) {
                 _storeAlertData();
+
+                // Navigate to SuccessAlertPage
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SuccessAlertPage(
+                      alertId: '12345', // Replace with actual alert ID
+                      onClose: () {
+                        Navigator.popUntil(context, (route) => route.isFirst);
+                      },
+                    ),
+                  ),
+                );
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Alert data stored successfully!'),
@@ -336,6 +352,7 @@ class _BottomPanelState extends State<BottomPanel> {
               }
             },
           ),
+
           SizedBox(height: 24),
         ],
       ),

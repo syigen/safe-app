@@ -26,22 +26,25 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
   late LatLng currentLocation;
   bool showCustomWindow = false;
   LatLng? selectedLocation;
+  bool _isBottomPanelExpanded = false;
+  double _bottomSheetExtent = 0.35;
 
   @override
   void initState() {
-    customMarker();
     super.initState();
+    customMarker();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(locationProvider.notifier).getCurrentLocation();
+    });
   }
-
 
   Future<void> customMarker() async {
     final data = await rootBundle.load('assets/map/pinpoint_logo.png');
 
-    // Calculate marker size based on screen width with a minimum size
     double screenWidth = MediaQuery.of(context).size.width;
     final markerSize = math.max(
-        80, // Minimum size in pixels
-        (screenWidth * 0.30).round() // 15% of screen width
+        80,
+        (screenWidth * 0.30).round()
     );
 
     final codec = await ui.instantiateImageCodec(
@@ -71,7 +74,7 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
 
       setState(() {
         if (isCurrentLocation) {
-          selectedLocation = position; // Update selectedLocation for current location
+          selectedLocation = position;
         } else {
           selectedLocation = position;
         }
@@ -81,7 +84,6 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
       print("Error getting address: $e");
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -144,6 +146,39 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
               _controller.animateCamera(CameraUpdate.newLatLngZoom(position, 15));
             },
           ),
+
+          Positioned(
+            right: 16,
+            top: 80,
+            child: FloatingActionButton(
+              onPressed: () async {
+                final locationData = ref.read(locationProvider);
+
+                if (locationData != null) {
+                  final LatLng newCurrentLocation = LatLng(locationData.latitude!, locationData.longitude!);
+
+                  setState(() {
+                    visibleMarkerId = 'current_location';
+                    currentLocation = newCurrentLocation;
+                    selectedLocation = currentLocation;
+                    showCustomWindow = true;
+                  });
+
+                  await getAddressFromCoordinates(currentLocation, true);
+
+                  _controller.animateCamera(
+                    CameraUpdate.newLatLngZoom(
+                      currentLocation,
+                      15,
+                    ),
+                  );
+                }
+              },
+              backgroundColor: Color(0xFF021B1A),
+              child: Icon(Icons.my_location, color: Colors.white),
+            ),
+          ),
+
           if (showCustomWindow)
             Positioned(
               top: MediaQuery.of(context).size.height * 0.4,
@@ -195,48 +230,20 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
                 ),
               ),
             ),
-          BottomPanel(
-            currentAddress,
-            selectedLocation ?? currentLocation,
-          ),
 
-
-          Positioned(
-            right: 16,
-            top: 80,
-            child: FloatingActionButton(
-              onPressed: () async {
-                final locationData = ref.read(locationProvider);
-
-                if (locationData != null) {
-                  final LatLng newCurrentLocation = LatLng(locationData.latitude!, locationData.longitude!);
-
-                  setState(() {
-                    visibleMarkerId = 'current_location';
-                    currentLocation = newCurrentLocation; // Re-fetch the current location
-                    selectedLocation = currentLocation; // Update selectedLocation
-                    showCustomWindow = true;
-                  });
-
-                  // Fetch address for the updated current location
-                  await getAddressFromCoordinates(currentLocation, true);
-
-                  // Animate camera to the new current location
-                  _controller.animateCamera(
-                    CameraUpdate.newLatLngZoom(
-                      currentLocation,
-                      15,
-                    ),
-                  );
-                }
-              },
-
-
-              backgroundColor: Color(0xFF021B1A),
-              child: Icon(Icons.my_location, color: Colors.white),
+          // BottomPanel moved to last position in Stack
+          NotificationListener<DraggableScrollableNotification>(
+            onNotification: (notification) {
+              setState(() {
+                _bottomSheetExtent = notification.extent;
+              });
+              return true;
+            },
+            child: BottomPanel(
+              currentAddress,
+              selectedLocation ?? currentLocation,
             ),
           ),
-
         ],
       ),
     );
