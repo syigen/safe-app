@@ -8,30 +8,38 @@ final locationProvider = StateNotifierProvider<LocationNotifier, LocationData?>(
 
 class LocationNotifier extends StateNotifier<LocationData?> {
   LocationNotifier() : super(null) {
-    _getCurrentLocation();
+    getCurrentLocation();
   }
 
   final Location _location = Location();
 
-  // Get the current location and update the state
-  Future<void> _getCurrentLocation() async {
+  Future<void> getCurrentLocation() async {
     try {
+      // Ensure location services are enabled
       bool serviceEnabled = await _location.serviceEnabled();
       if (!serviceEnabled) {
         serviceEnabled = await _location.requestService();
-        if (!serviceEnabled) return;
+        if (!serviceEnabled) {
+          throw Exception("Location services are disabled.");
+        }
       }
 
+      // Ensure permissions are granted
       PermissionStatus permissionGranted = await _location.hasPermission();
       if (permissionGranted == PermissionStatus.denied) {
         permissionGranted = await _location.requestPermission();
-        if (permissionGranted != PermissionStatus.granted) return;
+        if (permissionGranted != PermissionStatus.granted) {
+          throw Exception("Location permission not granted.");
+        }
       }
 
+      // Fetch the current location
       final currentLocation = await _location.getLocation();
       state = currentLocation;
     } catch (e) {
       print('Error getting location: $e');
+      // Retry after 2 seconds if an error occurs
+      Future.delayed(Duration(seconds: 2), getCurrentLocation);
     }
   }
 
