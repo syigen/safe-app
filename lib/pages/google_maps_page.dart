@@ -28,6 +28,7 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
   LatLng? selectedLocation;
   bool _isBottomPanelExpanded = false;
   double _bottomSheetExtent = 0.35;
+  Offset? customInfoWindowOffset;
 
   @override
   void initState() {
@@ -40,12 +41,8 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
 
   Future<void> customMarker() async {
     final data = await rootBundle.load('assets/map/pinpoint_logo.png');
-
     double screenWidth = MediaQuery.of(context).size.width;
-    final markerSize = math.max(
-        80,
-        (screenWidth * 0.30).round()
-    );
+    final markerSize = math.max(80, (screenWidth * 0.30).round());
 
     final codec = await ui.instantiateImageCodec(
       data.buffer.asUint8List(),
@@ -60,6 +57,22 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
     setState(() {
       customIcon = BitmapDescriptor.fromBytes(resizedImageData);
     });
+  }
+
+  Future<void> updateCustomInfoWindowPosition() async {
+    if (selectedLocation != null) {
+      final screenPosition = await _controller.getScreenCoordinate(
+        selectedLocation!,
+      );
+      final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+
+      setState(() {
+        customInfoWindowOffset = Offset(
+          screenPosition.x / devicePixelRatio,
+          screenPosition.y / devicePixelRatio,
+        );
+      });
+    }
   }
 
   Future<void> getAddressFromCoordinates(LatLng position, bool isCurrentLocation) async {
@@ -80,6 +93,8 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
         }
         showCustomWindow = true;
       });
+
+      await updateCustomInfoWindowPosition();
     } catch (e) {
       print("Error getting address: $e");
     }
@@ -117,6 +132,11 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
               _controller = controller;
               _controller.setMapStyle(mapStyle);
             },
+            onCameraMove: (position) {
+              if (showCustomWindow) {
+                updateCustomInfoWindowPosition();
+              }
+            },
             markers: {
               Marker(
                 markerId: MarkerId('current_location'),
@@ -147,42 +167,12 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
             },
           ),
 
-          Positioned(
-            right: 16,
-            top: 80,
-            child: FloatingActionButton(
-              onPressed: () async {
-                final locationData = ref.read(locationProvider);
-
-                if (locationData != null) {
-                  final LatLng newCurrentLocation = LatLng(locationData.latitude!, locationData.longitude!);
-
-                  setState(() {
-                    visibleMarkerId = 'current_location';
-                    currentLocation = newCurrentLocation;
-                    selectedLocation = currentLocation;
-                    showCustomWindow = true;
-                  });
-
-                  await getAddressFromCoordinates(currentLocation, true);
-
-                  _controller.animateCamera(
-                    CameraUpdate.newLatLngZoom(
-                      currentLocation,
-                      15,
-                    ),
-                  );
-                }
-              },
-              backgroundColor: Color(0xFF021B1A),
-              child: Icon(Icons.my_location, color: Colors.white),
-            ),
-          ),
-
-          if (showCustomWindow)
+          // Custom Info Window
+          if (showCustomWindow && customInfoWindowOffset != null)
             Positioned(
-              top: MediaQuery.of(context).size.height * 0.4,
-              left: MediaQuery.of(context).size.width * 0.2,
+              left: customInfoWindowOffset!.dx -
+                  (MediaQuery.of(context).size.width * 0.3) / 2,
+              top: customInfoWindowOffset!.dy - 80,
               child: Container(
                 constraints: BoxConstraints(
                   maxWidth: MediaQuery.of(context).size.width * 0.6,
@@ -231,7 +221,40 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
               ),
             ),
 
-          // BottomPanel moved to last position in Stack
+          // Floating Action Button
+          Positioned(
+            right: 16,
+            top: 80,
+            child: FloatingActionButton(
+              onPressed: () async {
+                final locationData = ref.read(locationProvider);
+
+                if (locationData != null) {
+                  final LatLng newCurrentLocation = LatLng(locationData.latitude!, locationData.longitude!);
+
+                  setState(() {
+                    visibleMarkerId = 'current_location';
+                    currentLocation = newCurrentLocation;
+                    selectedLocation = currentLocation;
+                    showCustomWindow = true;
+                  });
+
+                  await getAddressFromCoordinates(currentLocation, true);
+
+                  _controller.animateCamera(
+                    CameraUpdate.newLatLngZoom(
+                      currentLocation,
+                      15,
+                    ),
+                  );
+                }
+              },
+              backgroundColor: Color(0xFF021B1A),
+              child: Icon(Icons.my_location, color: Colors.white),
+            ),
+          ),
+
+          // BottomPanel
           NotificationListener<DraggableScrollableNotification>(
             onNotification: (notification) {
               setState(() {
