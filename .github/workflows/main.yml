@@ -1,0 +1,117 @@
+name: Safe App Build and Release
+
+on:
+  push:
+    branches:
+      - features/add-github-actions
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+
+      - v[0-9]+.[0-9]+.[0-9]+-alpha*
+      - v[0-9]+.[0-9]+.[0-9]+-beta*
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set build mode
+        run: |
+          BUILD_MODE='debug'
+          if [[ "${GITHUB_REF}" =~ ^refs\/tags\/v* ]]; then
+              BUILD_MODE='release'
+          fi
+
+          echo "Build mode: ${BUILD_MODE}"
+          echo "BUILD_MODE=${BUILD_MODE}" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21.x'
+          distribution: 'temurin'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.2'
+
+      - run: flutter pub get
+
+      - name: Load environment variables
+        run: |
+          echo "SUPABASE_URL=${SUPABASE_URL}" > .env
+          echo "SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}" >> .env
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+      - name: Generate Android key store file
+        if: ${{ env.BUILD_MODE == 'release' }}
+        run: echo "${SIGNING_KEY}" | openssl base64 -d -out key.jks
+        working-directory: ${{ github.workspace }}/android
+        env:
+          SIGNING_KEY: ${{ secrets.AndroidSigningKeyBase64 }}
+
+      - name: Generate Android key.properties file
+        if: ${{ env.BUILD_MODE == 'release' }}
+        run: |
+          echo "storePassword=${STORE_PASSWORD}" >> key.properties
+          echo "keyPassword=${KEY_PASSWORD}" >> key.properties
+          echo "keyAlias=key" >> key.properties
+          echo "storeFile=../key.jks" >> key.properties
+        working-directory: ${{ github.workspace }}/android
+        env:
+          STORE_PASSWORD: ${{ secrets.AndroidStorePassword }}
+          KEY_PASSWORD: ${{ secrets.AndroidKeyPassword }}
+
+      - name: Build Android packages
+        run: flutter build apk "--${BUILD_MODE}" --target-platform android-arm,android-arm64,android-x64 --split-per-abi
+
+      - name: Upload Android release artifacts
+        if: ${{ env.BUILD_MODE == 'release' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: android_release
+          path: build/app/outputs/apk/release/*.apk
+
+      - name: Upload Android debug artifacts
+        if: ${{ env.BUILD_MODE == 'debug' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: android_debug
+          path: build/app/outputs/apk/debug/*.apk
+
+      - name: Upload iOS artifacts
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios_artifacts
+          path: build/ios/ipa
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    if: success() && startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Generate version string
+        run: echo "VERSION_STR=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Download Android release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: android_release
+          path: ./android_release
+
+      - name: List downloaded APKs
+        run: ls -R ./android_release
+
+      - name: Upload APKs to GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          artifacts: |
+            ./android_release/*.apk
+          name: Release ${{ env.VERSION_STR }}
+          prerelease: ${{ contains(github.ref, '-alpha') || contains(github.ref, '-beta') }}
+          tag: ${{ env.VERSION_STR }}
+          token: ${{ secrets.GITHUB_TOKEN }}
