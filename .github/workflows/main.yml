@@ -103,13 +103,20 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: android_release
+          path: ./android_release
 
-      - uses: ncipollo/release-action@v1
+      - name: Extract APK files
+        run: unzip -o ./android_release/android_release.zip -d ./android_release
+
+      - name: List extracted APKs
+        run: ls -R ./android_release
+
+      - name: Upload APKs to GitHub Release
+        uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
           artifacts: |
             android_release/*.apk
-            ios_artifacts/*.ipa
           name: Release ${{ env.VERSION_STR }}
           prerelease: ${{ contains(github.ref, '-alpha') || contains(github.ref, '-beta') }}
           tag: ${{ env.VERSION_STR }}
