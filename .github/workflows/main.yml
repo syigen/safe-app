@@ -67,30 +67,26 @@ jobs:
       - name: Build Android packages
         run: flutter build apk "--${BUILD_MODE}" --target-platform android-arm,android-arm64,android-x64 --split-per-abi
 
-      - name: Build iOS packages
-        if: runner.os == 'macOS'
-        run: flutter build ios --${BUILD_MODE}
-
       - name: Upload Android release artifacts
         if: ${{ env.BUILD_MODE == 'release' }}
         uses: actions/upload-artifact@v4
         with:
           name: android_release
-          path: "build/app/outputs/apk/release"
+          path: build/app/outputs/apk/release/*.apk
 
       - name: Upload Android debug artifacts
         if: ${{ env.BUILD_MODE == 'debug' }}
         uses: actions/upload-artifact@v4
         with:
           name: android_debug
-          path: "build/app/outputs/apk/debug"
+          path: build/app/outputs/apk/debug/*.apk
 
       - name: Upload iOS artifacts
         if: runner.os == 'macOS'
         uses: actions/upload-artifact@v4
         with:
           name: ios_artifacts
-          path: "build/ios/ipa"
+          path: build/ios/ipa
 
   release:
     runs-on: ubuntu-latest
@@ -100,15 +96,13 @@ jobs:
       - name: Generate version string
         run: echo "VERSION_STR=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
-      - uses: actions/download-artifact@v4
+      - name: Download Android release artifacts
+        uses: actions/download-artifact@v4
         with:
           name: android_release
           path: ./android_release
 
-      - name: Extract APK files
-        run: unzip -o ./android_release/android_release.zip -d ./android_release
-
-      - name: List extracted APKs
+      - name: List downloaded APKs
         run: ls -R ./android_release
 
       - name: Upload APKs to GitHub Release
@@ -116,7 +110,7 @@ jobs:
         with:
           allowUpdates: true
           artifacts: |
-            android_release/*.apk
+            ./android_release/*.apk
           name: Release ${{ env.VERSION_STR }}
           prerelease: ${{ contains(github.ref, '-alpha') || contains(github.ref, '-beta') }}
           tag: ${{ env.VERSION_STR }}
