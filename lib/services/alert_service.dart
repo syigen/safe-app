@@ -24,6 +24,7 @@ class AlertService {
         }
       }
 
+      // Convert DistanceRange to a string
       final response = await supabase.from('alert').insert({
         'location': alertData.location,
         'date': alertData.date,
@@ -32,6 +33,7 @@ class AlertService {
         'special_note': alertData.specialNote,
         'image_url': imageUrl,
         'time_button_value': alertData.timeButtonValue,
+        'distance_range': alertData.distanceRange.name, // Convert enum to string
       }).select();
 
       if (response != null && response.isNotEmpty) {
@@ -71,3 +73,4 @@ class AlertService {
     );
   }
 }
+
