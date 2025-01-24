@@ -1,5 +1,7 @@
 import 'dart:io';
 
+enum DistanceRange { m100, m200, m500, m1000 }
+
 class AlertData {
   final String location;
   final String date;
@@ -8,6 +10,7 @@ class AlertData {
   final String specialNote;
   final File? image;
   final String timeButtonValue;
+  final DistanceRange distanceRange;
 
   AlertData({
     required this.location,
@@ -17,6 +20,8 @@ class AlertData {
     required this.specialNote,
     this.image,
     required this.timeButtonValue,
+    required this.distanceRange,
+
   });
 
   @override
@@ -27,6 +32,11 @@ class AlertData {
         'Casualty: $casualtyOption\n'
         'Special Notes: $specialNote\n'
         'Image: ${image != null ? 'Image Selected at ${image!.path}' : 'No Image'}\n'
-        'Time Button Value: $timeButtonValue';
+        'Time Button Value: $timeButtonValue\n'
+        'Distance Range: ${distanceRange.name}';
+
+
+
+
   }
 }
