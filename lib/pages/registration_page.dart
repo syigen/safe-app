@@ -4,9 +4,11 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import '../widgets/social_login_button.dart';
 import 'login_page.dart';
 import 'package:safe_app/auth/auth_service.dart';
+import '../services/validation_service.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
@@ -22,9 +24,20 @@ class RegistrationPageState extends State<RegistrationPage> {
   final TextEditingController passwordController = TextEditingController();
   final AuthService _authService = AuthService(authClient: SupabaseAuthClient());
 
-  bool get hasEightChars => _password.length >= 8;
-  bool get hasOneDigit => _password.contains(RegExp(r'[0-9]'));
-  bool get hasOneLetter => _password.contains(RegExp(r'[a-zA-Z]'));
+  void _showToast({
+    required String message,
+    required Color backgroundColor,
+    required Color textColor,
+  }) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.TOP,
+      backgroundColor: backgroundColor,
+      textColor: textColor,
+      fontSize: 16.0,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -144,15 +157,13 @@ class RegistrationPageState extends State<RegistrationPage> {
                 ),
               ),
               const SizedBox(height: 8),
-
-              // Password Validation Indicators
               Row(
                 children: [
                   Expanded(
                     child: Container(
                       height: 3,
                       decoration: BoxDecoration(
-                        color: hasEightChars
+                        color: ValidationService.hasEightChars(_password)
                             ? const Color(0xFF00FF9D)
                             : Colors.grey,
                         borderRadius: BorderRadius.circular(2),
@@ -164,7 +175,9 @@ class RegistrationPageState extends State<RegistrationPage> {
                     child: Container(
                       height: 3,
                       decoration: BoxDecoration(
-                        color: hasOneDigit ? const Color(0xFF00FF9D) : Colors.grey,
+                        color: ValidationService.hasOneDigit(_password)
+                            ? const Color(0xFF00FF9D)
+                            : Colors.grey,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -174,7 +187,7 @@ class RegistrationPageState extends State<RegistrationPage> {
                     child: Container(
                       height: 3,
                       decoration: BoxDecoration(
-                        color: hasOneLetter
+                        color: ValidationService.hasOneLetter(_password)
                             ? const Color(0xFF00FF9D)
                             : Colors.grey,
                         borderRadius: BorderRadius.circular(2),
@@ -184,23 +197,49 @@ class RegistrationPageState extends State<RegistrationPage> {
                 ],
               ),
               const SizedBox(height: 16),
-              _validationItem('Has at least 8 characters?', hasEightChars),
+              _validationItem(
+                  'Has at least 8 characters?',
+                  ValidationService.hasEightChars(_password)),
               const SizedBox(height: 8),
-              _validationItem('Has one digit?', hasOneDigit),
+              _validationItem(
+                  'Has one digit?', ValidationService.hasOneDigit(_password)),
               const SizedBox(height: 8),
-              _validationItem('Has one letter?', hasOneLetter),
+              _validationItem(
+                  'Has one letter?', ValidationService.hasOneLetter(_password)),
               const SizedBox(height: 24),
 
-              // Register Button
               ElevatedButton(
                 onPressed: () {
+                  final email = emailController.text.trim();
+                  final password = passwordController.text.trim();
+
+                  if (!ValidationService.isValidEmail(email)) {
+                    _showToast(
+                      message: 'Invalid email address. Please enter a valid email.',
+                      backgroundColor: Colors.red,
+                      textColor: Colors.white,
+                    );
+                    return;
+                  }
+
+                  if (!ValidationService.hasEightChars(password) ||
+                      !ValidationService.hasOneDigit(password) ||
+                      !ValidationService.hasOneLetter(password)) {
+                    _showToast(
+                      message: 'Password must have at least 8 characters, one digit, and one letter.',
+                      backgroundColor: Colors.red,
+                      textColor: Colors.white,
+                    );
+                    return;
+                  }
+
                   _authService.register(
                     context: context,
-                    email: emailController.text.trim(),
-                    password: passwordController.text.trim(),
-                    hasEightChars: hasEightChars,
-                    hasOneDigit: hasOneDigit,
-                    hasOneLetter: hasOneLetter,
+                    email: email,
+                    password: password,
+                    hasEightChars: ValidationService.hasEightChars(password),
+                    hasOneDigit: ValidationService.hasOneDigit(password),
+                    hasOneLetter: ValidationService.hasOneLetter(password),
                   );
                 },
                 style: ElevatedButton.styleFrom(
