@@ -3,7 +3,8 @@ name: Safe App Build and Release
 on:
   push:
     branches:
-      - features/add-github-actions
+      - main
+      - features/*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+
       - v[0-9]+.[0-9]+.[0-9]+-alpha*
