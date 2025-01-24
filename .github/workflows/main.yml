@@ -52,6 +52,16 @@ jobs:
         env:
           SIGNING_KEY: ${{ secrets.AndroidSigningKeyBase64 }}
 
+      - name: Verify key.jks file
+        if: ${{ env.BUILD_MODE == 'release' }}
+        run: |
+          if [ -f key.jks ]; then
+            echo "key.jks file generated successfully."
+          else
+            echo "key.jks file is missing!" && exit 1
+          fi
+        working-directory: ${{ github.workspace }}/android
+
       - name: Generate Android key.properties file
         if: ${{ env.BUILD_MODE == 'release' }}
         run: |
@@ -64,8 +74,29 @@ jobs:
           STORE_PASSWORD: ${{ secrets.AndroidStorePassword }}
           KEY_PASSWORD: ${{ secrets.AndroidKeyPassword }}
 
+      - name: Verify key.properties file
+        if: ${{ env.BUILD_MODE == 'release' }}
+        run: |
+          if [ -f key.properties ]; then
+            echo "key.properties file generated successfully."
+          else
+            echo "key.properties file is missing!" && exit 1
+          fi
+        working-directory: ${{ github.workspace }}/android
+
       - name: Build Android packages
         run: flutter build apk "--${BUILD_MODE}" --target-platform android-arm,android-arm64,android-x64 --split-per-abi
+
+      - name: Verify APK signature
+        if: ${{ env.BUILD_MODE == 'release' }}
+        run: |
+          for apk in build/app/outputs/apk/release/*.apk; do
+            jarsigner -verify -verbose -certs $apk || exit 1
+          done
+
+      - name: List APKs in release folder
+        if: ${{ env.BUILD_MODE == 'release' }}
+        run: ls -R build/app/outputs/apk/release/
 
       - name: Upload Android release artifacts
         if: ${{ env.BUILD_MODE == 'release' }}
@@ -80,13 +111,6 @@ jobs:
         with:
           name: android_debug
           path: build/app/outputs/apk/debug/*.apk
-
-      - name: Upload iOS artifacts
-        if: runner.os == 'macOS'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios_artifacts
-          path: build/ios/ipa
 
   release:
     runs-on: ubuntu-latest
