@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 
-class TimeButton extends StatelessWidget {
+class DistanceButton extends StatelessWidget {
   final String text;
   final bool isSelected;
   final VoidCallback onPressed;
   final double fontSize;
   final double buttonHeight;
 
-  const TimeButton({
+  const DistanceButton({
     required this.text,
     required this.isSelected,
     required this.onPressed,
     required this.fontSize,
     required this.buttonHeight,
-  });
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +35,7 @@ class TimeButton extends StatelessWidget {
             ),
           ),
           padding: MaterialStateProperty.all(
-            EdgeInsets.symmetric(vertical: buttonHeight * 0.2), // Adjust button height
+            EdgeInsets.symmetric(vertical: buttonHeight * 0.2), // Adjust height
           ),
         ),
         child: Text(

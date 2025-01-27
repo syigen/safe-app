@@ -13,8 +13,8 @@ class SendButton extends StatelessWidget {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: primaryColor, // Ensure primaryColor is defined in the relevant scope
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        minimumSize: Size(double.infinity, 48),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        minimumSize: Size(double.infinity, 50),
       ),
       child: Text(
         'Send Alert',

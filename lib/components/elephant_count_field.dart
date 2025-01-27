@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/size_config.dart';
+
 class ElephantCountField extends StatelessWidget {
   final TextEditingController elephantCountController;
   final Color primaryColor;
@@ -14,7 +16,7 @@ class ElephantCountField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('No. of elephants', style: TextStyle(color: Colors.white, fontSize: 16)),
+        Text('No. of elephants', style: TextStyle(color: Colors.white, fontSize:SizeConfig.blockSizeHorizontal * 3.5)),
         TextField(
           controller: elephantCountController,
           style: TextStyle(color: Colors.white),
