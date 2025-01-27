@@ -18,15 +18,7 @@ class ImageSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ImagePickerButton(onPressed: onPressed),
-        if (selectedImage != null) ...[
-          SizedBox(height: 16),
-          Image.file(
-            selectedImage!,
-            height: 50,
-            width: double.infinity,
-            fit: BoxFit.cover,
-          ),
-        ],
+
       ],
     );
   }

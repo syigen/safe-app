@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/size_config.dart';
+
 class CasualtiesSection extends StatelessWidget {
   final String selectedCasualtyOption;
   final ValueChanged<String?>? onCasualtyOptionChanged;
@@ -16,7 +18,7 @@ class CasualtiesSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Casualties', style: TextStyle(color: Colors.white, fontSize: 16)),
+        Text('Casualties', style: TextStyle(color: Colors.white, fontSize:SizeConfig.blockSizeHorizontal * 3.5)),
         Row(
           children: [
             Radio<String?>(
