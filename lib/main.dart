@@ -1,13 +1,13 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
  */
 
 import 'package:flutter/material.dart';
+import 'package:safe_app/pages/home_page.dart';
 import 'package:safe_app/pages/landing_page.dart';
 import 'package:safe_app/pages/loading_page.dart';
 import 'package:safe_app/pages/login_page.dart';
-import 'package:safe_app/pages/registration_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -37,7 +37,46 @@ class SafeApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Safe App',
       theme: ThemeData.dark(),
-      home: const LandingPage(),
+      home: const AuthChecker(),
     );
+  }
+}
+
+class AuthChecker extends StatefulWidget {
+  const AuthChecker({super.key});
+
+  @override
+  State<AuthChecker> createState() => _AuthCheckerState();
+}
+
+class _AuthCheckerState extends State<AuthChecker> {
+  bool _isLoading = true;
+  bool _isLoggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    setState(() {
+      _isLoggedIn = isLoggedIn;
+      _isLoading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return _isLoggedIn ? const HomeScreen() : const LandingPage();
   }
 }

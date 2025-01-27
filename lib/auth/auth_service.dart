@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:safe_app/pages/loading_page.dart';
 import 'package:safe_app/pages/login_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract class AuthClient {
@@ -62,7 +63,8 @@ class AuthService {
       case '401':
         return 'Unauthorized. Please check your credentials.';
       case '422':
-        if (error.message.contains('Password should be at least 6 characters')) {
+        if (error.message
+            .contains('Password should be at least 6 characters')) {
           return 'Password should be at least 6 characters long.';
         }
         return 'Invalid input. Please check your details and try again.';
@@ -91,6 +93,10 @@ class AuthService {
       final response = await authClient.login(email, password);
 
       if (response.session != null) {
+        // Save login status locally
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+
         _showToast(
           message: 'Login successful!',
           backgroundColor: const Color(0xFF00DF81),
@@ -123,6 +129,16 @@ class AuthService {
     }
   }
 
+  Future<void> logout(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('isLoggedIn');
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+    );
+  }
+
   Future<void> register({
     required BuildContext context,
     required String email,
@@ -142,7 +158,8 @@ class AuthService {
 
     if (!hasEightChars || !hasOneDigit || !hasOneLetter) {
       _showToast(
-        message: 'Password must have at least 8 characters, one digit, and one letter.',
+        message:
+        'Password must have at least 8 characters, one digit, and one letter.',
         backgroundColor: Colors.red,
         textColor: Colors.white,
       );
@@ -173,7 +190,8 @@ class AuthService {
     } on AuthException catch (e) {
       if (e.statusCode == '422' && e.message.contains('already registered')) {
         _showToast(
-          message: 'This email is already registered. Please use a different email or try logging in.',
+          message:
+          'This email is already registered. Please use a different email or try logging in.',
           backgroundColor: Colors.red,
           textColor: Colors.white,
         );
