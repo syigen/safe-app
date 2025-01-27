@@ -1,8 +1,12 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ *
+ */
+
 import 'package:flutter/material.dart';
 import '../utils/size_config.dart';
 import '../widgets/distance_button.dart';
-import '../styles/constants.dart'; // Assuming you need this for styling
-import '../model/alert_data.dart'; // Import the alert_data file to access DistanceRange enum
+import '../model/alert_data.dart';
 
 class DistanceButtons extends StatelessWidget {
   final DistanceRange selectedDistanceRange;
