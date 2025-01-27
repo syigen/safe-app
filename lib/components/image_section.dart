@@ -1,5 +1,10 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ *
+ */
+
 import 'package:flutter/material.dart';
-import 'dart:io';  // Import for Image.file
+import 'dart:io';
 import '../widgets/image_picker_button.dart';
 
 class ImageSection extends StatelessWidget {

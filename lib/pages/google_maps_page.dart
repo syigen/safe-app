@@ -1,7 +1,13 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ *
+ */
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:safe_app/pages/loading_page.dart';
 import 'package:safe_app/widgets/animated_slide_up.dart';
 import '../providers/location_provider.dart';
 import '../providers/marker_provider.dart';
@@ -109,7 +115,7 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
 
     if (locationData == null) {
       return Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(child: LoadingPage()),
       );
     }
 
@@ -254,12 +260,12 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
               child: Icon(Icons.my_location, color: Colors.white),
             ),
           ),
-          // Add AnimatedSlideUp above BottomPanel
+          //  AnimatedSlideUp
           Positioned(
             left: 0,
             right: 0,
-            bottom: _bottomSheetExtent * MediaQuery.of(context).size.height, // Responsive positioning
-            child: AnimatedSlideUp(),  // The AnimatedSlideUp widget
+            bottom: _bottomSheetExtent * MediaQuery.of(context).size.height,
+            child: AnimatedSlideUp(),
           ),
 
 

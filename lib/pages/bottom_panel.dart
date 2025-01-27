@@ -1,22 +1,16 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ *
+ */
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:safe_app/pages/success_alert_page.dart';
-import '../components/casualties_section.dart';
 import '../components/collapsed_view.dart';
-import '../components/date_field.dart';
-import '../components/distance_buttons.dart';
-import '../components/elephant_count_field.dart';
-import '../components/elephant_count_selector.dart';
 import '../components/expanded_view.dart';
-import '../components/image_section.dart';
-import '../components/location_field.dart';
-import '../components/send_button.dart';
-import '../components/special_notes_section.dart';
-import '../components/time_buttons.dart';
-import '../components/time_field.dart';
 import '../styles/constants.dart';
 import '../model/alert_data.dart';
 import '../utils/size_config.dart';
@@ -147,16 +141,16 @@ class _BottomPanelState extends State<BottomPanel> {
       child: DraggableScrollableSheet(
         controller: _draggableController,
         initialChildSize: SizeConfig.screenHeight < 600
-            ? 0.3 // Smaller screens will start with a smaller size
-            : 0.4, // Larger screens get a larger initial size
-        minChildSize: SizeConfig.screenHeight < 600 ? 0.4 : 0.4, // Adjust minimum size for smaller screens
-        maxChildSize: 0.96, // Keep max size consistent
+            ? 0.3
+            : 0.4,
+        minChildSize: SizeConfig.screenHeight < 600 ? 0.4 : 0.4,
+        maxChildSize: 0.96,
         builder: (context, scrollController) {
           return Container(
             decoration: BoxDecoration(
               color: backgroundColor,
               borderRadius: BorderRadius.vertical(
-                top: Radius.circular(SizeConfig.blockSizeHorizontal * 5), // Responsive radius
+                top: Radius.circular(SizeConfig.blockSizeHorizontal * 5),
               ),
             ),
             child: SingleChildScrollView(
@@ -198,7 +192,6 @@ class _BottomPanelState extends State<BottomPanel> {
       _selectedDistanceRange = value;
     });
   }
-
   void _updateTimeButton(String value) {
     setState(() {
       _selectedTimeButtonValue = value;
@@ -218,14 +211,14 @@ class _BottomPanelState extends State<BottomPanel> {
       _specialNote = '';
       _selectedTimeButtonValue = 'Now';
       _selectedImage = null;
-      _selectedDistanceRange = DistanceRange.m100; // Reset to default range
+      _selectedDistanceRange = DistanceRange.m100;
 
       _locationController.text =
       '${widget.selectedLocation.longitude}, ${widget.selectedLocation.latitude}';
       _dateController.text = DateFormat('d MMMM').format(DateTime.now());
       _timeController.text = DateFormat('h:mm a').format(DateTime.now());
       _elephantCountController.text = _selectedElephantCount.toString();
-      _specialNotesController.clear(); // Clear special notes field
+      _specialNotesController.clear();
     });
   }
 
@@ -246,7 +239,7 @@ class _BottomPanelState extends State<BottomPanel> {
       onTimeButtonChanged: _updateTimeButton,
       onCasualtyOptionChanged: _updateCasualtyOption,
       selectedDistanceRange: _selectedDistanceRange,
-      header: _buildHeader(), // Pass the header widget here
+      header: _buildHeader(),
     );
   }
 

@@ -1,3 +1,8 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ *
+ */
+
 import 'dart:io';
 
 enum DistanceRange { m100, m200, m500, m1000 }
