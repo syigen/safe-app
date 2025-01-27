@@ -1,7 +1,9 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ *
+ */
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:safe_app/widgets/time_button.dart';
 import '../components/casualties_section.dart';
 import '../components/date_field.dart';
 import '../components/distance_buttons.dart';
@@ -14,7 +16,6 @@ import '../components/time_field.dart';
 import '../model/alert_data.dart';
 import '../styles/constants.dart';
 import '../utils/size_config.dart';
-import '../pages/success_alert_page.dart';
 import 'package:safe_app/components/time_buttons.dart';
 
 class ExpandedView extends StatelessWidget {

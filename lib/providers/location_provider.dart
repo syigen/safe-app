@@ -1,7 +1,12 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ *
+ */
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:location/location.dart';
 
-// Define a provider to manage location data
+
 final locationProvider = StateNotifierProvider<LocationNotifier, LocationData?>((ref) {
   return LocationNotifier();
 });
