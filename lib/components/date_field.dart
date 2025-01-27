@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 
-class LocationField extends StatelessWidget {
-  final TextEditingController locationController;
+class DateField extends StatelessWidget {
+  final TextEditingController dateController;
   final Color primaryColor;
 
-  LocationField({
-    required this.locationController,
+  DateField({
+    required this.dateController,
     required this.primaryColor,
   });
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
 
     // Font size responsive to screen width
-    double labelFontSize = screenWidth * 0.045; // 4.5% of screen width
-    double inputFontSize = screenWidth * 0.04;  // 4% of screen width
+    double labelFontSize = screenWidth * 0.045; // 4.5% of screen width for label font size
+    double inputFontSize = screenWidth * 0.04;  // 4% of screen width for input font size
     double paddingHorizontal = screenWidth * 0.05; // Horizontal padding proportional to screen width
 
     return Padding(
@@ -24,18 +23,18 @@ class LocationField extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildLocationLabel(labelFontSize),
+          _buildDateLabel(labelFontSize),
           Expanded(
-            child: _buildLocationInput(inputFontSize),
+            child: _buildDateInput(inputFontSize),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildLocationLabel(double fontSize) {
+  Widget _buildDateLabel(double fontSize) {
     return Text(
-      'Location: ',
+      'Date',
       style: TextStyle(
         color: Colors.white,
         fontSize: fontSize,
@@ -44,17 +43,17 @@ class LocationField extends StatelessWidget {
     );
   }
 
-  Widget _buildLocationInput(double fontSize) {
+  Widget _buildDateInput(double fontSize) {
     return Align(
       alignment: Alignment.centerRight,
       child: TextField(
-        controller: locationController,
+        controller: dateController,
         style: TextStyle(color: Colors.white, fontSize: fontSize),
-        textAlign: TextAlign.end,
+        enabled: false, // Disable the input field
+        textAlign: TextAlign.end, // Text inside the input aligned to the right
         decoration: InputDecoration(
-          border: InputBorder.none,
+          border: InputBorder.none, // Remove underline
         ),
-        enabled: false,
       ),
     );
   }

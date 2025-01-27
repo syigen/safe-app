@@ -37,10 +37,5 @@ class AlertData {
         'Image: ${image != null ? 'Image Selected at ${image!.path}' : 'No Image'}\n'
         'Time Button Value: $timeButtonValue\n'
         'Distance Range: ${distanceRange.name}';
-
-
-
-
-    return 'Location: $location\nDate: $date\nTime: $time\nElephant Count: $elephantCount\nCasualty: $casualtyOption\nSpecial Notes: $specialNote\nImage: ${image != null ? 'Image Selected' : 'No Image'}\nTime Button Value: $timeButtonValue';
   }
 }

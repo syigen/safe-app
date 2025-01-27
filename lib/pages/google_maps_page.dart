@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:safe_app/widgets/animated_slide_up.dart';
 import '../providers/location_provider.dart';
 import '../providers/marker_provider.dart';
 import '../styles/map_styles.dart';
@@ -253,6 +254,14 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
               child: Icon(Icons.my_location, color: Colors.white),
             ),
           ),
+          // Add AnimatedSlideUp above BottomPanel
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: _bottomSheetExtent * MediaQuery.of(context).size.height, // Responsive positioning
+            child: AnimatedSlideUp(),  // The AnimatedSlideUp widget
+          ),
+
 
           // BottomPanel
           NotificationListener<DraggableScrollableNotification>(

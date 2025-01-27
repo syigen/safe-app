@@ -33,7 +33,7 @@ class SpecialNotesSection extends StatelessWidget {
             ),
           ),
           style: TextStyle(color: Colors.white),
-          maxLines: 3,
+          maxLines: 1,
         ),
       ],
     );

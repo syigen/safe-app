@@ -5,23 +5,27 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:safe_app/pages/success_alert_page.dart';
 import '../components/casualties_section.dart';
-import '../components/date_time_fields.dart';
+import '../components/collapsed_view.dart';
+import '../components/date_field.dart';
+import '../components/distance_buttons.dart';
 import '../components/elephant_count_field.dart';
+import '../components/elephant_count_selector.dart';
+import '../components/expanded_view.dart';
 import '../components/image_section.dart';
 import '../components/location_field.dart';
 import '../components/send_button.dart';
 import '../components/special_notes_section.dart';
+import '../components/time_buttons.dart';
+import '../components/time_field.dart';
 import '../styles/constants.dart';
 import '../model/alert_data.dart';
 import '../utils/size_config.dart';
-import '../widgets/image_picker_button.dart';
-import '../widgets/time_button.dart';
 
 class BottomPanel extends StatefulWidget {
   final String selectedAddress;
   final LatLng selectedLocation;
 
-  BottomPanel(this.selectedAddress, this.selectedLocation );
+  BottomPanel(this.selectedAddress, this.selectedLocation);
 
   @override
   _BottomPanelState createState() => _BottomPanelState();
@@ -36,6 +40,7 @@ class _BottomPanelState extends State<BottomPanel> {
   File? _selectedImage;
   final List<AlertData> _alertDataList = [];
   final DraggableScrollableController _draggableController = DraggableScrollableController();
+  DistanceRange _selectedDistanceRange = DistanceRange.m100; // Default selection
 
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
@@ -46,6 +51,7 @@ class _BottomPanelState extends State<BottomPanel> {
   @override
   void initState() {
     super.initState();
+    _locationController.text = '${widget.selectedLocation.longitude} , ${widget.selectedLocation.latitude}';
     _elephantCountController.text = _selectedElephantCount.toString();
 
     _elephantCountController.addListener(() {
@@ -56,9 +62,6 @@ class _BottomPanelState extends State<BottomPanel> {
         });
       }
     });
-
-
-    _locationController.text = '${widget.selectedLocation.latitude}, ${widget.selectedLocation.longitude}';
     _dateController.text = DateFormat('d MMMM').format(DateTime.now());
     _timeController.text = DateFormat('h:mm a').format(DateTime.now());
     _elephantCountController.text = _selectedElephantCount.toString();
@@ -112,7 +115,7 @@ class _BottomPanelState extends State<BottomPanel> {
 
   void _storeAlertData() {
     final alertData = AlertData(
-      location: _locationController.text,
+      location:'${widget.selectedLocation.longitude}  ${widget.selectedLocation.latitude}',
       date: _dateController.text,
       time: _timeController.text,
       elephantCount: int.parse(_elephantCountController.text),
@@ -120,13 +123,13 @@ class _BottomPanelState extends State<BottomPanel> {
       specialNote: _specialNotesController.text,
       image: _selectedImage,
       timeButtonValue: _selectedTimeButtonValue,
+      distanceRange: _selectedDistanceRange,
     );
 
     setState(() {
       _alertDataList.add(alertData);
     });
     print(alertData);
-
   }
 
   @override
@@ -137,17 +140,17 @@ class _BottomPanelState extends State<BottomPanel> {
     return NotificationListener<DraggableScrollableNotification>(
       onNotification: (notification) {
         setState(() {
-          _isExpanded = notification.extent > 0.6;
+          _isExpanded = notification.extent > 0.7;
         });
         return true;
       },
-
       child: DraggableScrollableSheet(
         controller: _draggableController,
-        // Make initial size responsive based on screen height
-        initialChildSize: SizeConfig.screenHeight > 700 ? 0.4 : 0.35,
-        minChildSize: 0.35,
-        maxChildSize: 0.95,
+        initialChildSize: SizeConfig.screenHeight < 600
+            ? 0.3 // Smaller screens will start with a smaller size
+            : 0.4, // Larger screens get a larger initial size
+        minChildSize: SizeConfig.screenHeight < 600 ? 0.4 : 0.4, // Adjust minimum size for smaller screens
+        maxChildSize: 0.96, // Keep max size consistent
         builder: (context, scrollController) {
           return Container(
             decoration: BoxDecoration(
@@ -158,7 +161,7 @@ class _BottomPanelState extends State<BottomPanel> {
             ),
             child: SingleChildScrollView(
               controller: scrollController,
-              child: _isExpanded ? _buildExpandedView() : _buildCollapsedView(),
+              child: _isExpanded ? _buidExpandedView() : _buildCollapsedView(),
             ),
           );
         },
@@ -166,199 +169,106 @@ class _BottomPanelState extends State<BottomPanel> {
     );
   }
 
+  void _sendAlert() {
+    if (_validateForm()) {
+      _storeAlertData();
+      _resetBottomSheetValues();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SuccessAlertPage(
+            alertId: '12345',
+            onClose: () {
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+          ),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Alert data stored successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
+  void _updateDistanceRange(DistanceRange value) {
+    setState(() {
+      _selectedDistanceRange = value;
+    });
+  }
+
+  void _updateTimeButton(String value) {
+    setState(() {
+      _selectedTimeButtonValue = value;
+    });
+  }
+
+  void _updateCasualtyOption(String value) {
+    setState(() {
+      _selectedCasualtyOption = value;
+    });
+  }
+
+  void _resetBottomSheetValues() {
+    setState(() {
+      _selectedElephantCount = 1;
+      _selectedCasualtyOption = 'No';
+      _specialNote = '';
+      _selectedTimeButtonValue = 'Now';
+      _selectedImage = null;
+      _selectedDistanceRange = DistanceRange.m100; // Reset to default range
+
+      _locationController.text =
+      '${widget.selectedLocation.longitude}, ${widget.selectedLocation.latitude}';
+      _dateController.text = DateFormat('d MMMM').format(DateTime.now());
+      _timeController.text = DateFormat('h:mm a').format(DateTime.now());
+      _elephantCountController.text = _selectedElephantCount.toString();
+      _specialNotesController.clear(); // Clear special notes field
+    });
+  }
+
+  Widget _buidExpandedView() {
+    return ExpandedView(
+      locationController: _locationController,
+      dateController: _dateController,
+      timeController: _timeController,
+      elephantCountController: _elephantCountController,
+      specialNotesController: _specialNotesController,
+      specialNote: _specialNote,
+      selectedCasualtyOption: _selectedCasualtyOption,
+      selectedTimeButtonValue: _selectedTimeButtonValue,
+      selectedImage: _selectedImage,
+      onPickImage: _pickImage,
+      onSendButtonPressed: _sendAlert,
+      onDistanceRangeChanged: _updateDistanceRange,
+      onTimeButtonChanged: _updateTimeButton,
+      onCasualtyOptionChanged: _updateCasualtyOption,
+      selectedDistanceRange: _selectedDistanceRange,
+      header: _buildHeader(), // Pass the header widget here
+    );
+  }
 
   Widget _buildCollapsedView() {
-    return Padding(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: Colors.grey[600],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          Text(
-            widget.selectedAddress,
-            style: TextStyle(color: Colors.white, fontSize: 18),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Sighting marker: ${widget.selectedLocation.longitude}   ${widget.selectedLocation.latitude}',
-            style: TextStyle(color: Colors.grey[400], fontSize: 14),
-          ),
-          SizedBox(height: 20),
-          Text(
-            'No. of elephants',
-            style: TextStyle(color: Colors.white, fontSize: 16),
-          ),
-          SizedBox(height: 20),
-          _buildElephantCountSelector(),
-          SizedBox(height: 30),
-          _buildTimeButtons(),
-        ],
-      ),
+    return CollapsedView(
+      locationController: _locationController,
+      selectedLocationText:
+      '${widget.selectedLocation.longitude}  ${widget.selectedLocation.latitude}',
+      selectedElephantCount: _selectedElephantCount,
+      onElephantCountChanged: (selectedCount) {
+        setState(() {
+          _selectedElephantCount = selectedCount;
+          _elephantCountController.text = _selectedElephantCount.toString();
+        });
+      },
+      selectedDistanceRange: _selectedDistanceRange,
+      onDistanceSelected: _updateDistanceRange,
+      selectedTimeButtonValue: _selectedTimeButtonValue,
+      onTimeButtonSelected: _updateTimeButton,
+      onSendPressed: _sendAlert,
     );
   }
-
-  Widget _buildElephantCountSelector() {
-    final buttonSize = SizeConfig.blockSizeHorizontal * 12; // 12% of screen width
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: List.generate(20, (index) {
-          final number = index == 19 ? '20' : '${index + 1}';
-          final isSelected = _selectedElephantCount == (index == 19 ? 20 : index + 1);
-          return Padding(
-            padding: EdgeInsets.all(SizeConfig.blockSizeHorizontal * 2),
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedElephantCount = index == 19 ? 20 : index + 1;
-                  _elephantCountController.text = _selectedElephantCount.toString();
-                });
-              },
-              child: Container(
-                width: buttonSize,
-                height: buttonSize,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isSelected ? primaryColor : Colors.transparent,
-                  border: Border.all(
-                    color: primaryColor,
-                    width: 2,
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    number,
-                    style: TextStyle(
-                      color: isSelected ? Colors.black : primaryColor,
-                      fontSize: SizeConfig.blockSizeHorizontal * 3.5,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-
-
-  Widget _buildTimeButtons() {
-    return Row(
-      children: [
-        TimeButton(
-          text: 'Now',
-          isSelected: _selectedTimeButtonValue == 'Now',
-          onPressed: () => setState(() => _selectedTimeButtonValue = 'Now'),
-        ),
-        SizedBox(width: 30),
-        TimeButton(
-          text: '10 min.',
-          isSelected: _selectedTimeButtonValue == '10 min.',
-          onPressed: () => setState(() => _selectedTimeButtonValue = '10 min.'),
-        ),
-        SizedBox(width: 30),
-        TimeButton(
-          text: '30+ min.',
-          isSelected: _selectedTimeButtonValue == '30+ min.',
-          onPressed: () => setState(() => _selectedTimeButtonValue = '30+ min.'),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildExpandedView() {
-    return Padding(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(),
-          SizedBox(height: 24),
-          LocationField(
-            locationController: _locationController,
-            primaryColor: primaryColor, // Pass primaryColor to LocationField
-          ),
-          SizedBox(height: 16),
-          DateTimeFields(
-            dateController: _dateController,
-            timeController: _timeController,
-            primaryColor: primaryColor,
-          ),
-          SizedBox(height: 16),
-          ElephantCountField(
-            elephantCountController: _elephantCountController,
-            primaryColor: primaryColor,
-          ),
-          SizedBox(height: 24),
-          CasualtiesSection(
-            selectedCasualtyOption: _selectedCasualtyOption,
-            onCasualtyOptionChanged: (value) {
-              setState(() {
-                _selectedCasualtyOption = value!;
-              });
-            },
-            primaryColor: primaryColor,
-          ),
-          SizedBox(height: 24),
-          SpecialNotesSection(
-            specialNotesController: _specialNotesController,
-            onChanged: (value) => setState(() => _specialNote = value),
-          ),
-          SizedBox(height: 24),
-          ImageSection(
-            onPressed: _pickImage,
-            selectedImage: _selectedImage,
-          ),
-          SizedBox(height: 24),
-          SendButton(
-            onPressed: () {
-              print('Elephant Count before validation: $_selectedElephantCount'); // Debug print
-              if (_validateForm()) {
-                _storeAlertData();
-
-                // Navigate to SuccessAlertPage
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SuccessAlertPage(
-                      alertId: '12345', // Replace with actual alert ID
-                      onClose: () {
-                        Navigator.popUntil(context, (route) => route.isFirst);
-                      },
-                    ),
-                  ),
-                );
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Alert data stored successfully!'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              } else {
-                print('Validation failed'); // Debug print to show validation failure
-              }
-            },
-          ),
-
-          SizedBox(height: 24),
-        ],
-      ),
-    );
-  }
-
 
   Widget _buildHeader() {
     return Row(
@@ -387,5 +297,4 @@ class _BottomPanelState extends State<BottomPanel> {
       ],
     );
   }
-
 }
