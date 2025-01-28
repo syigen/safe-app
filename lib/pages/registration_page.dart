@@ -268,11 +268,7 @@ class RegistrationPageState extends State<RegistrationPage> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const LoginPage()),
-                      );
+                      Navigator.pop(context);
                     },
                     child: const Text(
                       'Login Now',
