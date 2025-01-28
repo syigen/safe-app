@@ -6,6 +6,8 @@
 import 'package:flutter/material.dart';
 import 'package:safe_app/pages/home_page.dart';
 
+import '../auth/auth_service.dart';
+
 class LoadingPage extends StatefulWidget {
   const LoadingPage({super.key});
 
@@ -30,7 +32,9 @@ class _LoadingPageState extends State<LoadingPage> with SingleTickerProviderStat
     Future.delayed(const Duration(milliseconds: 1500), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(authClient: SupabaseAuthClient()),
+        ),
       );
     });
   }
