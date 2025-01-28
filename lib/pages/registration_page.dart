@@ -6,7 +6,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../widgets/social_login_button.dart';
-import 'login_page.dart';
 import 'package:safe_app/auth/auth_service.dart';
 import '../services/validation_service.dart';
 
