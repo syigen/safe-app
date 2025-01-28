@@ -4,18 +4,107 @@
  */
 
 import 'package:flutter/material.dart';
+import '../auth/auth_service.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final AuthService _authService;
+
+  HomeScreen({Key? key, required AuthClient authClient})
+      : _authService = AuthService(authClient: authClient),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF021B1A),
+      endDrawer: Drawer(
+        backgroundColor: const Color(0xFF032221),
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: Color(0xFF021B1A),
+              ),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 32.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundImage: AssetImage('assets/images/profile_image.png'),
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'Hello User',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings, color: Colors.white),
+              title: const Text('Settings',
+                  style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.design_services, color: Colors.white),
+              title: const Text('Services',
+                  style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.emergency, color: Colors.white),
+              title: const Text('Emergency',
+                  style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _authService.logout(context);
+                },
+                icon: const Icon(Icons.logout, color: Colors.white),
+                label: const Text(
+                  'Logout',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFF1F1F),
+                  minimumSize: const Size(double.infinity, 45),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0).copyWith(right: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -32,7 +121,7 @@ class HomeScreen extends StatelessWidget {
                         text: const TextSpan(
                           children: [
                             TextSpan(
-                              text: 'Tom Hardy',
+                              text: 'Hello User',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
@@ -50,63 +139,19 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: 70,
-                      height: 65,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // Background layers
-                          Container(
-                            width: 65,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: const Color(0x30FF1F1F),
-                              shape: BoxShape.rectangle,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                    Builder(
+                      builder: (BuildContext context) {
+                        return IconButton(
+                          icon: const Icon(
+                            Icons.menu,
+                            color: Colors.white,
                           ),
-                          Container(
-                            width: 60,
-                            height: 55,
-                            decoration: BoxDecoration(
-                              color: const Color(0x50FF1F1F),
-                              shape: BoxShape.rectangle,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          Container(
-                            width: 55,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: const Color(0x70FF1F1F),
-                              shape: BoxShape.rectangle,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          // Main button
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFFF1F1F),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              padding: const EdgeInsets.all(1),
-                              minimumSize: const Size(50, 45),
-                            ),
-                            child: const Text(
-                              'SOS',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
+                          onPressed: () {
+                            Scaffold.of(context).openEndDrawer();
+                          },
+                        );
+                      },
+                    ),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -131,8 +176,6 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
-
                 // Send Alert Button
                 SizedBox(
                   width: double.infinity,
@@ -282,10 +325,10 @@ class HomeScreen extends StatelessWidget {
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             child: Image.asset(
-              'assets/images/Elephant.jpg', // Provide the image URL here
+              'assets/images/Elephant.jpg',
               height: 140,
               width: double.infinity,
-              fit: BoxFit.cover, // Ensures the image covers the space
+              fit: BoxFit.cover,
             ),
           ),
           Padding(
@@ -360,10 +403,10 @@ class HomeScreen extends StatelessWidget {
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             child: Image.asset(
-              'assets/images/Elephant.jpg', // Provide the image URL here
+              'assets/images/Elephant.jpg',
               height: 100,
               width: double.infinity,
-              fit: BoxFit.fill, // Ensures the image covers the space
+              fit: BoxFit.fill,
             ),
           ),
           Padding(
@@ -381,8 +424,8 @@ class HomeScreen extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(width: 5),
-                    Icon(
+                    const SizedBox(width: 5),
+                    const Icon(
                       Icons.arrow_forward,
                       size: 20,
                       color: Colors.white,
@@ -415,10 +458,10 @@ class HomeScreen extends StatelessWidget {
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             child: Image.asset(
-              'assets/images/Elephant.jpg', // Provide the image URL here
+              'assets/images/Elephant.jpg',
               height: 100,
               width: double.infinity,
-              fit: BoxFit.cover, // Ensures the image covers the space
+              fit: BoxFit.cover,
             ),
           ),
           Padding(
@@ -436,8 +479,8 @@ class HomeScreen extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(width: 5),
-                    Icon(
+                    const SizedBox(width: 5),
+                    const Icon(
                       Icons.arrow_forward,
                       size: 20,
                       color: Colors.white,
