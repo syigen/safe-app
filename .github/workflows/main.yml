@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - features/*
+      - feature/github-actions-v2
     tags:
       - v[0-9]+.[0-9]+.[0-9]+
       - v[0-9]+.[0-9]+.[0-9]+-alpha*
@@ -68,12 +68,13 @@ jobs:
         run: |
           echo "storePassword=${STORE_PASSWORD}" >> key.properties
           echo "keyPassword=${KEY_PASSWORD}" >> key.properties
-          echo "keyAlias=key" >> key.properties
+          echo "keyAlias=${KEY_ALIAS}" >> key.properties
           echo "storeFile=../key.jks" >> key.properties
         working-directory: ${{ github.workspace }}/android
         env:
           STORE_PASSWORD: ${{ secrets.AndroidStorePassword }}
           KEY_PASSWORD: ${{ secrets.AndroidKeyPassword }}
+          KEY_ALIAS: ${{ secrets.AndroidKeyAlias }}
 
       - name: Verify key.properties file
         if: ${{ env.BUILD_MODE == 'release' }}
