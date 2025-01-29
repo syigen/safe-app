@@ -29,7 +29,7 @@ class SpecialNotesSection extends StatelessWidget {
             hintText: 'Type here...',
             hintStyle: TextStyle(color: Colors.grey),
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey),
+              borderSide: BorderSide(color: Color(0xFF00FF9D)),
               borderRadius: BorderRadius.circular(8),
             ),
             focusedBorder: OutlineInputBorder(
