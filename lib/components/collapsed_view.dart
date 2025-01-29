@@ -56,24 +56,28 @@ class CollapsedView extends StatelessWidget {
               ),
             ),
           ),
-          Row(
-            children: [
-              Text(
-                "Sighting marker  ",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: SizeConfig.blockSizeHorizontal * 3.5,
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                Text(
+                  "Sighting marker  ",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: SizeConfig.blockSizeHorizontal * 3.5,
+                  ),
                 ),
-              ),
-              Text(
-                selectedLocationText,
-                style: TextStyle(
-                  color: Colors.grey[400],
-                  fontSize: SizeConfig.blockSizeHorizontal * 3.5,
+                Text(
+                  selectedLocationText,
+                  style: TextStyle(
+                    color: Colors.grey[400],
+                    fontSize: SizeConfig.blockSizeHorizontal * 3.5,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+
           SizedBox(height: SizeConfig.blockSizeVertical * 0.3),
           Text(
             'No. of elephants',
