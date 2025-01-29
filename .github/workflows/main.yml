@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - features/release-aab-file
     tags:
       - v[0-9]+.[0-9]+.[0-9]+
       - v[0-9]+.[0-9]+.[0-9]+-alpha*
@@ -86,7 +87,11 @@ jobs:
         working-directory: ${{ github.workspace }}/android
 
       - name: Build Android packages
-        run: flutter build apk "--${BUILD_MODE}" --target-platform android-arm,android-arm64,android-x64 --split-per-abi
+        run: |
+          flutter build apk "--${BUILD_MODE}" --target-platform android-arm,android-arm64,android-x64 --split-per-abi
+          if [[ "${BUILD_MODE}" == "release" ]]; then
+            flutter build appbundle
+          fi
 
       - name: Verify APK signature
         if: ${{ env.BUILD_MODE == 'release' }}
@@ -95,16 +100,20 @@ jobs:
             jarsigner -verify -verbose -certs $apk || exit 1
           done
 
-      - name: List APKs in release folder
+      - name: List APKs and AAB in release folder
         if: ${{ env.BUILD_MODE == 'release' }}
-        run: ls -R build/app/outputs/apk/release/
+        run: |
+          ls -R build/app/outputs/apk/release/
+          ls -R build/app/outputs/bundle/release/
 
       - name: Upload Android release artifacts
         if: ${{ env.BUILD_MODE == 'release' }}
         uses: actions/upload-artifact@v4
         with:
           name: android_release
-          path: build/app/outputs/apk/release/*.apk
+          path: |
+            build/app/outputs/apk/release/*.apk
+            build/app/outputs/bundle/release/*.aab
 
       - name: Upload Android debug artifacts
         if: ${{ env.BUILD_MODE == 'debug' }}
@@ -127,15 +136,16 @@ jobs:
           name: android_release
           path: ./android_release
 
-      - name: List downloaded APKs
+      - name: List downloaded artifacts
         run: ls -R ./android_release
 
-      - name: Upload APKs to GitHub Release
+      - name: Upload artifacts to GitHub Release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
           artifacts: |
             ./android_release/*.apk
+            ./android_release/*.aab
           name: Release ${{ env.VERSION_STR }}
           prerelease: ${{ contains(github.ref, '-alpha') || contains(github.ref, '-beta') }}
           tag: ${{ env.VERSION_STR }}
