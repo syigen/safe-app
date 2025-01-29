@@ -72,5 +72,51 @@ class AlertService {
       fontSize: 16.0,
     );
   }
+
+  Future<List<AlertData>> getAllAlerts() async {
+    try {
+      final response = await supabase.from('alert').select().order('date', ascending: false);
+
+      if (response != null && response.isNotEmpty) {
+
+        // Map the response to a list of AlertData
+        final alertList = response.map<AlertData>((data) {
+          return AlertData(
+            location: data['location'],
+            date: DateTime.parse(data['date']).toIso8601String(),
+            elephantCount: data['elephant_count'],
+            casualtyOption: data['casualty_option'],
+            specialNote: data['special_note'],
+            image: null,
+            imageUrl: data['image_url'],
+            timeButtonValue: data['time_button_value'],
+            distanceRange: DistanceRange.values.firstWhere(
+                  (e) => e.name == data['distance_range'],
+              orElse: () => DistanceRange.m100, // Default value if no match
+            ),
+          );
+        }).toList();
+
+        return alertList;
+      } else {
+        _showToast(
+          message: 'No alerts found.',
+          backgroundColor: Colors.orange,
+          textColor: Colors.white,
+        );
+        return [];
+      }
+    } catch (e) {
+      _showToast(
+        message: 'Error fetching alerts: $e',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+      return [];
+    }
+
+
+  }
 }
+
 
