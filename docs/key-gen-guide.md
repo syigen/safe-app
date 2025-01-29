@@ -1,4 +1,3 @@
-
 # KeyStore Generation and Base64 Conversion Guide
 
 This guide provides step-by-step instructions on generating KeyStore files for Android app signing and converting them to a Base64-encoded format, on both **iOS (Mac)** and **Windows**.
