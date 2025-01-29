@@ -141,9 +141,9 @@ class _BottomPanelState extends State<BottomPanel> {
       child: DraggableScrollableSheet(
         controller: _draggableController,
         initialChildSize: SizeConfig.screenHeight < 600
-            ? 0.3
+            ? (SizeConfig.screenHeight < 500 ? 0.5 : 0.4)
             : 0.4,
-        minChildSize: SizeConfig.screenHeight < 600 ? 0.4 : 0.4,
+        minChildSize: SizeConfig.screenHeight < 500 ? 0.5 : 0.4,
         maxChildSize: 0.96,
         builder: (context, scrollController) {
           return Container(

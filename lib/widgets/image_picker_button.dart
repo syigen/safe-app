@@ -37,7 +37,7 @@ class ImagePickerButton extends StatelessWidget {
             onTap: onPressed,
             borderRadius: BorderRadius.circular(16),
             child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: 25),
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
