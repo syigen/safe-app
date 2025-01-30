@@ -45,12 +45,18 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
+      - name: Ensure android directory exists
+        run: mkdir -p android
+
       - name: Generate Android key store file
         if: ${{ env.BUILD_MODE == 'release' }}
-        run: echo "${SIGNING_KEY}" | base64 -d > android/key.jks
+        run: |
+          mkdir -p android
+          echo "${SIGNING_KEY}" | base64 -d > android/key.jks
         working-directory: ${{ github.workspace }}/android
         env:
           SIGNING_KEY: ${{ secrets.AndroidSigningKeyBase64 }}
+
 
       - name: Verify key.jks file
         if: ${{ env.BUILD_MODE == 'release' }}
@@ -63,6 +69,12 @@ jobs:
           echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> android/key.properties
           echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
           echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+
+      - name: Debug Signing Key
+        run: |
+          echo "Signing key length: ${#SIGNING_KEY}"
+        env:
+          SIGNING_KEY: ${{ secrets.AndroidSigningKeyBase64 }}
 
       - name: Verify key.properties file
         if: ${{ env.BUILD_MODE == 'release' }}
