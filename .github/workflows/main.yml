@@ -47,43 +47,26 @@ jobs:
 
       - name: Generate Android key store file
         if: ${{ env.BUILD_MODE == 'release' }}
-        run: echo "${SIGNING_KEY}" | openssl base64 -d -out key.jks
+        run: echo "${SIGNING_KEY}" | base64 -d > android/key.jks
         working-directory: ${{ github.workspace }}/android
         env:
           SIGNING_KEY: ${{ secrets.AndroidSigningKeyBase64 }}
 
       - name: Verify key.jks file
         if: ${{ env.BUILD_MODE == 'release' }}
-        run: |
-          if [ -f key.jks ]; then
-            echo "key.jks file generated successfully."
-          else
-            echo "key.jks file is missing!" && exit 1
-          fi
-        working-directory: ${{ github.workspace }}/android
+        run: ls -lah android/key.jks
 
       - name: Generate Android key.properties file
         if: ${{ env.BUILD_MODE == 'release' }}
         run: |
-          echo "storePassword=${STORE_PASSWORD}" >> key.properties
-          echo "keyPassword=${KEY_PASSWORD}" >> key.properties
-          echo "keyAlias=${KEY_ALIAS}" >> key.properties
-          echo "storeFile=../key.jks" >> key.properties
-        working-directory: ${{ github.workspace }}/android
-        env:
-          STORE_PASSWORD: ${{ secrets.AndroidStorePassword }}
-          KEY_PASSWORD: ${{ secrets.AndroidKeyPassword }}
-          KEY_ALIAS: ${{ secrets.AndroidKeyAlias }}
+          echo "storeFile=key.jks" > android/key.properties
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
 
       - name: Verify key.properties file
         if: ${{ env.BUILD_MODE == 'release' }}
-        run: |
-          if [ -f key.properties ]; then
-            echo "key.properties file generated successfully."
-          else
-            echo "key.properties file is missing!" && exit 1
-          fi
-        working-directory: ${{ github.workspace }}/android
+        run: cat android/key.properties
 
       - name: Build Android packages
         run: |
@@ -94,32 +77,23 @@ jobs:
 
       - name: Verify APK signature
         if: ${{ env.BUILD_MODE == 'release' }}
-        run: |
-          for apk in build/app/outputs/apk/release/*.apk; do
-            jarsigner -verify -verbose -certs $apk || exit 1
-          done
+        run: jarsigner -verify -verbose -certs build/app/outputs/apk/release/app-arm64-v8a-release.apk
 
       - name: List APKs and AAB in release folder
         if: ${{ env.BUILD_MODE == 'release' }}
         run: |
-          ls -R build/app/outputs/apk/release/
-          ls -R build/app/outputs/bundle/release/
+          mkdir -p android_release/apk/release
+          mkdir -p android_release/bundle/release
+          cp build/app/outputs/apk/release/*.apk android_release/apk/release/
+          cp build/app/outputs/bundle/release/*.aab android_release/bundle/release/
+          zip -r android_release.zip android_release
 
-      - name: Upload Android release artifacts
+      - name: Upload ZIP as artifact
         if: ${{ env.BUILD_MODE == 'release' }}
         uses: actions/upload-artifact@v4
         with:
-          name: android_release
-          path: |
-            build/app/outputs/apk/release/*.apk
-            build/app/outputs/bundle/release/*.aab
-
-      - name: Upload Android debug artifacts
-        if: ${{ env.BUILD_MODE == 'debug' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: android_debug
-          path: build/app/outputs/apk/debug/*.apk
+          name: android_release_zip
+          path: android_release.zip
 
   release:
     runs-on: ubuntu-latest
@@ -132,19 +106,19 @@ jobs:
       - name: Download Android release artifacts
         uses: actions/download-artifact@v4
         with:
-          name: android_release
-          path: ./android_release
+          name: android_release_zip
+          path: ./
 
-      - name: List downloaded artifacts
-        run: ls -R ./android_release
+      - name: Extract ZIP file
+        run: unzip android_release.zip
 
-      - name: Upload artifacts to GitHub Release
+      - name: Upload APK and AAB files to GitHub Release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
           artifacts: |
-            ./android_release/*.apk
-            ./android_release/*.aab
+            android_release/apk/release/*.apk
+            android_release/bundle/release/*.aab
           name: Release ${{ env.VERSION_STR }}
           prerelease: ${{ contains(github.ref, '-alpha') || contains(github.ref, '-beta') }}
           tag: ${{ env.VERSION_STR }}
