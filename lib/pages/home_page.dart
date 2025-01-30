@@ -5,13 +5,21 @@
 
 import 'package:flutter/material.dart';
 import '../auth/auth_service.dart';
+import '../widgets/bottom_navigation_bar.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final AuthService _authService;
 
   HomeScreen({Key? key, required AuthClient authClient})
       : _authService = AuthService(authClient: authClient),
         super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +86,7 @@ class HomeScreen extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: () {
                   Navigator.pop(context);
-                  _authService.logout(context);
+                  widget._authService.logout(context);
                 },
                 icon: const Icon(Icons.logout, color: Colors.white),
                 label: const Text(
@@ -271,20 +279,13 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color(0xFF032221),
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFF00FF9D),
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Map'),
-          BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'Services'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notifications',
-          ),
-        ],
+      bottomNavigationBar: CustomBottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
       ),
     );
   }
