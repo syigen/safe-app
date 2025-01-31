@@ -5,21 +5,18 @@
 
 import 'package:flutter/material.dart';
 import '../auth/auth_service.dart';
-import '../widgets/bottom_navigation_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   final AuthService _authService;
 
-  HomeScreen({Key? key, required AuthClient authClient})
-      : _authService = AuthService(authClient: authClient),
-        super(key: key);
+  HomeScreen({super.key, required AuthClient authClient})
+      : _authService = AuthService(authClient: authClient);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -278,14 +275,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-      ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
       ),
     );
   }
