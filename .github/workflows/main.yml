@@ -86,7 +86,7 @@ jobs:
 
       - name: Build Android packages
         run: |
-          flutter build apk "--${BUILD_MODE}" --target-platform android-arm,android-arm64,android-x64 --split-per-abi
+          flutter build apk "--${BUILD_MODE}" --split-per-abi
           if [[ "${BUILD_MODE}" == "release" ]]; then
             flutter build appbundle
           fi
@@ -101,24 +101,17 @@ jobs:
       - name: List APKs and AAB in release folder
         if: ${{ env.BUILD_MODE == 'release' }}
         run: |
-          ls -R build/app/outputs/apk/release/
-          ls -R build/app/outputs/bundle/release/
+          mkdir -p android_release
+          mv build/app/outputs/apk android_release/
+          mv build/app/outputs/bundle android_release/
+          zip -r android_release.zip android_release
 
       - name: Upload Android release artifacts
         if: ${{ env.BUILD_MODE == 'release' }}
         uses: actions/upload-artifact@v4
         with:
           name: android_release
-          path: |
-            build/app/outputs/apk/release/*.apk
-            build/app/outputs/bundle/release/*.aab
-
-      - name: Upload Android debug artifacts
-        if: ${{ env.BUILD_MODE == 'debug' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: android_debug
-          path: build/app/outputs/apk/debug/*.apk
+          path: android_release.zip
 
   release:
     runs-on: ubuntu-latest
@@ -132,18 +125,21 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: android_release
-          path: ./android_release
+          path: ./
 
-      - name: List downloaded artifacts
-        run: ls -R ./android_release
+      - name: Extract and list artifacts
+        run: unzip android_release.zip
+
+      - name: List extracted files
+        run: ls -R ./android_release/
 
       - name: Upload artifacts to GitHub Release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
           artifacts: |
-            ./android_release/*.apk
-            ./android_release/*.aab
+            android_release/apk/release/*.apk
+            android_release/bundle/release/*.aab
           name: Release ${{ env.VERSION_STR }}
           prerelease: ${{ contains(github.ref, '-alpha') || contains(github.ref, '-beta') }}
           tag: ${{ env.VERSION_STR }}
