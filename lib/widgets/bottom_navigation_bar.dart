@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-class CustomBottomNavBar extends StatelessWidget {
+class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
-  final Function(int) onTap;
+  final ValueChanged<int> onTap;
 
-  const CustomBottomNavBar({
-    Key? key,
-    this.currentIndex = 0,
+  const CustomBottomNavigationBar({
+    super.key,
+    required this.currentIndex,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,13 +20,10 @@ class CustomBottomNavBar extends StatelessWidget {
       currentIndex: currentIndex,
       onTap: onTap,
       items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), label: 'Map'),
-        BottomNavigationBarItem(icon: Icon(Icons.apps), label: 'Services'),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.notifications),
-          label: 'Notifications',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.apps_outlined), label: 'Services'),
+        BottomNavigationBarItem(icon: Icon(Icons.notifications_outlined), label: 'Notifications'),
       ],
     );
   }
