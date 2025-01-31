@@ -3,13 +3,11 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:safe_app/pages/home_page.dart';
 import 'package:safe_app/pages/landing_page.dart';
+import 'package:safe_app/pages/main_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-import 'auth/auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -77,6 +75,6 @@ class _AuthCheckerState extends State<AuthChecker> {
       );
     }
 
-    return _isLoggedIn ? HomeScreen(authClient: SupabaseAuthClient()) : const LandingPage();
+    return _isLoggedIn ? const MainPage() : const LandingPage();
   }
 }
