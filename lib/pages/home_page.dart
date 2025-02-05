@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import '../auth/auth_service.dart';
+import '../widgets/app_drawer.dart';
 
 class HomeScreen extends StatefulWidget {
   final AuthService _authService;
@@ -17,94 +18,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF021B1A),
-      endDrawer: Drawer(
-        backgroundColor: const Color(0xFF032221),
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF021B1A),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 32.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundImage: AssetImage('assets/images/profile_image.png'),
-                    ),
-                    SizedBox(height: 12),
-                    Text(
-                      'Hello User',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings, color: Colors.white),
-              title: const Text('Settings',
-                  style: TextStyle(color: Colors.white)),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.design_services, color: Colors.white),
-              title: const Text('Services',
-                  style: TextStyle(color: Colors.white)),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.emergency, color: Colors.white),
-              title: const Text('Emergency',
-                  style: TextStyle(color: Colors.white)),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            const Spacer(),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                  widget._authService.logout(context);
-                },
-                icon: const Icon(Icons.logout, color: Colors.white),
-                label: const Text(
-                  'Logout',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF1F1F),
-                  minimumSize: const Size(double.infinity, 45),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
+      endDrawer: AppDrawer(
+        onLogout: (context) => widget._authService.logout(context),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -118,7 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     const CircleAvatar(
                       radius: 20,
-                      backgroundImage: AssetImage('assets/images/profile_image.png'),
+                      backgroundImage:
+                          AssetImage('assets/images/profile_image.png'),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -229,16 +149,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildServiceItem(Icons.contact_phone, 'Contacts'),
-                    _buildServiceItem(Icons.security, 'Safety tips'),
-                    _buildServiceItem(Icons.people, 'Community'),
-                    _buildServiceItem(Icons.more_horiz, 'More'),
+                    _buildServiceItem(
+                      'assets/icons/contact.png',
+                      'Contacts',
+                    ),
+                    _buildServiceItem(
+                      'assets/icons/safety.png',
+                      'Safety tips',
+                    ),
                   ],
                 ),
                 const SizedBox(height: 24),
 
                 // News near you
-                _buildSectionHeader('News near you', onTap: () {}),
+                _buildSectionHeader('Top News', onTap: () {}),
                 const SizedBox(height: 12),
                 SizedBox(
                   height: 170,
@@ -254,23 +178,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-
-                // Community posts
-                _buildSectionHeader('Community posts', onTap: () {}),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 170,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      _buildCommunityCard('Ullamcorper', 'Lorem Ornare'),
-                      const SizedBox(width: 12),
-                      _buildCommunityCard('Partient Lorem', 'Excepteur cupidat'),
-                      const SizedBox(width: 12),
-                      _buildCommunityCard('Lorem Ornare', 'Magna Maiestas'),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
@@ -357,24 +264,39 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildServiceItem(IconData icon, String label) {
-    return Container(
-      width: 80,
-      height: 80,
-      decoration: BoxDecoration(
-        color: const Color(0xFF0B453A),
-        borderRadius: BorderRadius.circular(12),
+  Widget _buildServiceItem(String iconPath, String label) {
+    return ElevatedButton(
+      onPressed: () {
+        // Add your button action here
+      },
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.all(8.0),
+        backgroundColor: const Color(0xFF0B453A),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        minimumSize: const Size(185, 80),
+        elevation: 0, // Add subtle elevation
       ),
-      child: Column(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Icon(icon, color: Colors.white),
-          const SizedBox(height: 8),
           Text(
             label,
-            style: const TextStyle(color: Colors.white, fontSize: 12),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
             textAlign: TextAlign.center,
           ),
+          Image.asset(
+            iconPath,
+            height: 70,
+            width: 85,
+          ),
+          const SizedBox(height: 8),
         ],
       ),
     );
@@ -397,61 +319,6 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 100,
               width: double.infinity,
               fit: BoxFit.fill,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    const Icon(
-                      Icons.arrow_forward,
-                      size: 20,
-                      color: Colors.white,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCommunityCard(String title, String subtitle) {
-    return Container(
-      width: 160,
-      decoration: BoxDecoration(
-        color: const Color(0xFF021B1A),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            child: Image.asset(
-              'assets/images/Elephant.jpg',
-              height: 100,
-              width: double.infinity,
-              fit: BoxFit.cover,
             ),
           ),
           Padding(
