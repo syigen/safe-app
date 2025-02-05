@@ -3,11 +3,14 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:safe_app/pages/home_page.dart';
 import 'package:safe_app/pages/landing_page.dart';
 import 'package:safe_app/pages/main_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:safe_app/providers/location_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,16 +24,16 @@ void main() async {
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
 
-  runApp(const SafeApp());
+  runApp(ProviderScope(child: const SafeApp()));
 }
 
 final supabase = Supabase.instance.client;
 
-class SafeApp extends StatelessWidget {
+class SafeApp extends ConsumerWidget {
   const SafeApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Safe App',
@@ -40,21 +43,26 @@ class SafeApp extends StatelessWidget {
   }
 }
 
-class AuthChecker extends StatefulWidget {
+class AuthChecker extends ConsumerStatefulWidget {
   const AuthChecker({super.key});
 
   @override
-  State<AuthChecker> createState() => _AuthCheckerState();
+  ConsumerState<AuthChecker> createState() => _AuthCheckerState();
 }
 
-class _AuthCheckerState extends State<AuthChecker> {
+class _AuthCheckerState extends ConsumerState<AuthChecker> {
   bool _isLoading = true;
   bool _isLoggedIn = false;
 
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
+    _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    await _checkLoginStatus();
+    await ref.read(locationProvider.notifier).getCurrentLocation();
   }
 
   Future<void> _checkLoginStatus() async {

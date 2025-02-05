@@ -4,10 +4,10 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:safe_app/pages/loading_page.dart';
 import 'package:safe_app/widgets/animated_slide_up.dart';
 import '../providers/location_provider.dart';
 import '../providers/marker_provider.dart';
@@ -15,6 +15,7 @@ import '../styles/map_styles.dart';
 import 'dart:ui' as ui;
 import 'dart:async';
 import 'package:flutter/services.dart';
+import '../widgets/circular_back_button.dart';
 import 'bottom_panel.dart';
 import 'dart:math' as math;
 
@@ -30,12 +31,14 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
   late GoogleMapController _controller;
   BitmapDescriptor customIcon = BitmapDescriptor.defaultMarker;
   String visibleMarkerId = 'current_location';
-  late LatLng currentLocation;
+   LatLng? currentLocation;
   bool showCustomWindow = false;
   LatLng? selectedLocation;
   bool _isBottomPanelExpanded = false;
   double _bottomSheetExtent = 0.35;
   Offset? customInfoWindowOffset;
+
+
 
   @override
   void initState() {
@@ -113,29 +116,34 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
     final markers = ref.watch(markerProvider);
     final currentAddress = ref.watch(addressProvider);
 
-    if (locationData == null) {
-      return Scaffold(
-        body: Center(child: LoadingPage()),
-      );
-    }
-
-    currentLocation = LatLng(locationData.latitude!, locationData.longitude!);
+    currentLocation = LatLng(locationData!.latitude!, locationData!.longitude!);
 
     if (currentAddress.isEmpty) {
-      getAddressFromCoordinates(currentLocation, true);
+      getAddressFromCoordinates(currentLocation!, true);
     }
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0, // Remove shadow
+        leading: CircularBackButton(
+          backgroundColor: Colors.white,
+          iconColor: Colors.black,
+          padding: EdgeInsets.only(left: 16),
+        )
+      ),
+
       body: Stack(
         children: [
           GoogleMap(
             initialCameraPosition: CameraPosition(
-              target: currentLocation,
+              target: currentLocation!,
               zoom: 15,
             ),
             myLocationEnabled: false,
             myLocationButtonEnabled: true,
-            onMapCreated: (controller) {
+            onMapCreated: (GoogleMapController controller) {
               _controller = controller;
               _controller.setMapStyle(mapStyle);
             },
@@ -147,11 +155,11 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
             markers: {
               Marker(
                 markerId: MarkerId('current_location'),
-                position: currentLocation,
+                position: currentLocation!,
                 icon: customIcon,
                 visible: visibleMarkerId == 'current_location',
                 onTap: () {
-                  getAddressFromCoordinates(currentLocation, true);
+                  getAddressFromCoordinates(currentLocation!, true);
                 },
               ),
               if (selectedLocation != null)
@@ -234,10 +242,17 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
             top: 80,
             child: FloatingActionButton(
               onPressed: () async {
+                // Fetch the latest location
+                await ref.read(locationProvider.notifier).getCurrentLocation();
+
+                // Read the updated location from the provider
                 final locationData = ref.read(locationProvider);
 
                 if (locationData != null) {
-                  final LatLng newCurrentLocation = LatLng(locationData.latitude!, locationData.longitude!);
+                  final LatLng newCurrentLocation = LatLng(
+                    locationData.latitude!,
+                    locationData.longitude!,
+                  );
 
                   setState(() {
                     visibleMarkerId = 'current_location';
@@ -246,11 +261,11 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
                     showCustomWindow = true;
                   });
 
-                  await getAddressFromCoordinates(currentLocation, true);
+                  await getAddressFromCoordinates(currentLocation!, true);
 
                   _controller.animateCamera(
                     CameraUpdate.newLatLngZoom(
-                      currentLocation,
+                      currentLocation!,
                       15,
                     ),
                   );
@@ -260,6 +275,7 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
               child: Icon(Icons.my_location, color: Colors.white),
             ),
           ),
+
           //  AnimatedSlideUp
           Positioned(
             left: 0,
@@ -279,7 +295,7 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
             },
             child: BottomPanel(
               currentAddress,
-              selectedLocation ?? currentLocation,
+              selectedLocation ?? currentLocation!,
             ),
           ),
         ],

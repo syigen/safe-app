@@ -4,22 +4,23 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../auth/auth_service.dart';
 import '../widgets/app_drawer.dart';
+import '../providers/location_provider.dart';
+import 'google_maps_page.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerWidget  {
   final AuthService _authService;
 
-  HomeScreen({super.key, required AuthClient authClient})
-      : _authService = AuthService(authClient: authClient);
+  HomeScreen({Key? key, required AuthClient authClient})
+      : _authService = AuthService(authClient: authClient),
+        super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context ,WidgetRef ref) {
+    final locationData = ref.watch(locationProvider);
+    bool _isLoading = locationData == null;  // Show loading if locationData is null
     return Scaffold(
       backgroundColor: const Color(0xFF021B1A),
       endDrawer: AppDrawer(
@@ -105,7 +106,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _isLoading
+                        ? null  // Disable the button if loading
+                        : () {
+                      if (locationData != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GoogleMapsScreen(),
+                          ),
+                        );
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF00FF9D),
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -113,7 +125,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Row(
+                    child: _isLoading
+                        ? const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                    )
+                        : const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
