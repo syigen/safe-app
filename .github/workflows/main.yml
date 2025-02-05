@@ -91,6 +91,11 @@ jobs:
             flutter build appbundle
           fi
 
+      - name: Delete the .env file
+        run: |
+          rm -f .env
+          echo ".env file deleted successfully."
+
       - name: Verify APK signature
         if: ${{ env.BUILD_MODE == 'release' }}
         run: |
