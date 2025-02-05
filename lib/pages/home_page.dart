@@ -4,9 +4,12 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../auth/auth_service.dart';
+import '../providers/location_provider.dart';
+import 'google_maps_page.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget  {
   final AuthService _authService;
 
   HomeScreen({Key? key, required AuthClient authClient})
@@ -14,7 +17,9 @@ class HomeScreen extends StatelessWidget {
         super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context ,WidgetRef ref) {
+    final locationData = ref.watch(locationProvider);
+    bool _isLoading = locationData == null;  // Show loading if locationData is null
     return Scaffold(
       backgroundColor: const Color(0xFF021B1A),
       endDrawer: Drawer(
@@ -33,7 +38,8 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 40,
-                      backgroundImage: AssetImage('assets/images/profile_image.png'),
+                      backgroundImage:
+                          AssetImage('assets/images/profile_image.png'),
                     ),
                     SizedBox(height: 12),
                     Text(
@@ -50,16 +56,16 @@ class HomeScreen extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.settings, color: Colors.white),
-              title: const Text('Settings',
-                  style: TextStyle(color: Colors.white)),
+              title:
+                  const Text('Settings', style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.pop(context);
               },
             ),
             ListTile(
               leading: const Icon(Icons.design_services, color: Colors.white),
-              title: const Text('Services',
-                  style: TextStyle(color: Colors.white)),
+              title:
+                  const Text('Services', style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.pop(context);
               },
@@ -113,7 +119,8 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     const CircleAvatar(
                       radius: 20,
-                      backgroundImage: AssetImage('assets/images/profile_image.png'),
+                      backgroundImage:
+                          AssetImage('assets/images/profile_image.png'),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -180,7 +187,18 @@ class HomeScreen extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _isLoading
+                        ? null  // Disable the button if loading
+                        : () {
+                      if (locationData != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GoogleMapsScreen(),
+                          ),
+                        );
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF00FF9D),
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -188,7 +206,11 @@ class HomeScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Row(
+                    child: _isLoading
+                        ? const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                    )
+                        : const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
@@ -260,7 +282,8 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       _buildCommunityCard('Ullamcorper', 'Lorem Ornare'),
                       const SizedBox(width: 12),
-                      _buildCommunityCard('Partient Lorem', 'Excepteur cupidat'),
+                      _buildCommunityCard(
+                          'Partient Lorem', 'Excepteur cupidat'),
                       const SizedBox(width: 12),
                       _buildCommunityCard('Lorem Ornare', 'Magna Maiestas'),
                     ],
@@ -279,7 +302,8 @@ class HomeScreen extends StatelessWidget {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Map'),
-          BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'Services'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.grid_view), label: 'Services'),
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
             label: 'Notifications',
