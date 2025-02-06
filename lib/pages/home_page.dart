@@ -24,7 +24,7 @@ class HomeScreen extends ConsumerWidget  {
     return Scaffold(
       backgroundColor: const Color(0xFF021B1A),
       endDrawer: AppDrawer(
-        onLogout: (context) => widget._authService.logout(context),
+        onLogout: (context) => _authService.logout(context),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
