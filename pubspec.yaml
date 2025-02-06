@@ -45,15 +45,12 @@ dependencies:
   flutter_secure_storage: ^9.2.4
   shared_preferences: ^2.5.1
   provider: ^6.1.2
-  http: ^1.2.2
   google_maps_flutter: ^2.10.0
   location: ^7.0.1
   flutter_riverpod: ^2.6.1
   geocoding: ^3.0.0
-  image_picker: ^1.1.2
   intl: ^0.20.1
   dotted_border: ^2.1.0
-  permission_handler: ^11.3.1
   app_settings: ^5.2.0
 
 dev_dependencies:
