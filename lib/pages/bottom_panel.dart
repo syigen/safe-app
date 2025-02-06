@@ -5,6 +5,7 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -14,6 +15,7 @@ import '../components/expanded_view.dart';
 import '../styles/constants.dart';
 import '../model/alert_data.dart';
 import '../utils/size_config.dart';
+import 'package:safe_app/services/alert_service.dart';
 
 class BottomPanel extends StatefulWidget {
   final String selectedAddress;
@@ -34,7 +36,9 @@ class _BottomPanelState extends State<BottomPanel> {
   File? _selectedImage;
   final List<AlertData> _alertDataList = [];
   final DraggableScrollableController _draggableController = DraggableScrollableController();
-  DistanceRange _selectedDistanceRange = DistanceRange.m100; // Default selection
+  DistanceRange _selectedDistanceRange = DistanceRange.m0; // Default selection
+
+  final AlertService _alertService = AlertService();
 
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
@@ -61,6 +65,21 @@ class _BottomPanelState extends State<BottomPanel> {
     _elephantCountController.text = _selectedElephantCount.toString();
   }
 
+  void _showToast({
+    required String message,
+    required Color backgroundColor,
+    required Color textColor,
+  }) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.TOP,
+      backgroundColor: backgroundColor,
+      textColor: textColor,
+      fontSize: 16.0,
+    );
+  }
+
   @override
   void dispose() {
     _locationController.dispose();
@@ -71,6 +90,8 @@ class _BottomPanelState extends State<BottomPanel> {
     _draggableController.dispose();
     super.dispose();
   }
+
+
 
   bool _validateForm() {
     if (_selectedElephantCount <= 0) {
@@ -107,26 +128,63 @@ class _BottomPanelState extends State<BottomPanel> {
     }
   }
 
-  void _storeAlertData() {
-    final alertData = AlertData(
-      location:'${widget.selectedLocation.longitude}  ${widget.selectedLocation.latitude}',
-      date: _dateController.text,
-      time: _timeController.text,
-      elephantCount: int.parse(_elephantCountController.text),
-      casualtyOption: _selectedCasualtyOption,
-      specialNote: _specialNotesController.text,
-      image: _selectedImage,
-      timeButtonValue: _selectedTimeButtonValue,
-      distanceRange: _selectedDistanceRange, imageUrl: null,
-    );
+  Future<void> _storeAlertData() async {
+    try {
+      final AlertService alertService = AlertService();
 
-    print(alertData);
+      // Convert date and time to correct formats
+      final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+      final DateFormat timeFormat = DateFormat('HH:mm:ss');
+      final String formattedDate = dateFormat.format(DateTime.now());
+      final String formattedTime = timeFormat.format(DateTime.now());
 
-    setState(() {
-      _alertDataList.add(alertData);
-    });
-    print(alertData);
+      // Create an AlertData object
+      final alertData = AlertData(
+        location: '${widget.selectedLocation.longitude}, ${widget.selectedLocation.latitude}',
+        date: formattedDate,
+        time: formattedTime,
+        elephantCount: _selectedElephantCount,
+        casualtyOption: _selectedCasualtyOption,
+        specialNote: _specialNotesController.text.isEmpty ? "" : _specialNotesController.text,
+        timeButtonValue: _selectedTimeButtonValue,
+        distanceRange: _selectedDistanceRange,
+        image: _selectedImage != null ? File(_selectedImage!.path) : null, // Assuming _selectedImage is a File
+      );
+
+      // Send the alert data to the service
+      await alertService.postAlert(alertData);
+
+
+      // Show success message in the UI
+      _showToast(
+        message: 'Alert data stored successfully!',
+        backgroundColor: const Color(0xFF00DF81),
+        textColor: Colors.white,
+      );
+
+      // Optionally, navigate to another page after the alert is sent successfully
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SuccessAlertPage(
+            alertId: '12345', // Pass actual alert ID here
+            onClose: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            },
+          ),
+        ),
+      );
+
+    } catch (e) {
+      _showToast(
+        message: 'Failed to send alert: $e',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -169,23 +227,7 @@ class _BottomPanelState extends State<BottomPanel> {
     if (_validateForm()) {
       _storeAlertData();
       _resetBottomSheetValues();
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SuccessAlertPage(
-            alertId: '12345',
-            onClose: () {
-              Navigator.popUntil(context, (route) => route.isFirst);
-            },
-          ),
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Alert data stored successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+
     }
   }
 
@@ -194,6 +236,7 @@ class _BottomPanelState extends State<BottomPanel> {
       _selectedDistanceRange = value;
     });
   }
+
   void _updateTimeButton(String value) {
     setState(() {
       _selectedTimeButtonValue = value;
@@ -213,7 +256,7 @@ class _BottomPanelState extends State<BottomPanel> {
       _specialNote = '';
       _selectedTimeButtonValue = 'Now';
       _selectedImage = null;
-      _selectedDistanceRange = DistanceRange.m100;
+      _selectedDistanceRange = DistanceRange.m0;
 
       _locationController.text =
       '${widget.selectedLocation.longitude}, ${widget.selectedLocation.latitude}';
@@ -243,6 +286,7 @@ class _BottomPanelState extends State<BottomPanel> {
       selectedDistanceRange: _selectedDistanceRange,
       header: _buildHeader(),
     );
+
   }
 
   Widget _buildCollapsedView() {
@@ -258,7 +302,9 @@ class _BottomPanelState extends State<BottomPanel> {
         });
       },
       selectedDistanceRange: _selectedDistanceRange,
-      onDistanceSelected: _updateDistanceRange,
+      onDistanceSelected: (DistanceRange selectedDistance) {
+        _updateDistanceRange(selectedDistance);
+      },
       selectedTimeButtonValue: _selectedTimeButtonValue,
       onTimeButtonSelected: _updateTimeButton,
       onSendPressed: _sendAlert,
