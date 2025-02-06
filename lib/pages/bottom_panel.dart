@@ -117,8 +117,10 @@ class _BottomPanelState extends State<BottomPanel> {
       specialNote: _specialNotesController.text,
       image: _selectedImage,
       timeButtonValue: _selectedTimeButtonValue,
-      distanceRange: _selectedDistanceRange,
+      distanceRange: _selectedDistanceRange, imageUrl: null,
     );
+
+    print(alertData);
 
     setState(() {
       _alertDataList.add(alertData);
