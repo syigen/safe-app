@@ -1,198 +1,122 @@
 import 'dart:io';
-
-import 'package:flutter/material.dart';
-import 'package:safe_app/model/alert_data.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import '../main.dart';
+import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../model/alert_data.dart';
 
 class AlertService {
-  Future<void> saveAlertData(AlertData alertData) async {
+  // Load environment variables
+  final String supabaseUrl = dotenv.env['SUPABASE_URL']!;
+  final String supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY']!;
+
+  // Constructor
+  AlertService();
+
+  // Get alerts from Supabase
+  Future<List<AlertData>> getAlerts() async {
+    final Uri url = Uri.parse('$supabaseUrl/rest/v1/alerts?select=*');
+
     try {
-      String? imageUrl;
+      final response = await http.get(
+        url,
+        headers: {
+          'apikey': supabaseAnonKey,
+          'Authorization': 'Bearer $supabaseAnonKey',
+          'Content-Type': 'application/json',
+        },
+      );
 
-      if (alertData.image != null) {
-        final file = alertData.image!;
-        final path = 'public/${file.path
-            .split('/')
-            .last}';
-        try {
-          await supabase.storage.from('alerts').upload(path, file);
-          imageUrl = supabase.storage.from('alerts').getPublicUrl(path);
-        } catch (e) {
-          _showToast(
-            message: 'Image upload failed: $e',
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-          );
-          return;
-        }
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        List<AlertData> alerts = data.map((alertJson) => AlertData(
+          location: alertJson['location'],
+          date: alertJson['date'],
+          time: alertJson['time'],
+          elephantCount: alertJson['elephant_count'],
+          casualtyOption: alertJson['casualty_option'] ?? '',
+          specialNote: alertJson['special_note'] ?? '',
+          timeButtonValue: alertJson['time_button_value'],
+          distanceRange: DistanceRange.values.firstWhere(
+                  (e) => e.name == alertJson['distance_range']),
+          image: alertJson['image_url'] != null && alertJson['image_url'].isNotEmpty
+              ? File(alertJson['image_url'])
+              : null,
+        )).toList();
+        return alerts;
+      } else {
+        throw Exception('Failed to load alerts: ${response.body}');
       }
+    } catch (e) {
+      throw Exception('Error fetching alerts: $e');
+    }
+  }
 
-      // Convert DistanceRange to a string
-      final response = await supabase.from('alert').insert({
+  // Post an alert to Supabase
+  Future<void> postAlert(AlertData alertData) async {
+    final Uri url = Uri.parse('$supabaseUrl/rest/v1/alerts');
+    try {
+      Map<String, dynamic> body = {
         'location': alertData.location,
         'date': alertData.date,
         'time': alertData.time,
         'elephant_count': alertData.elephantCount,
         'casualty_option': alertData.casualtyOption,
         'special_note': alertData.specialNote,
-        'image_url': imageUrl,
         'time_button_value': alertData.timeButtonValue,
         'distance_range': alertData.distanceRange.name,
-        // Convert enum to string
-      }).select();
+      };
 
-      if (response.isNotEmpty) {
-        _showToast(
-          message: 'Alert data saved successfully!',
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-        );
-      } else {
-        _showToast(
-          message: 'Failed to save data: Response is empty.',
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-        );
+      // Upload image if available
+      if (alertData.image != null) {
+        String imageUrl = await _uploadImage(alertData.image!);
+        body['image_url'] = imageUrl; // Save the uploaded image URL in DB
+      }
+
+      final response = await http.post(
+        url,
+        headers: {
+          'apikey': supabaseAnonKey,
+          'Authorization': 'Bearer $supabaseAnonKey',
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal',
+        },
+        body: json.encode(body),
+      );
+
+      if (response.statusCode != 201 && response.statusCode != 200) {
+        throw Exception('Failed to post alert: ${response.body}');
       }
     } catch (e) {
-      _showToast(
-        message: 'Error saving alert data: $e',
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-      );
+      throw Exception('Error posting alert: $e');
     }
   }
 
-  void _showToast({
-    required String message,
-    required Color backgroundColor,
-    required Color textColor,
-  }) {
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.TOP,
-      backgroundColor: backgroundColor,
-      textColor: textColor,
-      fontSize: 16.0,
-    );
-  }
+  // Helper function to upload an image and return the image URL
+  Future<String> _uploadImage(File image) async {
+    final String fileName = image.uri.pathSegments.last; // Extract filename
+    final String storagePath = 'elephant_alerts/$fileName'; // Upload directly to bucket
 
-  /*Future<List<AlertData>> getAllAlerts() async {
+    final Uri uploadUrl = Uri.parse('$supabaseUrl/storage/v1/object/$storagePath');
+
     try {
-      final response = await supabase.from('alert').select().order('date', ascending: false);
+      var request = http.MultipartRequest('POST', uploadUrl);
+      request.files.add(await http.MultipartFile.fromPath('file', image.path));
+      request.headers.addAll({
+        'apikey': supabaseAnonKey,
+        'Authorization': 'Bearer $supabaseAnonKey',
+      });
 
-      if (response.isNotEmpty) {
+      var response = await request.send();
+      final responseBody = await response.stream.bytesToString();
 
-        // Map the response to a list of AlertData
-        final alertList = response.map<AlertData>((data) {
-          return AlertData(
-            location: data['location'],
-            date:data['date'],
-            time: data['time'],
-            elephantCount: data['elephant_count'],
-            casualtyOption: data['casualty_option'],
-            specialNote: data['special_note'],
-            image: null,
-
-            timeButtonValue: data['time_button_value'],
-            distanceRange: DistanceRange.values.firstWhere(
-                  (e) => e.name == data['distance_range'],
-              orElse: () => DistanceRange.m100, // Default value if no match
-            ),
-          );
-        }).toList();
-
-        return alertList;
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final String imageUrl = '$supabaseUrl/storage/v1/object/public/$storagePath';
+        return imageUrl;
       } else {
-        _showToast(
-          message: 'No alerts found.',
-          backgroundColor: Colors.orange,
-          textColor: Colors.white,
-        );
-        return [];
+        throw Exception('Failed to upload image: $responseBody');
       }
     } catch (e) {
-      _showToast(
-        message: 'Error fetching alerts: $e',
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-      );
-      return [];
-    }
-
-
-  }*/
-
-  Future<List<AlertData>> getAllAlerts() async {
-    try {
-      final response = await supabase.from('alert').select().order(
-          'date', ascending: false);
-
-      if (response.isNotEmpty) {
-        final alertList = await Future.wait(
-            response.map<Future<AlertData>>((data) async {
-              File? imageFile;
-
-              // Check if the image path exists
-              if (data['image'] != null && data['image'].isNotEmpty) {
-                final path = data['image']; // Assuming this stores the file path
-
-                // Fetch the public URL of the image from Supabase Storage
-                final imageUrl = supabase.storage.from('alerts').getPublicUrl(
-                    path);
-
-                // Download the image as a File
-                final response = await http.get(Uri.parse(imageUrl));
-                if (response.statusCode == 200) {
-                  // Get the local directory to save the image
-                  final directory = await getApplicationDocumentsDirectory();
-                  final imagePath = '${directory
-                      .path}/$path'; // Save the file locally
-                  imageFile = File(imagePath)
-                    ..writeAsBytesSync(response.bodyBytes);
-                }
-              }
-
-              // Return the AlertData with the image as a File
-              return AlertData(
-                location: data['location'],
-                date: data['date'],
-                time: data['time'],
-                elephantCount: data['elephant_count'],
-                casualtyOption: data['casualty_option'],
-                specialNote: data['special_note'],
-                image: imageFile,
-                // Pass the downloaded image as a File
-                timeButtonValue: data['time_button_value'],
-                distanceRange: DistanceRange.values.firstWhere(
-                      (e) => e.name == data['distance_range'],
-                  orElse: () => DistanceRange.m100, // Default value if no match
-                ),
-                imageUrl: null,
-              );
-            }).toList());
-
-        return alertList;
-      } else {
-        _showToast(
-          message: 'No alerts found.',
-          backgroundColor: Colors.orange,
-          textColor: Colors.white,
-        );
-        return [];
-      }
-    } catch (e) {
-      _showToast(
-        message: 'Error fetching alerts: $e',
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-      );
-      return [];
+      throw Exception('Error uploading image: $e');
     }
   }
-
 }
