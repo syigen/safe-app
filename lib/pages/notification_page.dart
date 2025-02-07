@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'main_page.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -67,64 +68,72 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF032221),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Text(
-                'Notifications',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
+    return WillPopScope(
+      onWillPop: () async {
+        final mainPageState = context.findAncestorStateOfType<MainPageState>();
+        if (mainPageState != null) {
+          mainPageState.navigateToHome();
+        }
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFF032221),
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Text(
+                  'Notifications',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Row(
-                children: [
-                  FilterButton(
-                    text: 'All',
-                    isSelected: currentFilter == 'All',
-                    onTap: () => setState(() => currentFilter = 'All'),
-                  ),
-                  const SizedBox(width: 12),
-                  FilterButton(
-                    text: 'Alerts',
-                    isSelected: currentFilter == 'Alerts',
-                    onTap: () => setState(() => currentFilter = 'Alerts'),
-                  ),
-                ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Row(
+                  children: [
+                    FilterButton(
+                      text: 'All',
+                      isSelected: currentFilter == 'All',
+                      onTap: () => setState(() => currentFilter = 'All'),
+                    ),
+                    const SizedBox(width: 12),
+                    FilterButton(
+                      text: 'Alerts',
+                      isSelected: currentFilter == 'Alerts',
+                      onTap: () => setState(() => currentFilter = 'Alerts'),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: filteredNotifications.length,
-                itemBuilder: (context, index) {
-                  final notification = filteredNotifications[index];
-                  return NotificationItem(
-                    icon: notification['icon'],
-                    message: notification['message'],
-                    time: notification['time'],
-                    showMapButton: notification['showMapButton'],
-                    iconText: notification['iconText'],
-                    onTap: () {
-                      // Handle notification tap
-                      if (kDebugMode) {
-                        print('Tapped notification: ${notification['message']}');
-                      }
-                    },
-                  );
-                },
+              const SizedBox(height: 20),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: filteredNotifications.length,
+                  itemBuilder: (context, index) {
+                    final notification = filteredNotifications[index];
+                    return NotificationItem(
+                      icon: notification['icon'],
+                      message: notification['message'],
+                      time: notification['time'],
+                      showMapButton: notification['showMapButton'],
+                      iconText: notification['iconText'],
+                      onTap: () {
+                        if (kDebugMode) {
+                          print('Tapped notification: ${notification['message']}');
+                        }
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
