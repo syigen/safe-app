@@ -4,13 +4,14 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../auth/auth_service.dart';
 import '../widgets/app_drawer.dart';
 import '../providers/location_provider.dart';
 import 'google_maps_page.dart';
 
-class HomeScreen extends ConsumerWidget  {
+class HomeScreen extends ConsumerWidget {
   final AuthService _authService;
 
   HomeScreen({Key? key, required AuthClient authClient})
@@ -18,183 +19,191 @@ class HomeScreen extends ConsumerWidget  {
         super(key: key);
 
   @override
-  Widget build(BuildContext context ,WidgetRef ref) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final locationData = ref.watch(locationProvider);
-    bool _isLoading = locationData == null;  // Show loading if locationData is null
-    return Scaffold(
-      backgroundColor: const Color(0xFF021B1A),
-      endDrawer: AppDrawer(
-        onLogout: (context) => _authService.logout(context),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0).copyWith(right: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header
-                Row(
-                  children: [
-                    const CircleAvatar(
-                      radius: 20,
-                      backgroundImage:
-                          AssetImage('assets/images/profile_image.png'),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: RichText(
-                        text: const TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Hello User',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            TextSpan(
-                              text: ', welcome back!',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Builder(
-                      builder: (BuildContext context) {
-                        return IconButton(
-                          icon: const Icon(
-                            Icons.menu,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            Scaffold.of(context).openEndDrawer();
-                          },
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
+    bool _isLoading = locationData == null;
 
-                // Latest alerts
-                _buildSectionHeader('Latest alerts', onTap: () {}),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 220,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
+    return WillPopScope(
+      onWillPop: () async {
+        SystemNavigator.pop();
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFF021B1A),
+        endDrawer: AppDrawer(
+          onLogout: (context) => _authService.logout(context),
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0).copyWith(right: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header
+                  Row(
                     children: [
-                      _buildAlertCard(
-                        'Tortor Nullam Fringilla',
-                        'Excepteur sint occaecat cupidat',
+                      const CircleAvatar(
+                        radius: 20,
+                        backgroundImage:
+                            AssetImage('assets/images/profile_image.png'),
                       ),
                       const SizedBox(width: 12),
-                      _buildAlertCard(
-                        'Parturient Lorem',
-                        'Lorem ipsum dolor adipisc',
+                      Expanded(
+                        child: RichText(
+                          text: const TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'Hello User',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              TextSpan(
+                                text: ', welcome back!',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Builder(
+                        builder: (BuildContext context) {
+                          return IconButton(
+                            icon: const Icon(
+                              Icons.menu,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              Scaffold.of(context).openEndDrawer();
+                            },
+                          );
+                        },
                       ),
                     ],
                   ),
-                ),
-                // Send Alert Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isLoading
-                        ? null  // Disable the button if loading
-                        : () {
-                      if (locationData != null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => GoogleMapsScreen(),
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00FF9D),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: _isLoading
-                        ? const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                    )
-                        : const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  const SizedBox(height: 24),
+
+                  // Latest alerts
+                  _buildSectionHeader('Latest alerts', onTap: () {}),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 220,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
                       children: [
-                        Text(
-                          'Send alert',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        _buildAlertCard(
+                          'Tortor Nullam Fringilla',
+                          'Excepteur sint occaecat cupidat',
                         ),
-                        SizedBox(width: 8),
-                        Icon(
-                          Icons.arrow_forward,
-                          size: 20,
-                          color: Colors.black,
+                        const SizedBox(width: 12),
+                        _buildAlertCard(
+                          'Parturient Lorem',
+                          'Lorem ipsum dolor adipisc',
                         ),
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 24),
-
-                // Services and tools
-                const Text(
-                  'Services and tools',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
+                  // Send Alert Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _isLoading
+                          ? null // Disable the button if loading
+                          : () {
+                              if (locationData != null) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => GoogleMapsScreen(),
+                                  ),
+                                );
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF00FF9D),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.black),
+                            )
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Send alert',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Icon(
+                                  Icons.arrow_forward,
+                                  size: 20,
+                                  color: Colors.black,
+                                ),
+                              ],
+                            ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildServiceItem(
-                      'assets/icons/contact.png',
-                      'Contacts',
-                    ),
-                    _buildServiceItem(
-                      'assets/icons/safety.png',
-                      'Safety tips',
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
-                // News near you
-                _buildSectionHeader('Top News', onTap: () {}),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 170,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
+                  // Services and tools
+                  const Text(
+                    'Services and tools',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildNewsCard('Lorem Ornare', 'Bibendum'),
-                      const SizedBox(width: 12),
-                      _buildNewsCard('Ullamcorper', 'Lorem Ornare'),
-                      const SizedBox(width: 12),
-                      _buildNewsCard('Venenatis Morbi', 'Magna Maiestas'),
+                      _buildServiceItem(
+                        'assets/icons/contact.png',
+                        'Contacts',
+                      ),
+                      _buildServiceItem(
+                        'assets/icons/safety.png',
+                        'Safety tips',
+                      ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 24),
-              ],
+                  const SizedBox(height: 24),
+
+                  // News near you
+                  _buildSectionHeader('Top News', onTap: () {}),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 170,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        _buildNewsCard('Lorem Ornare', 'Bibendum'),
+                        const SizedBox(width: 12),
+                        _buildNewsCard('Ullamcorper', 'Lorem Ornare'),
+                        const SizedBox(width: 12),
+                        _buildNewsCard('Venenatis Morbi', 'Magna Maiestas'),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
             ),
           ),
         ),
