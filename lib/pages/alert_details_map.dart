@@ -16,6 +16,7 @@ import 'package:flutter/services.dart';
 import 'dart:math' as math;
 
 import '../styles/map_styles.dart';
+import 'main_page.dart';
 
 final alertProvider = FutureProvider<List<AlertData>>((ref) async {
   return await AlertService().getAlerts();
@@ -106,53 +107,63 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
 
     currentLocation = LatLng(locationData!.latitude!, locationData!.longitude!);
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: currentLocation!,
-              zoom: 15,
+    return WillPopScope(
+      onWillPop: () async {
+        final mainPageState = context.findAncestorStateOfType<MainPageState>();
+        if (mainPageState != null) {
+          mainPageState.navigateToHome();
+        }
+        return false;
+      },
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        body: Stack(
+          children: [
+            GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: currentLocation!,
+                zoom: 15,
+              ),
+              myLocationEnabled: false,
+              myLocationButtonEnabled: true,
+              onMapCreated: (GoogleMapController controller) {
+                _controller = controller;
+                _controller.setMapStyle(mapStyle);
+                ref.refresh(alertProvider); // Refresh alerts every time map is created
+              },
+              markers: {
+
+                if (alerts.hasValue)
+                  ...alerts.value!.map((alert) {
+                    try {
+                      final parts = alert.location.split(',').map((e) => e.trim()).toList();
+                      double latitude = double.parse(parts[1]);
+                      double longitude = double.parse(parts[0]);
+                      LatLng alertPosition = LatLng(latitude, longitude);
+
+                      return Marker(
+                        markerId: MarkerId(UniqueKey().toString()),
+                        position: alertPosition,
+                        icon: customIcon,
+                        onTap: () {
+                          getAddressFromCoordinates(alertPosition);
+                        },
+                      );
+                    } catch (e) {
+                      print("Invalid alert location format: ${alert.location}");
+                      return Marker(
+                        markerId: MarkerId(UniqueKey().toString()),
+                        position: LatLng(0, 0),
+                        visible: false,
+                      );
+                    }
+                  }),
+              },
             ),
-            myLocationEnabled: false,
-            myLocationButtonEnabled: true,
-            onMapCreated: (GoogleMapController controller) {
-              _controller = controller;
-              _controller.setMapStyle(mapStyle);
-              ref.refresh(alertProvider); // Refresh alerts every time map is created
-            },
-            markers: {
-
-              if (alerts.hasValue)
-                ...alerts.value!.map((alert) {
-                  try {
-                    final parts = alert.location.split(',').map((e) => e.trim()).toList();
-                    double latitude = double.parse(parts[1]);
-                    double longitude = double.parse(parts[0]);
-                    LatLng alertPosition = LatLng(latitude, longitude);
-
-                    return Marker(
-                      markerId: MarkerId(UniqueKey().toString()),
-                      position: alertPosition,
-                      icon: customIcon,
-                      onTap: () {
-                        getAddressFromCoordinates(alertPosition);
-                      },
-                    );
-                  } catch (e) {
-                    print("Invalid alert location format: ${alert.location}");
-                    return Marker(
-                      markerId: MarkerId(UniqueKey().toString()),
-                      position: LatLng(0, 0),
-                      visible: false,
-                    );
-                  }
-                }),
-            },
-          ),
-        ],
+          ],
+        ),
       ),
     );
+
   }
 }
