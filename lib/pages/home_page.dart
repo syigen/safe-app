@@ -98,13 +98,13 @@ class HomeScreen extends ConsumerWidget {
                       scrollDirection: Axis.horizontal,
                       children: [
                         _buildAlertCard(
-                          'Tortor Nullam Fringilla',
-                          'Excepteur sint occaecat cupidat',
+                          'President Pushes for Reopening El',
+                          'Sri Lankan President Anura Kumara ..',
                         ),
                         const SizedBox(width: 12),
                         _buildAlertCard(
-                          'Parturient Lorem',
-                          'Lorem ipsum dolor adipisc',
+                          'Special Committee Investigates',
+                          'A special committee has been... ',
                         ),
                       ],
                     ),
@@ -193,11 +193,11 @@ class HomeScreen extends ConsumerWidget {
                     child: ListView(
                       scrollDirection: Axis.horizontal,
                       children: [
-                        _buildNewsCard('Lorem Ornare', 'Bibendum'),
+                        _buildNewsCard('Wildlife Depart..', 'The Wildlife Depa.. '),
                         const SizedBox(width: 12),
-                        _buildNewsCard('Ullamcorper', 'Lorem Ornare'),
+                        _buildNewsCard('Elephant Death..', 'Sri Lanka Railways..'),
                         const SizedBox(width: 12),
-                        _buildNewsCard('Venenatis Morbi', 'Magna Maiestas'),
+                        _buildNewsCard('National Engin..', 'The National Eng..'),
                       ],
                     ),
                   ),
@@ -247,7 +247,7 @@ class HomeScreen extends ConsumerWidget {
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             child: Image.asset(
-              'assets/images/Elephant.jpg',
+              'assets/news/news2.png',
               height: 140,
               width: double.infinity,
               fit: BoxFit.cover,
@@ -340,7 +340,7 @@ class HomeScreen extends ConsumerWidget {
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             child: Image.asset(
-              'assets/images/Elephant.jpg',
+              'assets/news/news3.png',
               height: 100,
               width: double.infinity,
               fit: BoxFit.fill,
