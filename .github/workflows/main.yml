@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - add-map-key
     tags:
       - v[0-9]+.[0-9]+.[0-9]+
       - v[0-9]+.[0-9]+.[0-9]+-alpha*
@@ -68,11 +69,14 @@ jobs:
           echo "keyPassword=${KEY_PASSWORD}" >> key.properties
           echo "keyAlias=${KEY_ALIAS}" >> key.properties
           echo "storeFile=../key.jks" >> key.properties
+          echo "GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}" >> key.properties
+
         working-directory: ${{ github.workspace }}/android
         env:
           STORE_PASSWORD: ${{ secrets.AndroidStorePassword }}
           KEY_PASSWORD: ${{ secrets.AndroidKeyPassword }}
           KEY_ALIAS: ${{ secrets.AndroidKeyAlias }}
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
 
       - name: Verify key.properties file
         if: ${{ env.BUILD_MODE == 'release' }}
