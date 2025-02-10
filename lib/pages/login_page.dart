@@ -5,7 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:safe_app/pages/registration_page.dart';
-import 'package:safe_app/auth/auth_service.dart';
+import 'package:safe_app/services/auth_service.dart';
 import '../widgets/social_login_button.dart';
 
 class LoginPage extends StatefulWidget {

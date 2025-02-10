@@ -6,7 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../auth/auth_service.dart';
+import '../services/auth_service.dart';
 import '../widgets/app_drawer.dart';
 import '../providers/location_provider.dart';
 import 'google_maps_page.dart';
