@@ -83,8 +83,11 @@ jobs:
             echo "key.properties file is missing!" && exit 1
           fi
         working-directory: ${{ github.workspace }}/android
-      - name: Set Map Key
-        run: sed -i "s/<application.*>/<application android:metaData=\"com.google.android.geo.API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}\"/>/" android/app/src/main/AndroidManifest.xml
+      
+      - name: Update AndroidManifest.xml with API key
+        run: |
+          sed -i 's|android:value="[^"]*"|android:value="${{ secrets.MAPS_API_KEY }}"|' android/app/src/main/AndroidManifest.xml
+
 
       - name: Build Android packages
         run: |
