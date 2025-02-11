@@ -70,11 +70,6 @@ jobs:
           echo "keyAlias=${KEY_ALIAS}" >> key.properties
           echo "storeFile=../key.jks" >> key.properties
           echo "GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}" >> key.properties
-
-      - name: Update Android manifest
-        run: |
-          sed -i 's/${GOOGLE_MAPS_API_KEY}/${{ secrets.GOOGLE_MAPS_API_KEY }}/g' ${{ github.workspace }}/android/app/src/main/AndroidManifest.xml
-
         working-directory: ${{ github.workspace }}/android
         env:
           STORE_PASSWORD: ${{ secrets.AndroidStorePassword }}
@@ -91,6 +86,10 @@ jobs:
             echo "key.properties file is missing!" && exit 1
           fi
         working-directory: ${{ github.workspace }}/android
+
+      - name: Update Android manifest
+        run: |
+          sed -i 's/${GOOGLE_MAPS_API_KEY}/${{ secrets.GOOGLE_MAPS_API_KEY }}/g' ${{ github.workspace }}/android/app/src/main/AndroidManifest.xml
 
       - name: Build Android packages
         run: |
