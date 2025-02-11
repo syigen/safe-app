@@ -73,8 +73,7 @@ jobs:
 
       - name: Update Android manifest
         run: |
-          sed -i 's/${MAPS_API_KEY}/${{ secrets.MAPS_API_KEY }}/g' \
-          android/app/src/main/AndroidManifest.xml
+          sed -i 's/${GOOGLE_MAPS_API_KEY}/${{ secrets.GOOGLE_MAPS_API_KEY }}/g' android/app/src/main/AndroidManifest.xml
 
         working-directory: ${{ github.workspace }}/android
         env:
