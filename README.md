@@ -1,4 +1,4 @@
-# 🐘 Elephant Safe
+# 🐘 SAFE APP
 
 A Flutter-based mobile app for elephant conservation and community safety.
 
