@@ -95,7 +95,6 @@ class AuthService {
       final response = await authClient.login(email, password);
 
       if (response.session != null) {
-        // Save login status locally
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
 
@@ -138,7 +137,7 @@ class AuthService {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const LoginPage()),
-      (route) => false,
+          (route) => false,
     );
   }
 
@@ -161,8 +160,7 @@ class AuthService {
 
     if (!hasEightChars || !hasOneDigit || !hasOneLetter) {
       _showToast(
-        message:
-        'Password must have at least 8 characters, one digit, and one letter.',
+        message: 'Password must have at least 8 characters, one digit, and one letter.',
         backgroundColor: Colors.red,
         textColor: Colors.white,
       );
@@ -173,6 +171,32 @@ class AuthService {
       final response = await authClient.register(email, password);
 
       if (response.user != null) {
+        final email = response.user!.email;
+
+        final customUserResponse = await Supabase.instance.client
+            .from('users')
+            .insert([
+          {
+            'email': email,
+            'name': null,
+            'admin': null,
+          }
+        ])
+            .select()
+            .single()
+            .catchError((error) {
+          _showToast(
+            message: 'Failed to save user to the database: $error',
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+          );
+          return null;
+        });
+
+        if (customUserResponse == null) {
+          return;
+        }
+
         _showToast(
           message: 'Registration successful!',
           backgroundColor: const Color(0xFF00DF81),
@@ -193,8 +217,7 @@ class AuthService {
     } on AuthException catch (e) {
       if (e.statusCode == '422' && e.message.contains('already registered')) {
         _showToast(
-          message:
-          'This email is already registered. Please use a different email or try logging in.',
+          message: 'This email is already registered. Please use a different email or try logging in.',
           backgroundColor: Colors.red,
           textColor: Colors.white,
         );
