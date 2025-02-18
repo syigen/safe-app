@@ -93,10 +93,10 @@ class NotificationItem extends StatelessWidget {
                         if (showMapButton)
                           GestureDetector(
                             onTap: () {
-                              if (kDebugMode) {
-                                print('Navigating to map for: $message');
+
+                              if (mainPageState != null) {
+                                mainPageState.navigateToMap();
                               }
-                              // TODO: Implement map navigation
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
