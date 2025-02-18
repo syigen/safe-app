@@ -1,5 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';  // Import geocoding package
+import '../components/filter_button.dart';
+import '../components/notification_item.dart';
+import '../model/alert_data.dart';
+import '../services/alert_service.dart';
 import 'main_page.dart';
 
 class NotificationsPage extends StatefulWidget {
@@ -11,58 +16,25 @@ class NotificationsPage extends StatefulWidget {
 
 class _NotificationsPageState extends State<NotificationsPage> {
   String currentFilter = 'All';
+  late Future<List<AlertData>> futureAlerts;
 
-  // Sample notification data
-  final List<Map<String, dynamic>> allNotifications = [
-    {
-      'icon': Icons.access_time,
-      'message': 'A group of elephants has been sighted in Kapugala.',
-      'time': '36m ago',
-      'showMapButton': true,
-      'isAlert': true,
-    },
-    {
-      'icon': Icons.access_time,
-      'message': 'An elephant has been sighted in Minneriya.',
-      'time': '2h ago',
-      'showMapButton': true,
-      'isAlert': true,
-    },
-    {
-      'iconText': 'AN',
-      'message': 'A group of elephants has been sighted in Galgamuwa',
-      'time': '11:24 PM',
-      'showMapButton': false,
-      'isAlert': false,
-    },
-    {
-      'icon': Icons.location_on,
-      'message': 'A group of elephants has been sighted in Dhabana',
-      'time': '9:12 AM',
-      'showMapButton': false,
-      'isAlert': false,
-    },
-    {
-      'icon': Icons.access_time,
-      'message': 'An elephant has been sighted in Polonnaruwa',
-      'time': 'Yesterday, 11:55 PM',
-      'showMapButton': true,
-      'isAlert': true,
-    },
-    {
-      'icon': Icons.access_time,
-      'message': 'An elephant has been sighted in Dabulla',
-      'time': '24 September 2023, 8:44 PM',
-      'showMapButton': true,
-      'isAlert': true,
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    futureAlerts = AlertService().getAlerts();
+  }
 
-  List<Map<String, dynamic>> get filteredNotifications {
-    if (currentFilter == 'All') {
-      return allNotifications;
-    } else {
-      return allNotifications.where((notification) => notification['isAlert']).toList();
+  // Function to get the nearest city or known place from coordinates
+  Future<String> getCityFromCoordinates(double latitude, double longitude) async {
+    try {
+      // Get a list of placemarks (addresses)
+      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      // Try to get the city name, or fall back to the first available known place
+      Placemark place = placemarks.isNotEmpty ? placemarks.first : Placemark();
+      return place.locality ?? place.subLocality ?? place.name ?? "Unknown place";
+    } catch (e) {
+      print("Error fetching address: $e");
+      return "Unknown place"; // Fallback in case of an error
     }
   }
 
@@ -113,177 +85,78 @@ class _NotificationsPageState extends State<NotificationsPage> {
               ),
               const SizedBox(height: 20),
               Expanded(
-                child: ListView.builder(
-                  itemCount: filteredNotifications.length,
-                  itemBuilder: (context, index) {
-                    final notification = filteredNotifications[index];
-                    return NotificationItem(
-                      icon: notification['icon'],
-                      message: notification['message'],
-                      time: notification['time'],
-                      showMapButton: notification['showMapButton'],
-                      iconText: notification['iconText'],
-                      onTap: () {
-                        if (kDebugMode) {
-                          print('Tapped notification: ${notification['message']}');
+                child: FutureBuilder<List<AlertData>>(
+                  future: futureAlerts,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Error: ${snapshot.error}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      );
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          'No notifications available',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      );
+                    }
+
+                    List<Future<Map<String, Object>>> notifications = snapshot.data!.map((alert) async {
+                      // Assuming location is in "longitude, latitude" format
+                      final parts = alert.location.split(',').map((e) => e.trim()).toList();
+                      final latitude = double.parse(parts[1]);
+                      final longitude = double.parse(parts[0]);
+
+                      // Get the nearest place or city
+                      String locationName = await getCityFromCoordinates(latitude, longitude);
+
+                      return {
+                        'icon': Icons.warning_amber_rounded,
+                        'message': 'Elephants spotted at $locationName!',
+                        'time': alert.time,
+                        'showMapButton': true,
+                        'isAlert': true,
+                      };
+                    }).toList();
+
+                    // Wait for all asynchronous location fetches to complete
+                    return FutureBuilder<List<Map<String, dynamic>>>(
+                      future: Future.wait(notifications),
+                      builder: (context, notificationsSnapshot) {
+                        if (notificationsSnapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
                         }
+
+                        List<Map<String, dynamic>> filteredNotifications =
+                        currentFilter == 'All'
+                            ? notificationsSnapshot.data!
+                            : notificationsSnapshot.data!.where((n) => n['isAlert']).toList();
+
+                        return ListView.builder(
+                          itemCount: filteredNotifications.length,
+                          itemBuilder: (context, index) {
+                            final notification = filteredNotifications[index];
+                            return NotificationItem(
+                              icon: notification['icon'],
+                              message: notification['message'],
+                              time: notification['time'],
+                              showMapButton: notification['showMapButton'],
+                              onTap: () {
+                                if (kDebugMode) {
+                                  print('Tapped notification: ${notification['message']}');
+                                }
+                              },
+                            );
+                          },
+                        );
                       },
                     );
                   },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class FilterButton extends StatelessWidget {
-  final String text;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const FilterButton({
-    super.key,
-    required this.text,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF00FF9D) : const Color(0xFF0A3937),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: isSelected ? const Color(0xFF032221) : Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class NotificationItem extends StatelessWidget {
-  final IconData? icon;
-  final String message;
-  final String time;
-  final bool showMapButton;
-  final String? iconText;
-  final VoidCallback onTap;
-
-  const NotificationItem({
-    super.key,
-    this.icon,
-    required this.message,
-    required this.time,
-    required this.showMapButton,
-    this.iconText,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      splashColor: Colors.white.withValues(alpha: 0.1),
-      highlightColor: Colors.white.withValues(alpha: 0.05),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: Colors.white.withValues(alpha: 0.1),
-              width: 1,
-            ),
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF0A3937),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: iconText != null
-                      ? Text(
-                    iconText!,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  )
-                      : Icon(
-                    icon!,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      message,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          time,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14,
-                          ),
-                        ),
-                        if (showMapButton)
-                          GestureDetector(
-                            onTap: () {
-                              // Handle map button tap
-                              if (kDebugMode) {
-                                print('Map button tapped for: $message');
-                              }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF00FF9D),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const Text(
-                                'See on map',
-                                style: TextStyle(
-                                  color: Color(0xFF032221),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
                 ),
               ),
             ],
