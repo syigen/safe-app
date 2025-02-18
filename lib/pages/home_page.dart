@@ -6,7 +6,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../model/alert_data.dart';
+import '../services/alert_service.dart';
 import '../services/auth_service.dart';
+import '../services/location_service.dart';
 import '../widgets/app_drawer.dart';
 import '../providers/location_provider.dart';
 import 'google_maps_page.dart';
@@ -14,14 +17,25 @@ import 'google_maps_page.dart';
 class HomeScreen extends ConsumerWidget {
   final AuthService _authService;
 
-  HomeScreen({Key? key, required AuthClient authClient})
-      : _authService = AuthService(authClient: authClient),
-        super(key: key);
+  final alertProvider = FutureProvider<List<AlertData>>((ref) async {
+    final alertService = AlertService();
+    List<AlertData> alerts = await alertService.getAlerts();
+
+    alerts.sort((a, b) {
+      final dateComparison = b.date.compareTo(a.date);
+      return dateComparison != 0 ? dateComparison : b.time.compareTo(a.time);
+    });
+
+    return alerts.take(2).toList();
+  });
+
+  HomeScreen({super.key, required AuthClient authClient})
+      : _authService = AuthService(authClient: authClient);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locationData = ref.watch(locationProvider);
-    bool _isLoading = locationData == null;
+    bool isLoading = locationData == null;
 
     return WillPopScope(
       onWillPop: () async {
@@ -92,38 +106,75 @@ class HomeScreen extends ConsumerWidget {
                   // Latest alerts
                   _buildSectionHeader('Latest alerts', onTap: () {}),
                   const SizedBox(height: 12),
-                  SizedBox(
-                    height: 220,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        _buildAlertCard(
-                          'President Pushes for Reopening El',
-                          'Sri Lankan President Anura Kumara ..',
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final alertAsyncValue = ref.watch(alertProvider);
+
+                      return alertAsyncValue.when(
+                        data: (alerts) => SizedBox(
+                          height: 220,
+                          child: alerts.isNotEmpty
+                              ? ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: alerts.length,
+                                  itemBuilder: (context, index) {
+                                    final alert = alerts[index];
+
+                                    return FutureBuilder<String>(
+                                      future:
+                                          LocationService.getLocationDetails(alert.location),
+                                      builder: (context, snapshot) {
+                                        String locationText = snapshot.data ??
+                                            'Fetching location...';
+
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                              right: 12.0),
+                                          child: _buildAlertCard(
+                                            _formatAlertTitle(
+                                                alert.elephantCount,
+                                                locationText),
+                                            '${alert.date} - ${alert.time}',
+                                            imageUrl: alert.image != null
+                                                ? alert.image!.path
+                                                : 'assets/news/default.png',
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                )
+                              : const Center(
+                                  child: Text(
+                                    'No alerts available.',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
                         ),
-                        const SizedBox(width: 12),
-                        _buildAlertCard(
-                          'Special Committee Investigates',
-                          'A special committee has been... ',
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
+                        error: (error, stackTrace) => Center(
+                          child: Text(
+                            'Error loading alerts: $error',
+                            style: const TextStyle(color: Colors.red),
+                          ),
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                   // Send Alert Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _isLoading
-                          ? null // Disable the button if loading
+                      onPressed: isLoading
+                          ? null
                           : () {
-                              if (locationData != null) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => GoogleMapsScreen(),
-                                  ),
-                                );
-                              }
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => GoogleMapsScreen(),
+                                ),
+                              );
                             },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00FF9D),
@@ -132,7 +183,7 @@ class HomeScreen extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: _isLoading
+                      child: isLoading
                           ? const CircularProgressIndicator(
                               valueColor:
                                   AlwaysStoppedAnimation<Color>(Colors.black),
@@ -193,11 +244,14 @@ class HomeScreen extends ConsumerWidget {
                     child: ListView(
                       scrollDirection: Axis.horizontal,
                       children: [
-                        _buildNewsCard('Wildlife Depart..', 'The Wildlife Depa.. '),
+                        _buildNewsCard(
+                            'Wildlife Depart..', 'The Wildlife Depa.. '),
                         const SizedBox(width: 12),
-                        _buildNewsCard('Elephant Death..', 'Sri Lanka Railways..'),
+                        _buildNewsCard(
+                            'Elephant Death..', 'Sri Lanka Railways..'),
                         const SizedBox(width: 12),
-                        _buildNewsCard('National Engin..', 'The National Eng..'),
+                        _buildNewsCard(
+                            'National Engin..', 'The National Eng..'),
                       ],
                     ),
                   ),
@@ -234,7 +288,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAlertCard(String title, String subtitle) {
+  Widget _buildAlertCard(String title, String subtitle, {String? imageUrl}) {
     return Container(
       width: 280,
       decoration: BoxDecoration(
@@ -246,11 +300,19 @@ class HomeScreen extends ConsumerWidget {
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            child: Image.asset(
-              'assets/news/news2.png',
+            child: Image.network(
+              imageUrl ?? 'assets/news/default.png',
               height: 140,
               width: double.infinity,
               fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Image.asset(
+                  'assets/news/default.png',
+                  height: 140,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                );
+              },
             ),
           ),
           Padding(
@@ -260,27 +322,23 @@ class HomeScreen extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(width: 5),
-                    const Icon(
-                      Icons.arrow_forward,
-                      size: 20,
-                      color: Colors.white,
-                    ),
+                    const Icon(Icons.arrow_forward,
+                        size: 20, color: Colors.white),
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: const TextStyle(color: Colors.grey),
-                ),
+                Text(subtitle, style: const TextStyle(color: Colors.grey)),
               ],
             ),
           ),
@@ -301,7 +359,7 @@ class HomeScreen extends ConsumerWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         minimumSize: const Size(185, 80),
-        elevation: 0, // Add subtle elevation
+        elevation: 0,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -381,4 +439,10 @@ class HomeScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+String _formatAlertTitle(int count, String location) {
+  return count > 1
+      ? 'A group of elephants has been sighted in $location.'
+      : 'An elephant has been sighted in $location.';
 }
