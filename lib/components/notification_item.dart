@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../pages/main_page.dart';
+
 class NotificationItem extends StatelessWidget {
   final IconData? icon;
   final String message;
@@ -21,15 +23,18 @@ class NotificationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final mainPageState = context.findAncestorStateOfType<MainPageState>();
+
     return InkWell(
       onTap: onTap,
-      splashColor: Colors.white.withOpacity(0.1),
-      highlightColor: Colors.white.withOpacity(0.05),
+      splashColor: Colors.white.withValues(alpha: 0.1),
+      highlightColor: Colors.white.withValues(alpha: 0.05),
       child: Container(
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
               width: 1,
             ),
           ),
