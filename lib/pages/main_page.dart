@@ -40,6 +40,12 @@ class MainPageState extends State<MainPage> {
     });
   }
 
+  void navigateToMap() {
+    setState(() {
+      _currentIndex = 1;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
