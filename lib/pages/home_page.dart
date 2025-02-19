@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../model/alert_data.dart';
 import '../services/alert_service.dart';
 import '../services/auth_service.dart';
@@ -13,6 +14,7 @@ import '../services/location_service.dart';
 import '../widgets/app_drawer.dart';
 import '../providers/location_provider.dart';
 import 'google_maps_page.dart';
+import 'main_page.dart';
 
 class HomeScreen extends ConsumerWidget {
   final AuthService _authService;
@@ -115,44 +117,61 @@ class HomeScreen extends ConsumerWidget {
                           height: 220,
                           child: alerts.isNotEmpty
                               ? ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: alerts.length,
-                                  itemBuilder: (context, index) {
-                                    final alert = alerts[index];
+                            scrollDirection: Axis.horizontal,
+                            itemCount: alerts.length,
+                            itemBuilder: (context, index) {
+                              final alert = alerts[index];
 
-                                    return FutureBuilder<String>(
-                                      future:
-                                          LocationService.getLocationDetails(alert.location),
-                                      builder: (context, snapshot) {
-                                        String locationText = snapshot.data ??
-                                            'Fetching location...';
+                              return FutureBuilder<String>(
+                                future: LocationService.getLocationDetails(alert.location),
+                                builder: (context, snapshot) {
+                                  String locationText = snapshot.data ?? 'Fetching location...';
 
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                              right: 12.0),
-                                          child: _buildAlertCard(
-                                            _formatAlertTitle(
-                                                alert.elephantCount,
-                                                locationText),
-                                            '${alert.date} - ${alert.time}',
-                                            imageUrl: alert.image != null
-                                                ? alert.image!.path
-                                                : 'assets/news/default.png',
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                )
+                                  // Convert alert location to LatLng
+                                  List<String> parts = alert.location.split(',').map((e) => e.trim()).toList();
+                                  LatLng? alertLatLng;
+                                  if (parts.length == 2) {
+                                    try {
+                                      double latitude = double.parse(parts[1]);
+                                      double longitude = double.parse(parts[0]);
+                                      alertLatLng = LatLng(latitude, longitude);
+                                    } catch (e) {
+                                      print("Error parsing alert location: ${alert.location}");
+                                    }
+                                  }
+
+                                  return GestureDetector(
+                                    onTap: () {
+                                      if (alertLatLng != null) {
+                                        final mainPageState = context.findAncestorStateOfType<MainPageState>();
+                                        if (mainPageState != null) {
+                                          mainPageState.navigateToMapWithLocation(location: alertLatLng);
+                                        }
+                                      }
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 12.0),
+                                      child: _buildAlertCard(
+                                        _formatAlertTitle(alert.elephantCount, locationText),
+                                        '${alert.date} - ${alert.time}',
+                                        imageUrl: alert.image != null
+                                            ? alert.image!.path
+                                            : 'assets/news/default.png',
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          )
                               : const Center(
-                                  child: Text(
-                                    'No alerts available.',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ),
+                            child: Text(
+                              'No alerts available.',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
                         ),
-                        loading: () =>
-                            const Center(child: CircularProgressIndicator()),
+                        loading: () => const Center(child: CircularProgressIndicator()),
                         error: (error, stackTrace) => Center(
                           child: Text(
                             'Error loading alerts: $error',

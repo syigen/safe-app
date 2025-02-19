@@ -3,6 +3,7 @@
  *
  */
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -23,6 +24,10 @@ final alertProvider = FutureProvider<List<AlertData>>((ref) async {
 });
 
 class AlertDetailsMap extends ConsumerStatefulWidget {
+  final LatLng? selectedLocation;
+
+  const AlertDetailsMap({super.key, this.selectedLocation});
+
   @override
   _AlertDetailsMapState createState() => _AlertDetailsMapState();
 }
@@ -41,7 +46,7 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
     customMarker();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(locationProvider.notifier).getCurrentLocation();
-      ref.refresh(alertProvider); // Refreshes the alerts on every map load
+      ref.refresh(alertProvider);
     });
   }
 
@@ -58,7 +63,9 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
     final fi = await codec.getNextFrame();
     final resizedImageData = (await fi.image.toByteData(
       format: ui.ImageByteFormat.png,
-    ))!.buffer.asUint8List();
+    ))!
+        .buffer
+        .asUint8List();
 
     setState(() {
       customIcon = BitmapDescriptor.fromBytes(resizedImageData);
@@ -83,7 +90,8 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
 
   Future<void> getAddressFromCoordinates(LatLng position) async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(
+      List<Placemark> placemarks;
+      placemarks = await placemarkFromCoordinates(
         position.latitude,
         position.longitude,
       );
@@ -96,7 +104,9 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
 
       await updateCustomInfoWindowPosition();
     } catch (e) {
-      print("Error getting address: $e");
+      if (kDebugMode) {
+        print("Error getting address: $e");
+      }
     }
   }
 
@@ -105,7 +115,11 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
     final locationData = ref.watch(locationProvider);
     final alerts = ref.watch(alertProvider);
 
-    currentLocation = LatLng(locationData!.latitude!, locationData!.longitude!);
+    LatLng initialPosition = widget.selectedLocation ??
+        (locationData?.latitude != null && locationData?.longitude != null
+            ? LatLng(locationData!.latitude!, locationData.longitude!)
+            : const LatLng(
+                7.8731, 80.7718));
 
     return WillPopScope(
       onWillPop: () async {
@@ -121,7 +135,7 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
           children: [
             GoogleMap(
               initialCameraPosition: CameraPosition(
-                target: currentLocation!,
+                target: initialPosition,
                 zoom: 15,
               ),
               myLocationEnabled: false,
@@ -129,14 +143,23 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
               onMapCreated: (GoogleMapController controller) {
                 _controller = controller;
                 _controller.setMapStyle(mapStyle);
-                ref.refresh(alertProvider); // Refresh alerts every time map is created
+                ref.refresh(alertProvider);
+
+                // Move to selectedLocation if it was passed
+                if (widget.selectedLocation != null) {
+                  _controller.animateCamera(
+                    CameraUpdate.newLatLng(widget.selectedLocation!),
+                  );
+                }
               },
               markers: {
-
                 if (alerts.hasValue)
                   ...alerts.value!.map((alert) {
                     try {
-                      final parts = alert.location.split(',').map((e) => e.trim()).toList();
+                      final parts = alert.location
+                          .split(',')
+                          .map((e) => e.trim())
+                          .toList();
                       double latitude = double.parse(parts[1]);
                       double longitude = double.parse(parts[0]);
                       LatLng alertPosition = LatLng(latitude, longitude);
@@ -153,7 +176,7 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
                       print("Invalid alert location format: ${alert.location}");
                       return Marker(
                         markerId: MarkerId(UniqueKey().toString()),
-                        position: LatLng(0, 0),
+                        position: const LatLng(0, 0),
                         visible: false,
                       );
                     }
@@ -164,6 +187,5 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
         ),
       ),
     );
-
   }
 }

@@ -4,6 +4,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:safe_app/services/auth_service.dart';
 import 'package:safe_app/pages/alert_details_map.dart';
 import 'package:safe_app/pages/home_page.dart';
@@ -20,13 +21,7 @@ class MainPage extends StatefulWidget {
 
 class MainPageState extends State<MainPage> {
   int _currentIndex = 0;
-
-  final List<Widget> _pages = [
-    HomeScreen(authClient: SupabaseAuthClient()),
-    AlertDetailsMap(),
-    const ServicePage(),
-    const NotificationsPage(),
-  ];
+  LatLng? selectedLocation;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -46,10 +41,24 @@ class MainPageState extends State<MainPage> {
     });
   }
 
+  void navigateToMapWithLocation({LatLng? location}) {
+    setState(() {
+      _currentIndex = 1;
+      selectedLocation = location;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      HomeScreen(authClient: SupabaseAuthClient()),
+      AlertDetailsMap(selectedLocation: selectedLocation),
+      const ServicePage(),
+      const NotificationsPage(),
+    ];
+
     return Scaffold(
-      body: _pages[_currentIndex],
+      body: pages[_currentIndex],
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onItemTapped,

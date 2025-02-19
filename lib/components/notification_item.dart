@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../pages/main_page.dart';
 
@@ -9,6 +9,7 @@ class NotificationItem extends StatelessWidget {
   final String time;
   final bool showMapButton;
   final String? iconText;
+  final LatLng? location;
   final VoidCallback onTap;
 
   const NotificationItem({
@@ -18,6 +19,7 @@ class NotificationItem extends StatelessWidget {
     required this.time,
     required this.showMapButton,
     this.iconText,
+    this.location,
     required this.onTap,
   });
 
@@ -90,12 +92,11 @@ class NotificationItem extends StatelessWidget {
                             fontSize: 14,
                           ),
                         ),
-                        if (showMapButton)
+                        if (showMapButton && location != null)
                           GestureDetector(
                             onTap: () {
-
-                              if (mainPageState != null) {
-                                mainPageState.navigateToMap();
+                              if (mainPageState != null && location != null) {
+                                mainPageState.navigateToMapWithLocation(location: location!);
                               }
                             },
                             child: Container(
