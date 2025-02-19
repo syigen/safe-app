@@ -1,4 +1,9 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ *
+ */
 import 'package:flutter/material.dart';
+import 'package:safe_app/pages/view_news_list.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
@@ -7,10 +12,37 @@ class AdminDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF021B1A),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        leading: Padding(
+          padding: const EdgeInsets.all(5),
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF06302B),
+              borderRadius: BorderRadius.circular(50),
+            ),
+            child: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(
+                Icons.arrow_back,
+                color:Color(0xFF03624C),
+              ),
+              iconSize: 28,
+            ),
+          ),
+        ),
+        title: const Text(
+          'ADMIN DASHBOARD',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            // Calculate responsive width
             double contentWidth = constraints.maxWidth > 600
                 ? 600
                 : constraints.maxWidth * 0.9;
@@ -22,16 +54,7 @@ class AdminDashboard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Title and underline
-                    const Text(
-                      'ADMIN DASHBOARD',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
+
                     Container(
                       height: 1,
                       color: Color(0xFF00DF81),
@@ -40,7 +63,14 @@ class AdminDashboard extends StatelessWidget {
 
                     // News Management Button
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NewsListView(),
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00DF81),
                         padding: const EdgeInsets.symmetric(vertical: 20),
@@ -62,7 +92,8 @@ class AdminDashboard extends StatelessWidget {
 
                     // Task Buttons
                     OutlinedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                      },
                       style: OutlinedButton.styleFrom(
                         backgroundColor: const Color(0xFF021B1A),
                         side: const BorderSide(
