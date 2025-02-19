@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:safe_app/pages/admin_dashboard.dart';
 
 import '../components/user_profile_popup.dart';
 
@@ -67,9 +68,14 @@ class AppDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.settings, color: Colors.white),
             title:
-            const Text('Settings', style: TextStyle(color: Colors.white)),
+            const Text('Admin', style: TextStyle(color: Colors.white)),
             onTap: () {
-              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AdminDashboard(),
+                ),
+              );
             },
           ),
           ListTile(
