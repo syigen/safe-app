@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';  // Import geocoding package
+import 'package:geocoding/geocoding.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../components/filter_button.dart';
 import '../components/notification_item.dart';
 import '../model/alert_data.dart';
@@ -24,17 +25,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
     futureAlerts = AlertService().getAlerts();
   }
 
-  // Function to get the nearest city or known place from coordinates
   Future<String> getCityFromCoordinates(double latitude, double longitude) async {
     try {
-      // Get a list of placemarks (addresses)
       List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
-      // Try to get the city name, or fall back to the first available known place
       Placemark place = placemarks.isNotEmpty ? placemarks.first : Placemark();
       return place.locality ?? place.subLocality ?? place.name ?? "Unknown place";
     } catch (e) {
       print("Error fetching address: $e");
-      return "Unknown place"; // Fallback in case of an error
+      return "Unknown place";
     }
   }
 
@@ -107,12 +105,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     }
 
                     List<Future<Map<String, Object>>> notifications = snapshot.data!.map((alert) async {
-                      // Assuming location is in "longitude, latitude" format
                       final parts = alert.location.split(',').map((e) => e.trim()).toList();
                       final latitude = double.parse(parts[1]);
                       final longitude = double.parse(parts[0]);
 
-                      // Get the nearest place or city
                       String locationName = await getCityFromCoordinates(latitude, longitude);
 
                       return {
@@ -121,10 +117,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         'time': alert.time,
                         'showMapButton': true,
                         'isAlert': true,
+                        'latitude': latitude,
+                        'longitude': longitude,
                       };
                     }).toList();
 
-                    // Wait for all asynchronous location fetches to complete
                     return FutureBuilder<List<Map<String, dynamic>>>(
                       future: Future.wait(notifications),
                       builder: (context, notificationsSnapshot) {
@@ -141,15 +138,17 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           itemCount: filteredNotifications.length,
                           itemBuilder: (context, index) {
                             final notification = filteredNotifications[index];
+                            final latitude = notification['latitude'];
+                            final longitude = notification['longitude'];
+
                             return NotificationItem(
                               icon: notification['icon'],
                               message: notification['message'],
                               time: notification['time'],
                               showMapButton: notification['showMapButton'],
+                              location: LatLng(latitude, longitude),
                               onTap: () {
-                                if (kDebugMode) {
-                                  print('Tapped notification: ${notification['message']}');
-                                }
+                                // Handle tap action here
                               },
                             );
                           },
