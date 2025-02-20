@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../components/user_profile_popup.dart';
+
 class AppDrawer extends StatelessWidget {
   final Function(BuildContext) onLogout;
 
@@ -14,31 +16,39 @@ class AppDrawer extends StatelessWidget {
       backgroundColor: const Color(0xFF032221),
       child: Column(
         children: [
-          Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: Color(0xFF021B1A),
-            ),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 32.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundImage:
-                    AssetImage('assets/images/profile_image.png'),
-                  ),
-                  SizedBox(height: 12),
-                  Text(
-                    'Hello User',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+          GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => const ProfilePopup(),
+              );
+            },
+            child: Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: Color(0xFF021B1A),
+              ),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 32.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundImage:
+                      AssetImage('assets/images/profile_image.png'),
                     ),
-                  ),
-                ],
+                    SizedBox(height: 12),
+                    Text(
+                      'Hello User',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
