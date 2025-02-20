@@ -3,7 +3,9 @@
  *
  */
 import 'package:flutter/material.dart';
-import 'package:safe_app/pages/view_news_list.dart';
+
+import 'admin_view_news_list.dart';
+
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
