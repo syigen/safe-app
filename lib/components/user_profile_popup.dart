@@ -44,11 +44,11 @@ class ProfilePopupState extends State<ProfilePopup> {
           width: MediaQuery.of(context).size.width * 0.85,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: const Color(0xFF1A2C2C),
+            color: const Color(0xFF032221),
             borderRadius: BorderRadius.circular(30),
             border: Border.all(
               color: const Color(0xFF00DF81),
-              width: 1,
+              width: 3,
             ),
             boxShadow: [
               BoxShadow(
@@ -80,20 +80,20 @@ class ProfilePopupState extends State<ProfilePopup> {
                       height: 100,
                       decoration: BoxDecoration(
                         color: Colors.grey[800],
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(35),
                         border: Border.all(
                           color: Colors.black,
                           width: 2,
                         ),
                         image: _imageFile != null
                             ? DecorationImage(
-                          image: FileImage(_imageFile!),
-                          fit: BoxFit.cover,
-                        )
+                                image: FileImage(_imageFile!),
+                                fit: BoxFit.cover,
+                              )
                             : const DecorationImage(
-                          image: AssetImage('assets/user/default.png'),
-                          fit: BoxFit.cover,
-                        ),
+                                image: AssetImage('assets/user/default.png'),
+                                fit: BoxFit.cover,
+                              ),
                       ),
                     ),
                     Positioned(
@@ -172,7 +172,8 @@ class ProfilePopupState extends State<ProfilePopup> {
 
               // Confirm button
               Container(
-                width: double.infinity,
+                width: MediaQuery.of(context).size.width *
+                    0.35,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -200,7 +201,7 @@ class ProfilePopupState extends State<ProfilePopup> {
                     ),
                   ),
                 ),
-              ),
+              )
             ],
           ),
         ),
