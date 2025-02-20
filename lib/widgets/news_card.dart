@@ -1,136 +1,169 @@
-/*
- * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
- */
 import 'package:flutter/material.dart';
 import '../model/news.dart';
+import '../pages/news_option_screen.dart'; // Import the news option screen
 
 class NewsCard extends StatelessWidget {
-  final int index;
   final News news;
+  final int index;
 
   const NewsCard({
-    super.key,
-    required this.index,
+    Key? key,
     required this.news,
-  });
+    required this.index,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
+    // Get screen width for responsive sizing
+    final screenWidth = MediaQuery.of(context).size.width;
 
-    // More aggressively reduce card width
-    double cardWidth = screenWidth * 0.85;
-    double cardHeight = screenWidth * 0.16;
-    double imageSize = screenWidth * 0.22;
-    double fontSize = screenWidth * 0.035;
-    double indexBoxWidth = screenWidth * 0.08;
-    double spacing = screenWidth * 0.012;
+    // Calculate dynamic height based on screen size
+    final cardHeight = screenWidth < 600 ? 100.0 : 120.0;
+    final imageWidth = screenWidth < 600 ? 100.0 : 120.0;
 
-    return Center(
-      child: Container(
-        height: cardHeight,
-        width: cardWidth,
-        margin: EdgeInsets.only(bottom: spacing * 4),
-        decoration: BoxDecoration(
-          color: const Color(0xFF03624C),
-          borderRadius: BorderRadius.circular(screenWidth * 0.03),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF00FF94).withOpacity(0.6),
-              blurRadius: 10,
-              spreadRadius: 0,
-              offset: const Offset(4, 4), 
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildIndexWithHighlight(indexBoxWidth, fontSize),
-            SizedBox(width: spacing),
-            _buildImage(imageSize),
-            SizedBox(width: spacing * 1.5),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(right: spacing * 2),
-                child: _buildTitle(fontSize),
+    return GestureDetector(
+      onTap: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => NewsOptionScreen(news: news),
+          ),
+        );
+        // Handle refresh if needed
+        if (result == true) {
+          // This will be handled in the parent ListView
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        child: Container(
+          height: cardHeight,
+          decoration: BoxDecoration(
+            color: const Color(0xFF0B453A),
+            borderRadius: BorderRadius.circular(16),
+            // Add subtle shadow for depth
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
               ),
-            ),
-          ],
+            ],
+          ),
+          child: Row(
+            children: [
+              // Image container with null handling
+              Container(
+                width: imageWidth,
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.horizontal(
+                    left: Radius.circular(16),
+                  ),
+                  color: const Color(0xFF06302B), // Background color for empty state
+                ),
+                child: Stack(
+                  children: [
+                    // Image with error handling
+                    if (news.imageUrl.isNotEmpty)
+                      ClipRRect(
+                        borderRadius: const BorderRadius.horizontal(
+                          left: Radius.circular(16),
+                        ),
+                        child: Image.network(
+                          news.imageUrl,
+                          fit: BoxFit.cover,
+                          width: imageWidth,
+                          height: cardHeight,
+                          errorBuilder: (context, error, stackTrace) {
+                            return _buildPlaceholder(imageWidth, cardHeight);
+                          },
+                        ),
+                      )
+                    else
+                      _buildPlaceholder(imageWidth, cardHeight),
+                    // Index number overlay
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Container(
+                        width: 24,
+                        height: 24,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF032221),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            index.toString(),
+                            style: const TextStyle(
+                              color: Color(0xFF00DF81),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Content section
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.all(screenWidth < 600 ? 12.0 : 16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        news.title,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: screenWidth < 600 ? 14 : 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (screenWidth >= 600) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          news.description,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                            fontSize: 12,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildIndexWithHighlight(double width, double fontSize) {
-    return SizedBox(
+  Widget _buildPlaceholder(double width, double height) {
+    return Container(
       width: width,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: Container(
-              height: width * 0.8,
-              width: 2,
-              margin: EdgeInsets.only(right: width * 0.1),
-              color: const Color(0xFF00DF81),
-            ),
-          ),
-          Center(
-            child: Text(
-              index.toString(),
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImage(double size) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(size * 0.1),
-      child: news.image != null
-          ? Image.file(
-        news.image!,
-        width: size,
-        height: size * 0.65,
-        fit: BoxFit.cover,
-      )
-          : Container(
-        width: size,
-        height: size * 0.65,
-        decoration: BoxDecoration(
-          color: const Color(0xFF021B1A),
-          borderRadius: BorderRadius.circular(size * 0.1),
+      height: height,
+      decoration: const BoxDecoration(
+        color: Color(0xFF06302B),
+        borderRadius: BorderRadius.horizontal(
+          left: Radius.circular(16),
         ),
+      ),
+      child: Center(
         child: Icon(
-          Icons.image,
-          color: const Color(0xFF00DF81),
-          size: size * 0.3,
+          Icons.image_outlined,
+          color: const Color(0xFF00DF81).withOpacity(0.5),
+          size: 32,
         ),
       ),
-    );
-  }
-
-  Widget _buildTitle(double fontSize) {
-    return Text(
-      news.title,
-      style: TextStyle(
-        fontSize: fontSize,
-        fontWeight: FontWeight.w500,
-        color: Colors.white,
-      ),
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
     );
   }
 }
-
-
