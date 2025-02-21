@@ -66,6 +66,13 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.info_outline, color: Colors.white),
+            title: const Text('About', style: TextStyle(color: Colors.white)),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.settings, color: Colors.white),
             title:
             const Text('Admin', style: TextStyle(color: Colors.white)),
@@ -76,13 +83,6 @@ class AppDrawer extends StatelessWidget {
                   builder: (context) => AdminDashboard(),
                 ),
               );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.info_outline, color: Colors.white),
-            title: const Text('About', style: TextStyle(color: Colors.white)),
-            onTap: () {
-              Navigator.pop(context);
             },
           ),
           const Spacer(),
