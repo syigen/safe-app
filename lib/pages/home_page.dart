@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:safe_app/pages/user_news_list.dart';
 import '../model/alert_data.dart';
 import '../services/alert_service.dart';
 import '../services/auth_service.dart';
@@ -256,7 +257,14 @@ class HomeScreen extends ConsumerWidget {
                   const SizedBox(height: 24),
 
                   // News near you
-                  _buildSectionHeader('Top News', onTap: () {}),
+                  _buildSectionHeader('Top News', onTap: () {
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => UserNewsListView()),
+                    );
+
+                  }),
                   const SizedBox(height: 12),
                   SizedBox(
                     height: 170,
