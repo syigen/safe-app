@@ -101,7 +101,7 @@ class TextContent extends StatelessWidget {
           Text(
             'Safe App',
             style: TextStyle(
-              fontSize: isSmallScreen ? 32 : 40,
+              fontSize: isSmallScreen ? 43 : 40,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -111,7 +111,7 @@ class TextContent extends StatelessWidget {
             'Your ultimate guide to\nhuman-wildlife coexistence',
             textAlign: TextAlign.left, // Aligns text to the left
             style: TextStyle(
-              fontSize: isSmallScreen ? 16 : 18,
+              fontSize: isSmallScreen ? 22 : 18,
               fontWeight: FontWeight.bold,
               color: Colors.white70,
             ),
@@ -134,7 +134,7 @@ class BottomButton extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.only(
-        bottom: screenSize.height * 0.05,
+        bottom: screenSize.height * 0.07,
         left: screenSize.width * 0.05,
         right: screenSize.width * 0.05,
       ),
@@ -147,7 +147,7 @@ class BottomButton extends StatelessWidget {
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF00DF81),
-          minimumSize: Size(buttonWidth, 50),
+          minimumSize: Size(buttonWidth, 65),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(13),
           ),
@@ -155,7 +155,7 @@ class BottomButton extends StatelessWidget {
         child: Text(
           'Get Started Now',
           style: TextStyle(
-            fontSize: screenSize.width < 600 ? 18 : 20,
+            fontSize: screenSize.width < 600 ? 20 : 22,
             color: Colors.black,
           ),
         ),
