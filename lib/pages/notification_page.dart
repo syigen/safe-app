@@ -8,7 +8,9 @@ import '../services/alert_service.dart';
 import 'main_page.dart';
 
 class NotificationsPage extends StatefulWidget {
-  const NotificationsPage({super.key});
+  final String type;
+
+  NotificationsPage({super.key, required this.type});
 
   @override
   _NotificationsPageState createState() => _NotificationsPageState();
@@ -16,12 +18,14 @@ class NotificationsPage extends StatefulWidget {
 
 class _NotificationsPageState extends State<NotificationsPage> {
   String currentFilter = 'All';
+
   late Future<List<AlertData>> futureAlerts;
 
   @override
   void initState() {
     super.initState();
     futureAlerts = AlertService().getAlerts();
+    currentFilter = widget.type == 'Alerts' ? 'Alerts' : 'All';
   }
 
   Future<String> getCityFromCoordinates(double latitude, double longitude) async {
@@ -133,7 +137,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
                             ? notificationsSnapshot.data!
                             : notificationsSnapshot.data!.where((n) => n['isAlert']).toList();
 
-                        // Add ScrollController
                         final ScrollController scrollController = ScrollController();
 
                         return Scrollbar(
