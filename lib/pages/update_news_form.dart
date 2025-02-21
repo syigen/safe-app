@@ -113,7 +113,7 @@ class _UpdateNewsScreenState extends State<UpdateNewsForm> {
     if (_titleController.text.isEmpty || _contentController.text.isEmpty) {
       _showToast(
         message: 'Please fill in all fields',
-        backgroundColor:  Colors.yellow,
+        backgroundColor:  Colors.red,
         textColor: Colors.white,
       );
       return;
