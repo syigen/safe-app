@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -134,24 +133,34 @@ class _NotificationsPageState extends State<NotificationsPage> {
                             ? notificationsSnapshot.data!
                             : notificationsSnapshot.data!.where((n) => n['isAlert']).toList();
 
-                        return ListView.builder(
-                          itemCount: filteredNotifications.length,
-                          itemBuilder: (context, index) {
-                            final notification = filteredNotifications[index];
-                            final latitude = notification['latitude'];
-                            final longitude = notification['longitude'];
+                        // Add ScrollController
+                        final ScrollController scrollController = ScrollController();
 
-                            return NotificationItem(
-                              icon: notification['icon'],
-                              message: notification['message'],
-                              time: notification['time'],
-                              showMapButton: notification['showMapButton'],
-                              location: LatLng(latitude, longitude),
-                              onTap: () {
-                                // Handle tap action here
-                              },
-                            );
-                          },
+                        return Scrollbar(
+                          controller: scrollController, // Assign the controller
+                          thickness: 6, // Customize the scrollbar thickness
+                          radius: const Radius.circular(3), // Round the corners of the scrollbar
+                          thumbVisibility: true, // Always show the scrollbar
+                          child: ListView.builder(
+                            controller: scrollController, // Assign the same controller to ListView
+                            itemCount: filteredNotifications.length,
+                            itemBuilder: (context, index) {
+                              final notification = filteredNotifications[index];
+                              final latitude = notification['latitude'];
+                              final longitude = notification['longitude'];
+
+                              return NotificationItem(
+                                icon: notification['icon'],
+                                message: notification['message'],
+                                time: notification['time'],
+                                showMapButton: notification['showMapButton'],
+                                location: LatLng(latitude, longitude),
+                                onTap: () {
+                                  // Handle tap action here
+                                },
+                              );
+                            },
+                          ),
                         );
                       },
                     );
