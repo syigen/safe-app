@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
-import '../model/news.dart';
+import '../model/news_data.dart';
 import '../services/news_service.dart';
 import 'admin_view_news_list.dart';
 

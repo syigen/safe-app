@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:safe_app/pages/add_news_form.dart';
-import '../model/news.dart';
+import '../model/news_data.dart';
 import '../widgets/CustomScroll.dart';
 import '../widgets/news_card.dart';
 import '../services/news_service.dart';
