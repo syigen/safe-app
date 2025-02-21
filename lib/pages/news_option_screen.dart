@@ -6,7 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:safe_app/pages/update_news_form.dart';
-import '../model/news.dart';
+import '../model/news_data.dart';
 import '../services/news_service.dart';
 import '../widgets/CustomScroll.dart';
 import 'admin_view_news_list.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../model/news.dart';
+import '../model/news_data.dart';
 import '../pages/news_option_screen.dart'; // Import the news option screen
 
 class NewsCard extends StatelessWidget {
