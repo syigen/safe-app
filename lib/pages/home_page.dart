@@ -106,7 +106,12 @@ class HomeScreen extends ConsumerWidget {
                   const SizedBox(height: 24),
 
                   // Latest alerts
-                  _buildSectionHeader('Latest alerts', onTap: () {}),
+                  _buildSectionHeader('Latest alerts', onTap: () {
+                    final mainPageState = context.findAncestorStateOfType<MainPageState>();
+                    if (mainPageState != null) {
+                      mainPageState.navigateToNotificationPage("Alerts");
+                    }
+                  }),
                   const SizedBox(height: 12),
                   Consumer(
                     builder: (context, ref, child) {
