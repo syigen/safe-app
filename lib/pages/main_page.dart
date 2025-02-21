@@ -22,6 +22,7 @@ class MainPage extends StatefulWidget {
 class MainPageState extends State<MainPage> {
   int _currentIndex = 0;
   LatLng? selectedLocation;
+  String _type = "";
 
   void _onItemTapped(int index) {
     setState(() {
@@ -48,14 +49,26 @@ class MainPageState extends State<MainPage> {
     });
   }
 
+  void navigateToNotificationPage(String type) {
+    setState(() {
+      _currentIndex = 3;
+      _type = type;
+    });
+  }
+
+  void setTypeToNull() {
+    _type = "";
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
       HomeScreen(authClient: SupabaseAuthClient()),
       AlertDetailsMap(selectedLocation: selectedLocation),
       const ServicePage(),
-      const NotificationsPage(),
+      NotificationsPage(type: _type),
     ];
+    setTypeToNull();
 
     return Scaffold(
       body: pages[_currentIndex],
