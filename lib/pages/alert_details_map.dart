@@ -150,6 +150,14 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
                   _controller.animateCamera(
                     CameraUpdate.newLatLng(widget.selectedLocation!),
                   );
+                } else {
+                  final locationData = ref.read(locationProvider);
+                  if (locationData?.latitude != null && locationData?.longitude != null) {
+                    LatLng currentPos = LatLng(locationData!.latitude!, locationData.longitude!);
+                    _controller.animateCamera(
+                      CameraUpdate.newLatLng(currentPos),
+                    );
+                  }
                 }
               },
               markers: {
