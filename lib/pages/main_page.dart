@@ -36,12 +36,6 @@ class MainPageState extends State<MainPage> {
     });
   }
 
-  void navigateToMap() {
-    setState(() {
-      _currentIndex = 1;
-    });
-  }
-
   void navigateToMapWithLocation({LatLng? location}) {
     setState(() {
       _currentIndex = 1;
@@ -64,11 +58,15 @@ class MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     final List<Widget> pages = [
       HomeScreen(authClient: SupabaseAuthClient()),
-      AlertDetailsMap(selectedLocation: selectedLocation),
+      AlertDetailsMap(selectedLocation: _currentIndex == 1 ? selectedLocation : null),
       const ServicePage(),
       NotificationsPage(type: _type),
     ];
     setTypeToNull();
+
+    if (_currentIndex == 1 && selectedLocation != null) {
+      selectedLocation = null;
+    }
 
     return Scaffold(
       body: pages[_currentIndex],
