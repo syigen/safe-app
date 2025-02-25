@@ -4,6 +4,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:safe_app/pages/forgot_password_page.dart';
 import 'package:safe_app/pages/registration_page.dart';
 import 'package:safe_app/services/auth_service.dart';
 import '../widgets/social_login_button.dart';
@@ -44,7 +45,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 40),
 
-              // Social Login Buttons
               SocialLoginButton(
                 text: 'Continue with Google',
                 iconPath: 'assets/logo/google.png',
@@ -70,7 +70,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 32),
 
-              // Divider
               const Row(
                 children: [
                   Expanded(child: Divider(color: Colors.white38)),
@@ -86,7 +85,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 32),
 
-              // Email Field
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: const Color(0xFF00FF9D)),
@@ -108,41 +106,64 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 16),
 
-              // Password Field
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFF00FF9D)),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: TextField(
-                  controller: passwordController,
-                  obscureText: _obscureText,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Password',
-                    hintStyle: const TextStyle(color: Colors.white54),
-                    prefixIcon: const Icon(Icons.lock_outline,
-                        color: Color(0xFF00FF9D)),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureText ? Icons.visibility_off : Icons.visibility,
-                        color: const Color(0xFF00FF9D),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscureText = !_obscureText;
-                        });
-                      },
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFF00FF9D)),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
+                    child: TextField(
+                      controller: passwordController,
+                      obscureText: _obscureText,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: 'Password',
+                        hintStyle: const TextStyle(color: Colors.white54),
+                        prefixIcon: const Icon(Icons.lock_outline,
+                            color: Color(0xFF00FF9D)),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureText ? Icons.visibility_off : Icons.visibility,
+                            color: const Color(0xFF00FF9D),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureText = !_obscureText;
+                            });
+                          },
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                      ),
+                    ),
                   ),
-                ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ForgotPasswordScreen(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'Forgot password?',
+                        style: TextStyle(
+                          color: Color(0xFF00FF9D),
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
               ),
-              const SizedBox(height: 24),
 
-              // Login Button
               ElevatedButton(
                 onPressed: () {
                   _authService.login(
