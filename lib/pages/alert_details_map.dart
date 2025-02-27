@@ -33,20 +33,91 @@ class AlertDetailsMap extends ConsumerStatefulWidget {
 class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
   late GoogleMapController _controller;
   BitmapDescriptor customIcon = BitmapDescriptor.defaultMarker;
+  BitmapDescriptor tappedIcon = BitmapDescriptor.defaultMarker;
   LatLng? selectedLocation;
   String? alertTitle;
   String? alertDate;
   String? alertTime;
   bool showCustomWindow = false;
   Offset infoWindowPosition = Offset.zero;
+  String? tappedMarkerId; // Track which marker is currently tapped
+  bool markersLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    customMarker();
+    loadMarkers();
+    // Set the selected location from widget if provided
+    if (widget.selectedLocation != null) {
+      selectedLocation = widget.selectedLocation;
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(locationProvider.notifier).getCurrentLocation();
       ref.refresh(alertProvider);
+
+      // Initialize selected marker when map loads with widget.selectedLocation
+      if (widget.selectedLocation != null) {
+        // Need to find the marker ID for this location after alerts are loaded
+        Future.delayed(Duration(milliseconds: 500), () {
+          _setInitialSelectedMarker();
+        });
+      }
+    });
+  }
+  void _setInitialSelectedMarker() {
+    final alerts = ref.read(alertProvider);
+    if (!alerts.hasValue || widget.selectedLocation == null) return;
+
+    // Find the alert that matches widget.selectedLocation
+    for (final alert in alerts.value!) {
+      try {
+        final parts = alert.location
+            .split(',')
+            .map((e) => e.trim())
+            .toList();
+        double latitude = double.parse(parts[1]);
+        double longitude = double.parse(parts[0]);
+        LatLng alertPosition = LatLng(latitude, longitude);
+
+        // Check if this alert position matches the selected location
+        if (_arePositionsEqual(alertPosition, widget.selectedLocation!)) {
+          String markerId = generateMarkerId(alert);
+
+          setState(() {
+            tappedMarkerId = markerId;
+            selectedLocation = alertPosition;
+            alertTitle = "Elephant Sighting";
+            alertDate = alert.date;
+            alertTime = alert.time;
+            showCustomWindow = true;
+          });
+
+          // Update info window position after a short delay
+          Future.delayed(Duration(milliseconds: 100), () {
+            if (mounted) {
+              updateInfoWindowPosition(alertPosition);
+            }
+          });
+
+          break;
+        }
+      } catch (e) {
+        print("Error checking alert position: $e");
+      }
+    }
+  }
+
+  bool _arePositionsEqual(LatLng pos1, LatLng pos2) {
+    const double tolerance = 0.00001; // Adjust based on your coordinate precision needs
+    return (pos1.latitude - pos2.latitude).abs() < tolerance &&
+        (pos1.longitude - pos2.longitude).abs() < tolerance;
+  }
+
+  Future<void> loadMarkers() async {
+    await customMarker();
+    await tappedMarker();
+    setState(() {
+      markersLoaded = true;
     });
   }
 
@@ -72,7 +143,28 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
     });
   }
 
-  // Update the info window position
+  Future<void> tappedMarker() async {
+    final data = await rootBundle.load('assets/map/pinpoint_logo.png');
+    double screenWidth = MediaQuery.of(context).size.width;
+    final markerSize = math.max(80, (screenWidth * 0.30).round()); // Make tapped marker slightly larger
+
+    final codec = await ui.instantiateImageCodec(
+      data.buffer.asUint8List(),
+      targetWidth: markerSize,
+      targetHeight: markerSize,
+    );
+    final fi = await codec.getNextFrame();
+    final resizedImageData = (await fi.image.toByteData(
+      format: ui.ImageByteFormat.png,
+    ))!
+        .buffer
+        .asUint8List();
+
+    setState(() {
+      tappedIcon = BitmapDescriptor.fromBytes(resizedImageData);
+    });
+  }
+
   Future<void> updateInfoWindowPosition(LatLng position) async {
     final screenPosition = await _controller.getScreenCoordinate(position);
     final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
@@ -86,8 +178,10 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
   }
 
   void showAlertInfoWindow(
-      LatLng position, String title, String date, String time) async {
+      String markerId, LatLng position, String title, String date, String time) async {
+
     setState(() {
+      tappedMarkerId = markerId; // Set the tapped marker ID
       selectedLocation = position;
       alertTitle = title;
       alertDate = date;
@@ -97,6 +191,15 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
 
     await updateInfoWindowPosition(position);
   }
+
+  // Generate a consistent ID for each alert
+  String generateMarkerId(AlertData alert) {
+    // Create a stable marker ID based on alert data
+    // This ensures the same alert always gets the same ID
+    return "marker_${alert.location}_${alert.date}_${alert.time}";
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -138,11 +241,11 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
               onMapCreated: (GoogleMapController controller) {
                 _controller = controller;
                 _controller.setMapStyle(mapStyle);
-                ref.refresh(alertProvider);
                 if (widget.selectedLocation != null) {
                   _controller.animateCamera(
                     CameraUpdate.newLatLng(widget.selectedLocation!),
                   );
+                  // The selection of the marker is now handled in _setInitialSelectedMarker
                 } else {
                   final locationData = ref.read(locationProvider);
                   if (locationData?.latitude != null &&
@@ -155,37 +258,64 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
                   }
                 }
               },
-              markers: {
-                if (alerts.hasValue)
-                  ...alerts.value!.map((alert) {
-                    try {
-                      final parts = alert.location
-                          .split(',')
-                          .map((e) => e.trim())
-                          .toList();
-                      double latitude = double.parse(parts[1]);
-                      double longitude = double.parse(parts[0]);
-                      LatLng alertPosition = LatLng(latitude, longitude);
+              markers: markersLoaded && alerts.hasValue
+                  ? Set<Marker>.from(
+                alerts.value!.map((alert) {
+                  try {
+                    final parts = alert.location
+                        .split(',')
+                        .map((e) => e.trim())
+                        .toList();
+                    double latitude = double.parse(parts[1]);
+                    double longitude = double.parse(parts[0]);
+                    LatLng alertPosition = LatLng(latitude, longitude);
 
-                      return Marker(
-                        markerId: MarkerId(UniqueKey().toString()),
-                        position: alertPosition,
-                        icon: customIcon,
-                        onTap: () {
-                          showAlertInfoWindow(alertPosition,
-                              "Elephant Sighting", alert.date, alert.time);
-                        },
-                      );
-                    } catch (e) {
-                      print("Invalid alert location format: ${alert.location}");
-                      return Marker(
-                        markerId: MarkerId(UniqueKey().toString()),
-                        position: const LatLng(0, 0),
-                        visible: false,
-                      );
-                    }
-                  }),
-              },
+                    // Create a stable, consistent marker ID for this alert
+                    String markerId = generateMarkerId(alert);
+
+                    // Check only if this specific marker is the currently tapped one
+                    bool isSelected = tappedMarkerId == markerId;
+
+                    return Marker(
+                      markerId: MarkerId(markerId),
+                      position: alertPosition,
+                      icon: isSelected ? tappedIcon : customIcon,
+                      onTap: () {
+                        // Clear previous selection and set new one
+                        setState(() {
+                          // If tapping the already selected marker, just deselect it
+                          if (tappedMarkerId == markerId) {
+                            tappedMarkerId = null;
+                            showCustomWindow = false;
+                          } else {
+                            // Otherwise, select the new marker
+                            tappedMarkerId = markerId;
+                            selectedLocation = alertPosition;
+
+                            // Animate camera to the selected marker
+                            _controller.animateCamera(
+                              CameraUpdate.newLatLng(alertPosition),
+                            );
+
+                            // Show info window for the tapped marker
+                            showAlertInfoWindow(markerId, alertPosition,
+                                "Elephant Sighting", alert.date, alert.time);
+                          }
+                        });
+                      },
+                      zIndex: isSelected ? 2 : 1, // Make selected marker appear on top
+                    );
+                  } catch (e) {
+                    print("Invalid alert location format: ${alert.location}");
+                    return Marker(
+                      markerId: MarkerId(UniqueKey().toString()),
+                      position: const LatLng(0, 0),
+                      visible: false,
+                    );
+                  }
+                }),
+              )
+                  : {},
               onCameraMove: (position) async {
                 if (selectedLocation != null) {
                   await updateInfoWindowPosition(selectedLocation!);
@@ -193,7 +323,7 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
               },
             ),
             // Custom info window (Fixed on screen, follows marker)
-            if (showCustomWindow)
+            if (showCustomWindow && selectedLocation != null)
               Positioned(
                 left: infoWindowPosition.dx -
                     (infoWindowWidth * 0.1), // Adjusted for screen size
@@ -236,7 +366,7 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
                                 alertTitle ?? "Elephant Sighting",
                                 style: TextStyle(
                                   fontSize:
-                                      screenWidth * 0.035,
+                                  screenWidth * 0.035,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.black,
                                 ),
@@ -248,7 +378,7 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
                                 '${alertDate ?? ""} | ${alertTime ?? ""}',
                                 style: TextStyle(
                                   fontSize:
-                                      screenWidth * 0.03,
+                                  screenWidth * 0.03,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.black.withOpacity(0.8),
                                 ),
@@ -277,6 +407,7 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
                           onPressed: () {
                             setState(() {
                               showCustomWindow = false;
+                              tappedMarkerId = null; // Reset tapped marker when closing info window
                             });
                           },
                         ),
