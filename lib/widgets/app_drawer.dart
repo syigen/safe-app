@@ -14,7 +14,7 @@ final isAdminProvider = FutureProvider<bool>((ref) async {
   return authService.getUserAdminStatus();
 });
 
-class AppDrawer extends ConsumerWidget {
+class AppDrawer extends ConsumerStatefulWidget {
   final Function(BuildContext) onLogout;
 
   const AppDrawer({
@@ -24,7 +24,20 @@ class AppDrawer extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  AppDrawerState createState() => AppDrawerState();
+}
+
+class AppDrawerState extends ConsumerState<AppDrawer> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Refresh user profile and admin status every time the drawer opens
+    ref.refresh(userProfileProvider);
+    ref.refresh(isAdminProvider);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Drawer(
       backgroundColor: const Color(0xFF032221),
       child: RefreshIndicator(
@@ -37,7 +50,7 @@ class AppDrawer extends ConsumerWidget {
               onTap: () {
                 showDialog(
                   context: context,
-                  builder: (context) => const ProfilePopup(),
+                  builder: (context) => ProfilePopup(authService: AuthService(authClient: SupabaseAuthClient())),
                 );
               },
               child: Container(
@@ -145,7 +158,7 @@ class AppDrawer extends ConsumerWidget {
               child: ElevatedButton.icon(
                 onPressed: () {
                   Navigator.pop(context);
-                  onLogout(context);
+                  widget.onLogout(context);
                 },
                 icon: const Icon(Icons.logout, color: Colors.white),
                 label: const Text(
