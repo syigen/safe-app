@@ -170,6 +170,27 @@ class AuthService {
     }
   }
 
+  // Check if user has name and avatar
+  Future<bool> hasProfileData() async {
+    try {
+      final profile = await getUserProfile();
+
+      if (profile == null) {
+        return false;
+      }
+
+      final String fullName = profile['fullName'] as String;
+      final String avatarUrl = profile['avatarUrl'] as String;
+
+      return fullName.isNotEmpty || avatarUrl.isNotEmpty;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error checking profile data: $e');
+      }
+      return false;
+    }
+  }
+
   Future<void> login({
     required BuildContext context,
     required String email,
@@ -244,27 +265,23 @@ class AuthService {
     try {
       await supabase.auth.signOut();
 
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+            (route) => false,
+      );
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('isLoggedIn');
       await prefs.remove('isAdmin');
       await prefs.remove('userName');
       await prefs.remove('userId');
 
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-            (route) => false,
-      );
     } catch (e) {
       _showToast(
         message: 'Error logging out. Please try again.',
         backgroundColor: Colors.red,
         textColor: Colors.white,
-      );
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-            (route) => false,
       );
       debugPrint('Error logging out: $e');
     }
