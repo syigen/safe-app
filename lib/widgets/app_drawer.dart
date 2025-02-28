@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:safe_app/pages/admin_dashboard.dart';
 import 'package:safe_app/services/auth_service.dart';
-import '../components/user_profile_popup.dart';
+import '../components/update_user_profile.dart';
 
 final userProfileProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
   final authService = AuthService(authClient: SupabaseAuthClient());
@@ -50,7 +50,7 @@ class AppDrawerState extends ConsumerState<AppDrawer> {
               onTap: () {
                 showDialog(
                   context: context,
-                  builder: (context) => ProfilePopup(authService: AuthService(authClient: SupabaseAuthClient())),
+                  builder: (context) => UpdateUserProfile(authService: AuthService(authClient: SupabaseAuthClient())),
                 );
               },
               child: Container(
