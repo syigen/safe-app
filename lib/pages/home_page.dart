@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:safe_app/pages/user_news_list.dart';
+import '../components/user_profile_popup.dart';
 import '../model/alert_data.dart';
 import '../services/alert_service.dart';
 import '../services/auth_service.dart';
@@ -22,14 +23,23 @@ import '../widgets/build_service_item.dart';
 import 'google_maps_page.dart';
 import 'main_page.dart';
 
-// Provider for user profile
 final userProfileProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
   final authService = AuthService(authClient: SupabaseAuthClient());
   return authService.getUserProfile();
 });
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   final AuthService _authService;
+
+  HomeScreen({super.key, required AuthClient authClient})
+      : _authService = AuthService(authClient: authClient);
+
+  @override
+  HomeScreenState createState() => HomeScreenState();
+}
+
+class HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _checkingProfile = true;
 
   final alertProvider = FutureProvider<List<AlertData>>((ref) async {
     final alertService = AlertService();
@@ -43,20 +53,56 @@ class HomeScreen extends ConsumerWidget {
     return alerts.take(2).toList();
   });
 
-  HomeScreen({super.key, required AuthClient authClient})
-      : _authService = AuthService(authClient: authClient);
+  @override
+  void initState() {
+    super.initState();
+    _checkProfileData();
+  }
+
+  Future<void> _checkProfileData() async {
+    setState(() {
+      _checkingProfile = true;
+    });
+
+    ref.refresh(userProfileProvider);
+    ref.refresh(alertProvider);
+
+    bool hasProfile = await widget._authService.hasProfileData();
+
+    setState(() {
+      _checkingProfile = false;
+    });
+
+    if (!hasProfile) {
+      await Future.delayed(const Duration(seconds: 2));
+      if (mounted) {
+        _showProfilePopup();
+      }
+    }
+  }
+
+  void _showProfilePopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => ProfilePopup(
+        authService: widget._authService,
+        onConfirm: (name, image) {
+          ref.refresh(userProfileProvider);
+        },
+      ),
+    );
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Refresh providers on first build
+  Widget build(BuildContext context)  {
     Future.microtask(() {
       ref.refresh(userProfileProvider);
       ref.refresh(alertProvider);
     });
     final locationData = ref.watch(locationProvider);
-    bool isLoading = locationData == null;
+    bool isLoading = locationData == null || _checkingProfile;
 
-    // Key for the RefreshIndicator
     final GlobalKey<RefreshIndicatorState> refreshKey = GlobalKey<RefreshIndicatorState>();
 
     return WillPopScope(
@@ -67,7 +113,8 @@ class HomeScreen extends ConsumerWidget {
       child: Scaffold(
         backgroundColor: const Color(0xFF021B1A),
         endDrawer: AppDrawer(
-          onLogout: (context) => _authService.logout(context), authService: _authService,
+          onLogout: (context) => widget._authService.logout(context),
+          authService: widget._authService,
         ),
         body: RefreshIndicator(
           key: refreshKey,
