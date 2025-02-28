@@ -4,7 +4,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:safe_app/pages/home_page.dart';
 import 'package:safe_app/pages/landing_page.dart';
 import 'package:safe_app/pages/main_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,7 +23,7 @@ void main() async {
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
 
-  runApp(ProviderScope(child: const SafeApp()));
+  runApp(const ProviderScope(child: SafeApp()));
 }
 
 final supabase = Supabase.instance.client;
