@@ -160,7 +160,7 @@ class SocialFeedScreen extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(25),
               child: Image.asset(
-                'assets/images/profile_image.png',
+                'assets/user/default.png',
                 width: 40,
                 height: 40,
                 fit: BoxFit.cover,
