@@ -20,7 +20,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             children: [
-              const SizedBox(height: 40),
+              const SizedBox(height: 100),
 
               Row(
                 children: [
@@ -55,7 +55,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 60),
+              const SizedBox(height: 80),
 
               const Icon(
                 Icons.fingerprint,
@@ -67,20 +67,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 'Forgot Password ?',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 32,
+                  fontSize: 36,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 12),
-              Text(
+              const Text(
                 'No worries, we\'ll send you reset instructions',
                 style: TextStyle(
-                  color: Colors.grey[400],
-                  fontSize: 16,
+                  color: Color(0xFFAFB4B3),
+                  fontSize: 18,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 60),
 
               Container(
                 decoration: BoxDecoration(
@@ -92,7 +92,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Email',
-                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    hintStyle: const TextStyle(color: Color(0xFFAACBC4)),
                     prefixIcon: Icon(
                       Icons.mail_outline,
                       color: Colors.grey[400],
@@ -107,7 +107,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 22),
 
               ElevatedButton(
                 onPressed: () {
@@ -128,8 +128,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 child: const Text(
                   'Reset password',
                   style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFF002B2A),
+                    fontSize: 19,
+                    // color: Color(0xFF002B2A),
+                    color: Color(0xFF021B1A)
                   ),
                 ),
               ),
@@ -151,6 +152,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
+                        color: Color(0xFF00DF81)
                       ),
                     ),
                   ],
