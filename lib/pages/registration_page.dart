@@ -23,6 +23,29 @@ class RegistrationPageState extends State<RegistrationPage> {
   final TextEditingController passwordController = TextEditingController();
   final AuthService _authService = AuthService(authClient: SupabaseAuthClient());
 
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _emailFocusNode.addListener(_onFocusChange);
+    _passwordFocusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
   void _showToast({
     required String message,
     required Color backgroundColor,
@@ -54,7 +77,7 @@ class RegistrationPageState extends State<RegistrationPage> {
                   'Register',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 40,
+                    fontSize: 44,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -88,7 +111,7 @@ class RegistrationPageState extends State<RegistrationPage> {
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
                       'Or better yet',
-                      style: TextStyle(color: Colors.white70),
+                      style: TextStyle(color: Color(0xFFF1F7F6 )),
                     ),
                   ),
                   Expanded(child: Divider(color: Colors.white38)),
@@ -99,20 +122,30 @@ class RegistrationPageState extends State<RegistrationPage> {
               // Email Field
               Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFF00FF9D)),
+                  border: Border.all(
+                    color: _emailFocusNode.hasFocus
+                        ? const Color(0xFF00FF81)
+                        : const Color(0xFF03624C),
+                    width: 1,
+                  ),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: TextField(
+                  focusNode: _emailFocusNode,
                   controller: emailController,
                   style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: 'Email',
-                    hintStyle: TextStyle(color: Colors.white54),
-                    prefixIcon:
-                    Icon(Icons.email_outlined, color: Color(0xFF00FF9D)),
+                    hintStyle: const TextStyle(color: Color(0xFFAACBC4)),
+                    prefixIcon: Icon(
+                      Icons.email_outlined,
+                      color: _emailFocusNode.hasFocus
+                          ? const Color(0xFF00FF81)
+                          : const Color(0xFFAACBC4),
+                    ),
                     border: InputBorder.none,
                     contentPadding:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
                 ),
               ),
@@ -121,12 +154,19 @@ class RegistrationPageState extends State<RegistrationPage> {
               // Password Field
               Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFF00FF9D)),
+                  border: Border.all(
+                    color: _passwordFocusNode.hasFocus
+                        ? const Color(0xFF00FF81)
+                        : const Color(0xFF03624C),
+                    width: 1,
+                  ),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: TextField(
+                  focusNode: _passwordFocusNode,
                   controller: passwordController,
                   obscureText: _obscureText,
+                  obscuringCharacter: '*',
                   style: const TextStyle(color: Colors.white),
                   onChanged: (value) {
                     setState(() {
@@ -135,13 +175,19 @@ class RegistrationPageState extends State<RegistrationPage> {
                   },
                   decoration: InputDecoration(
                     hintText: 'Password',
-                    hintStyle: const TextStyle(color: Colors.white54),
-                    prefixIcon: const Icon(Icons.lock_outline,
-                        color: Color(0xFF00FF9D)),
+                    hintStyle: const TextStyle(color: Color(0xFFAACBC4)),
+                    prefixIcon: Icon(
+                      Icons.lock_outline_rounded,
+                      color: _passwordFocusNode.hasFocus
+                          ? const Color(0xFF00FF81)
+                          : Colors.grey,
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscureText ? Icons.visibility_off : Icons.visibility,
-                        color: const Color(0xFF00FF9D),
+                        _obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                        color: _passwordFocusNode.hasFocus
+                            ? const Color(0xFF00FF81)
+                            : Colors.grey,
                       ),
                       onPressed: () {
                         setState(() {
@@ -150,8 +196,7 @@ class RegistrationPageState extends State<RegistrationPage> {
                       },
                     ),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
                 ),
               ),
@@ -163,7 +208,7 @@ class RegistrationPageState extends State<RegistrationPage> {
                       height: 3,
                       decoration: BoxDecoration(
                         color: ValidationService.hasEightChars(_password)
-                            ? const Color(0xFF00FF9D)
+                            ? const Color(0xFF00FF81)
                             : Colors.grey,
                         borderRadius: BorderRadius.circular(2),
                       ),
@@ -175,7 +220,7 @@ class RegistrationPageState extends State<RegistrationPage> {
                       height: 3,
                       decoration: BoxDecoration(
                         color: ValidationService.hasOneDigit(_password)
-                            ? const Color(0xFF00FF9D)
+                            ? const Color(0xFF00FF81)
                             : Colors.grey,
                         borderRadius: BorderRadius.circular(2),
                       ),
@@ -187,7 +232,7 @@ class RegistrationPageState extends State<RegistrationPage> {
                       height: 3,
                       decoration: BoxDecoration(
                         color: ValidationService.hasOneLetter(_password)
-                            ? const Color(0xFF00FF9D)
+                            ? const Color(0xFF00FF81)
                             : Colors.grey,
                         borderRadius: BorderRadius.circular(2),
                       ),
@@ -242,7 +287,7 @@ class RegistrationPageState extends State<RegistrationPage> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00FF9D),
+                  backgroundColor: const Color(0xFF00FF81),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -272,7 +317,7 @@ class RegistrationPageState extends State<RegistrationPage> {
                     child: const Text(
                       'Login Now',
                       style: TextStyle(
-                        color: Color(0xFF00FF9D),
+                        color: Color(0xFF00FF81),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -291,14 +336,14 @@ class RegistrationPageState extends State<RegistrationPage> {
       children: [
         Icon(
           isValid ? Icons.check_circle : Icons.check_circle_outline,
-          color: isValid ? const Color(0xFF00FF9D) : Colors.white54,
+          color: isValid ? const Color(0xFF00FF81) : Colors.white54,
           size: 20,
         ),
         const SizedBox(width: 8),
         Text(
           text,
           style: TextStyle(
-            color: isValid ? const Color(0xFF00FF9D) : Colors.white54,
+            color: isValid ? const Color(0xFF00FF81) : Colors.white54,
           ),
         ),
       ],
