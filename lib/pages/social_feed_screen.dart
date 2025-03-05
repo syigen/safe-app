@@ -1,19 +1,51 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import '../model/news_data.dart';
 
-class SocialFeedScreen extends StatelessWidget {
+class SocialFeedScreen extends StatefulWidget {
   final News news;
 
   const SocialFeedScreen({Key? key, required this.news}) : super(key: key);
 
   @override
+  State<SocialFeedScreen> createState() => _SocialFeedScreenState();
+}
+
+class _SocialFeedScreenState extends State<SocialFeedScreen> {
+  bool _showCommentBox = false;
+  final TextEditingController _commentController = TextEditingController();
+  final List<String> _comments = [];
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  void _toggleCommentBox() {
+    setState(() {
+      _showCommentBox = !_showCommentBox;
+    });
+  }
+
+  void _submitComment() {
+    if (_commentController.text.trim().isNotEmpty) {
+      setState(() {
+        _comments.add(_commentController.text);
+        _commentController.clear();
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(news.title),
+        title: Text(widget.news.title),
         backgroundColor: const Color(0xFF021B1A),
       ),
-      backgroundColor: Color(0xFF021B1A),
+      backgroundColor: const Color(0xFF021B1A),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -24,11 +56,11 @@ class SocialFeedScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (news.imageUrl.isNotEmpty)
+                  if (widget.news.imageUrl.isNotEmpty)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: Image.network(
-                        news.imageUrl,
+                        widget.news.imageUrl,
                         width: double.infinity,
                         height: 200,
                         fit: BoxFit.cover,
@@ -41,7 +73,7 @@ class SocialFeedScreen extends StatelessWidget {
                     _buildPlaceholder(),
                   const SizedBox(height: 16),
                   Text(
-                    news.title,
+                    widget.news.title,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -50,7 +82,7 @@ class SocialFeedScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    news.description,
+                    widget.news.description,
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.white.withOpacity(0.8),
@@ -59,33 +91,185 @@ class SocialFeedScreen extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 10),
             // Action buttons
-            Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFF021B1A),
-              ),
-              child: Row(
-                children: [
-                  _buildActionButton(Icons.thumb_up_outlined, 'Like'),
-                  _buildActionButton(Icons.comment_outlined, 'Comment'),
-                  _buildActionButton(Icons.reply, 'Share'), // Changed to reply icon
-                ],
+            Center(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF021B1A),
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildActionButton(
+                        icon: Icons.thumb_up_outlined,
+                        label: 'Like',
+                        onPressed: () {},
+                        cornerRadius: <double>[10, 0, 10, 0],
+                      ),
+                    ),
+                    const VerticalDivider(
+                      width: 5,
+                      thickness: 1,
+                      color: Colors.black,
+                    ),
+                    Expanded(
+                      child: _buildActionButton(
+                        icon: Icons.chat_bubble_outline,
+                        label: 'Comment',
+                        onPressed: _toggleCommentBox,
+                        cornerRadius: <double>[0, 0, 0, 0],
+                      ),
+                    ),
+                    const VerticalDivider(
+                      width: 5,
+                      thickness: 1,
+                      color: Color(0xFF1A3A3A),
+                    ),
+                    Expanded(
+                      child: _buildActionButton(
+                        icon: Icons.share_outlined,
+                        label: 'Share',
+                        onPressed: () {},
+                        cornerRadius: <double>[0, 10, 0, 10],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
+            const SizedBox(height: 20),
+
+            // Comment Box
+            if (_showCommentBox) _buildCommentBox(),
+
+            // Comments List
+            if (_comments.isNotEmpty) _buildCommentsList(),
+
             // Social Feed
             Container(
-              color: Color(0xFF021B1A),
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: 3,
-                itemBuilder: (context, index) {
-                  return _buildMessageItem();
-                },
-              ),
+              color: Colors.transparent,
+              child: const SizedBox(height: 50),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCommentBox() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0B453A),
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: Column(
+        children: [
+          TextField(
+            controller: _commentController,
+            style: const TextStyle(color: Colors.white),
+            maxLines: 3,
+            minLines: 1,
+            decoration: InputDecoration(
+              hintText: 'Write a comment...',
+              hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(vertical: 8.0),
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: _submitComment,
+              style: TextButton.styleFrom(
+                backgroundColor: const Color(0xFF00CC66),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              ),
+              child: const Text(
+                'Post',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCommentsList() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.0),
+            child: Text(
+              'Comments',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _comments.length,
+            itemBuilder: (context, index) {
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8.0),
+                padding: const EdgeInsets.all(12.0),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0B453A),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 16,
+                          backgroundColor: Color(0xFF00CC66),
+                          child: Icon(
+                            Icons.person,
+                            size: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'User',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      _comments[index],
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -108,108 +292,41 @@ class SocialFeedScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton(IconData icon, String label) {
-    return Expanded(
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            right: BorderSide(
-              color: Colors.black.withOpacity(0.1),
-              width: 1,
-            ),
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+    required List<double> cornerRadius,
+  }) {
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(cornerRadius[0]),
+            topRight: Radius.circular(cornerRadius[1]),
+            bottomLeft: Radius.circular(cornerRadius[2]),
+            bottomRight: Radius.circular(cornerRadius[3]),
           ),
         ),
-        child: TextButton(
-          onPressed: () {},
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            backgroundColor: Colors.transparent,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                color: const Color(0xFF2EA043),
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Color(0xFF2EA043),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        backgroundColor: const Color(0xFF0B453A),
       ),
-    );
-  }
-
-  Widget _buildMessageItem() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            margin: const EdgeInsets.only(top: 4),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(25),
-              child: Image.asset(
-                'assets/user/default.png',
-                width: 40,
-                height: 40,
-                fit: BoxFit.cover,
-              ),
-            ),
+          Icon(
+            icon,
+            color: const Color(0xFF00CC66),
+            size: 20,
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Stack(
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(left: 8),
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0B453A),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Tom Hardy',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Aenean lacinia bibendum nulla sed consectetur.',
-                        style: TextStyle(
-                          color: Colors.grey[300],
-                          fontSize: 14,
-                          height: 1.3,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Positioned(
-                  left: 0,
-                  top: 15,
-                  child: CustomPaint(
-                    size: const Size(10, 15),
-                    painter: TrianglePainter(const Color(0xFF0B453A)),
-                  ),
-                ),
-              ],
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Color(0xFF00CC66),
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -218,26 +335,27 @@ class SocialFeedScreen extends StatelessWidget {
   }
 }
 
-class TrianglePainter extends CustomPainter {
-  final Color color;
+// class TrianglePainter extends CustomPainter {
+//   final Color color;
+//
+//   TrianglePainter(this.color);
+//
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     final paint = Paint()
+//       ..color = color
+//       ..style = PaintingStyle.fill;
+//
+//     final path = Path()
+//       ..moveTo(0, size.height / 2)
+//       ..lineTo(size.width, 0)
+//       ..lineTo(size.width, size.height)
+//       ..close();
+//
+//     canvas.drawPath(path, paint);
+//   }
+//
+//   @override
+//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+// }
 
-  TrianglePainter(this.color);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    final path = Path()
-      ..moveTo(0, size.height / 2)
-      ..lineTo(size.width, 0)
-      ..lineTo(size.width, size.height)
-      ..close();
-
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
