@@ -34,7 +34,6 @@ class ExpandedView extends StatelessWidget {
   final Function onTimeButtonChanged;
   final Function onCasualtyOptionChanged;
   final DistanceRange selectedDistanceRange;
-  final Widget header;
 
   ExpandedView({
     required this.locationController,
@@ -52,7 +51,6 @@ class ExpandedView extends StatelessWidget {
     required this.onTimeButtonChanged,
     required this.onCasualtyOptionChanged,
     required this.selectedDistanceRange,
-    required this.header, // Accept the header widget
   });
 
   @override
@@ -65,7 +63,17 @@ class ExpandedView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          header, // Use the header widget passed from BottomPanel
+          Center(
+            child: Container(
+              width: SizeConfig.blockSizeHorizontal * 20,
+              height: SizeConfig.blockSizeVertical * 0.5,
+              margin: EdgeInsets.only(bottom: SizeConfig.blockSizeVertical * 2),
+              decoration: BoxDecoration(
+                color: Colors.grey[600],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
           Container(
             decoration: BoxDecoration(
               color: Color(0xFF032221),
@@ -131,4 +139,3 @@ class ExpandedView extends StatelessWidget {
     );
   }
 }
-
