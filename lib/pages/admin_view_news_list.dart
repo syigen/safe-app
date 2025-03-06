@@ -166,8 +166,9 @@ class _NewsListViewState extends ConsumerState<NewsListView> {
       title: const Text(
         'NEWS LIST',
         style: TextStyle(
-          color: Colors.white,
+          color: Color(0xFFF1F7F6),
           fontWeight: FontWeight.bold,
+          fontSize: 24,
         ),
       ),
 
@@ -248,7 +249,7 @@ class _NewsListViewState extends ConsumerState<NewsListView> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        double horizontalPadding = constraints.maxWidth < 600 ? 16.0 : 32.0;
+        double horizontalPadding = constraints.maxWidth < 600 ? 8.0 : 20.0;
 
         return ScrollConfiguration(
           behavior: CustomScrollBehavior(),
@@ -283,9 +284,9 @@ class _NewsListViewState extends ConsumerState<NewsListView> {
       child: FloatingActionButton(
         backgroundColor: const Color(0xFF032221),
         shape: const CircleBorder(),
-        child: Icon(
+        child: const Icon(
           Icons.add,
-          color: const Color(0xFF00DF81),
+          color: Color(0xFF00DF81),
           size: 40,
           weight: 900,
         ),
