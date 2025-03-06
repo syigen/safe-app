@@ -38,7 +38,7 @@ Widget buildAlertCard(String title, String subtitle, {String? imageUrl}) {
                     child: Text(
                       title,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: Color(0xFFF1F7F6),
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
