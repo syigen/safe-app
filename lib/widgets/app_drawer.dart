@@ -109,6 +109,7 @@ class AppDrawerState extends ConsumerState<AppDrawer> {
                 ),
               ),
             ),
+            const SizedBox(height:15),
             ListTile(
               leading: const Icon(Icons.emergency_outlined, color: Color(0xFFFF0000), size: 30),
               title: const Text(
