@@ -50,7 +50,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         return false;
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFF032221),
+        backgroundColor: const Color(0xFF021B1A),
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,7 +60,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 child: Text(
                   'Notifications',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Color(0xFFF1F7F6),
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                   ),
