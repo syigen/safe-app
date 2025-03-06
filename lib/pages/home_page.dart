@@ -20,6 +20,7 @@ import '../widgets/build_alert_card.dart';
 import '../widgets/build_news_card.dart';
 import '../widgets/build_section_header.dart';
 import '../widgets/build_service_item.dart';
+import '../widgets/service_card.dart';
 import 'google_maps_page.dart';
 import 'main_page.dart';
 
@@ -420,22 +421,29 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    GridView(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: MediaQuery.of(context).size.width > 600 ? 4 : 2,
+                        childAspectRatio: 163 / 80,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                      ),
                       children: [
-                        buildServiceItem(
-                          iconPath: 'assets/icons/contact.png',
-                          label: 'Contacts',
-                          onPressed: () {
+                        ServiceCard(
+                          title: 'Contacts',
+                          icon: 'assets/icons/contact.png',
+                          onTap: () {
                             if (kDebugMode) {
                               print('Contacts button pressed!');
                             }
                           },
                         ),
-                        buildServiceItem(
-                          iconPath: 'assets/icons/safety.png',
-                          label: 'Safety tips',
-                          onPressed: () {
+                        ServiceCard(
+                          title: 'Safety tips',
+                          icon: 'assets/icons/safety.png',
+                          onTap: () {
                             if (kDebugMode) {
                               print('Safety tips button pressed!');
                             }
