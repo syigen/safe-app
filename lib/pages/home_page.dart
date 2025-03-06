@@ -164,15 +164,15 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                                     text: TextSpan(
                                       children: [
                                         TextSpan(
-                                          text: 'Hello $fullName',
+                                          text: 'Hello $fullName,\n',
                                           style: const TextStyle(
                                             color: Color(0xFFF1F7F6 ),
-                                            fontSize: 18,
+                                            fontSize: 20,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         const TextSpan(
-                                          text: ', welcome back!',
+                                          text: 'welcome back!',
                                           style: TextStyle(
                                             color: Color(0xFFAACBC4),
                                             fontSize: 18,
@@ -241,15 +241,15 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                                   text: const TextSpan(
                                     children: [
                                       TextSpan(
-                                        text: 'Hello User',
+                                        text: 'Hello User,\n',
                                         style: TextStyle(
                                           color: Colors.white,
-                                          fontSize: 18,
+                                          fontSize: 20,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                       TextSpan(
-                                        text: ', welcome back!',
+                                        text: 'welcome back!',
                                         style: TextStyle(
                                           color: Color(0xFFAACBC4 ),
                                           fontSize: 18,
