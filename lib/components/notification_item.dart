@@ -33,10 +33,10 @@ class NotificationItem extends StatelessWidget {
       splashColor: Colors.white.withValues(alpha: 0.1),
       highlightColor: Colors.white.withValues(alpha: 0.05),
       child: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           border: Border(
             bottom: BorderSide(
-              color: Colors.white.withValues(alpha: 0.1),
+              color: Color(0xFF707D7D),
               width: 1,
             ),
           ),
@@ -50,7 +50,7 @@ class NotificationItem extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: const BoxDecoration(
-                  color: Color(0xFF0A3937),
+                  color: Color(0xFFAACBC4),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -58,13 +58,13 @@ class NotificationItem extends StatelessWidget {
                       ? Text(
                     iconText!,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: Color(0xFF03624C),
                       fontWeight: FontWeight.w500,
                     ),
                   )
                       : Icon(
                     icon!,
-                    color: Colors.white,
+                    color: const Color(0xFF03624C),
                     size: 20,
                   ),
                 ),
@@ -77,7 +77,7 @@ class NotificationItem extends StatelessWidget {
                     Text(
                       message,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: Color(0xFFF1F7F6),
                         fontSize: 16,
                       ),
                     ),
@@ -88,7 +88,7 @@ class NotificationItem extends StatelessWidget {
                         Text(
                           time,
                           style: const TextStyle(
-                            color: Colors.grey,
+                            color: Color(0xFFAACBC4),
                             fontSize: 14,
                           ),
                         ),
@@ -102,13 +102,13 @@ class NotificationItem extends StatelessWidget {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF00FF9D),
-                                borderRadius: BorderRadius.circular(20),
+                                color: const Color(0xFF00FF81),
+                                borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Text(
                                 'See on map',
                                 style: TextStyle(
-                                  color: Color(0xFF032221),
+                                  color: Color(0xFF021B1A),
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
