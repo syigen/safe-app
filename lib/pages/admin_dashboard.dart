@@ -36,7 +36,7 @@ class AdminDashboard extends StatelessWidget {
         title: const Text(
           'ADMIN DASHBOARD',
           style: TextStyle(
-            color: Colors.white,
+            color: Color(0xFFF1F7F6),
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
@@ -59,7 +59,7 @@ class AdminDashboard extends StatelessWidget {
 
                     Container(
                       height: 1,
-                      color: Color(0xFF00DF81),
+                      color: const Color(0xFF00DF81),
                     ),
                     const SizedBox(height: 40),
 
@@ -84,8 +84,8 @@ class AdminDashboard extends StatelessWidget {
                       child: const Text(
                         'NEWS MANAGEMENT',
                         style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
+                          color: Color(0xFF021B1A),
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -110,8 +110,8 @@ class AdminDashboard extends StatelessWidget {
                       child: const Text(
                         'TASK 2',
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
+                          color: Color(0xFFF1F7F6),
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -134,8 +134,8 @@ class AdminDashboard extends StatelessWidget {
                       child: const Text(
                         'TASK 3',
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
+                          color: Color(0xFFF1F7F6),
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -158,8 +158,8 @@ class AdminDashboard extends StatelessWidget {
                       child: const Text(
                         'TASK 4',
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
+                          color: Color(0xFFF1F7F6),
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
