@@ -166,7 +166,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                                         TextSpan(
                                           text: 'Hello $fullName',
                                           style: const TextStyle(
-                                            color: Colors.white,
+                                            color: Color(0xFFF1F7F6 ),
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -174,7 +174,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                                         const TextSpan(
                                           text: ', welcome back!',
                                           style: TextStyle(
-                                            color: Colors.grey,
+                                            color: Color(0xFFAACBC4),
                                             fontSize: 18,
                                           ),
                                         ),
@@ -251,7 +251,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                                       TextSpan(
                                         text: ', welcome back!',
                                         style: TextStyle(
-                                          color: Colors.grey,
+                                          color: Color(0xFFAACBC4 ),
                                           fontSize: 18,
                                         ),
                                       ),
@@ -377,7 +377,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00FF9D),
+                          backgroundColor: const Color(0xFF00FF81),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -394,7 +394,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                             Text(
                               'Send alert',
                               style: TextStyle(
-                                color: Colors.black,
+                                color: Color(0xFF021B1A),
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
                               ),
