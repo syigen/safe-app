@@ -262,7 +262,7 @@ class _BottomPanelState extends State<BottomPanel> {
             ? (SizeConfig.screenHeight < 500 ? 0.5 : 0.4)
             : 0.4,
         minChildSize: SizeConfig.screenHeight < 500 ? 0.5 : 0.4,
-        maxChildSize: 0.96,
+        maxChildSize: 0.88,
         builder: (context, scrollController) {
           return Container(
             decoration: BoxDecoration(
@@ -342,7 +342,6 @@ class _BottomPanelState extends State<BottomPanel> {
       onTimeButtonChanged: _updateTimeButton,
       onCasualtyOptionChanged: _updateCasualtyOption,
       selectedDistanceRange: _selectedDistanceRange,
-      header: _buildHeader(),
     );
 
   }
@@ -369,31 +368,5 @@ class _BottomPanelState extends State<BottomPanel> {
     );
   }
 
-  Widget _buildHeader() {
-    return Row(
-      children: [
-        IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            _draggableController.animateTo(
-              0.3,
-              duration: Duration(milliseconds: 300),
-              curve: Curves.easeOut,
-            );
-            setState(() {
-              _isExpanded = false;
-            });
-          },
-        ),
-        Text(
-          'Send alert',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
+
 }
