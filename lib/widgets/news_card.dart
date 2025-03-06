@@ -18,8 +18,8 @@ class NewsCard extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
 
     // Calculate dynamic height based on screen size
-    final cardHeight = screenWidth < 600 ? 100.0 : 120.0;
-    final imageWidth = screenWidth < 600 ? 100.0 : 120.0;
+    final cardHeight = screenWidth < 600 ? 110.0 : 130.0;
+    final imageWidth = screenWidth < 600 ? 110.0 : 130.0;
 
     return GestureDetector(
       onTap: () async {
@@ -55,11 +55,11 @@ class NewsCard extends StatelessWidget {
               // Image container with null handling
               Container(
                 width: imageWidth,
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.horizontal(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.horizontal(
                     left: Radius.circular(16),
                   ),
-                  color: const Color(0xFF06302B), // Background color for empty state
+                  color: Color(0xFF06302B), // Background color for empty state
                 ),
                 child: Stack(
                   children: [
@@ -89,14 +89,14 @@ class NewsCard extends StatelessWidget {
                         width: 24,
                         height: 24,
                         decoration: const BoxDecoration(
-                          color: Color(0xFF032221),
+                          color: Color(0xFF06302B),
                           shape: BoxShape.circle,
                         ),
                         child: Center(
                           child: Text(
                             index.toString(),
                             style: const TextStyle(
-                              color: Color(0xFF00DF81),
+                              color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -118,7 +118,7 @@ class NewsCard extends StatelessWidget {
                         news.title,
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: screenWidth < 600 ? 14 : 16,
+                          fontSize: screenWidth < 600 ? 16 : 18,
                           fontWeight: FontWeight.w500,
                         ),
                         maxLines: 2,
