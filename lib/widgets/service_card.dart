@@ -31,7 +31,7 @@ class ServiceCard extends StatelessWidget {
                   child: Text(
                     title,
                     style: const TextStyle(
-                        color: Colors.white,
+                        color: Color(0xFFF1F7F6),
                         fontSize: 16,
                     ),
                   ),
