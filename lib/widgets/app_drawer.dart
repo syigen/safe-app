@@ -87,12 +87,12 @@ class AppDrawerState extends ConsumerState<AppDrawer> {
                                     radius: 40,
                                     backgroundImage: AssetImage('assets/user/default.png'),
                                   ),
-                                  const SizedBox(height: 12),
+                                  const SizedBox(height: 15),
                                   Text(
                                     'Hello $fullName',
                                     style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
+                                      color: Color(0xFFF1F7F6),
+                                      fontSize: 22,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -110,18 +110,18 @@ class AppDrawerState extends ConsumerState<AppDrawer> {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.emergency_outlined, color: Colors.redAccent, size: 30),
+              leading: const Icon(Icons.emergency_outlined, color: Color(0xFFFF0000), size: 30),
               title: const Text(
-                'EMERGENCY',
-                style: TextStyle(color: Colors.redAccent, fontSize: 20, fontWeight: FontWeight.bold),
+                'Emergency',
+                style: TextStyle(color: Color(0xFFFF0000), fontSize: 22, fontWeight: FontWeight.bold),
               ),
               onTap: () {
                 Navigator.pop(context);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.info_outline, color: Colors.white),
-              title: const Text('About', style: TextStyle(color: Colors.white)),
+              leading: const Icon(Icons.info_outline, color: Colors.white, size: 30),
+              title: const Text('About', style: TextStyle(color: Colors.white, fontSize: 22)),
               onTap: () {
                 Navigator.pop(context);
               },
@@ -134,8 +134,8 @@ class AppDrawerState extends ConsumerState<AppDrawer> {
                   data: (isAdmin) {
                     return isAdmin
                         ? ListTile(
-                      leading: const Icon(Icons.settings, color: Colors.white),
-                      title: const Text('Admin', style: TextStyle(color: Colors.white)),
+                      leading: const Icon(Icons.settings, color: Colors.white, size: 30),
+                      title: const Text('Admin', style: TextStyle(color: Colors.white, fontSize: 22)),
                       onTap: () {
                         Navigator.push(
                           context,
@@ -160,12 +160,12 @@ class AppDrawerState extends ConsumerState<AppDrawer> {
                   Navigator.pop(context);
                   widget.onLogout(context);
                 },
-                icon: const Icon(Icons.logout, color: Colors.white),
+                icon: const Icon(Icons.logout, color: Colors.white, size: 20,),
                 label: const Text(
                   'Logout',
                   style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
+                    color: Color(0xFFFFFFFF ),
+                    fontSize: 18,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
