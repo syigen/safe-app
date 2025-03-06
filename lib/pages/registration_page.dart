@@ -296,7 +296,7 @@ class RegistrationPageState extends State<RegistrationPage> {
                 child: const Text(
                   'Register',
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Color(0xFF021B1A),
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                   ),
