@@ -19,14 +19,15 @@ class FilterButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF00FF9D) : const Color(0xFF0A3937),
+          color: isSelected ? const Color(0xFF00FF81) : const Color(0xFF132C2B),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           text,
           style: TextStyle(
-            color: isSelected ? const Color(0xFF032221) : Colors.white,
+            color: isSelected ? const Color(0xFF021B1A) : const Color(0xFF00FF81),
             fontWeight: FontWeight.w600,
+            fontSize: 15
           ),
         ),
       ),
