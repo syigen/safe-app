@@ -232,7 +232,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: const Text(
                   'Login',
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Color(0xFF021B1A),
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                   ),
