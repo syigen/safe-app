@@ -44,7 +44,7 @@ class _SetNewPasswordScreenState extends State<SetNewPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF002B2A),
+      backgroundColor: const Color(0xFF021B1A),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -57,7 +57,7 @@ class _SetNewPasswordScreenState extends State<SetNewPasswordScreen> {
               ),
               child: Column(
                 children: [
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
                   Row(
                     children: [
                       Expanded(
@@ -108,17 +108,17 @@ class _SetNewPasswordScreenState extends State<SetNewPasswordScreen> {
                   const Text(
                     'Set new password',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Color(0xFFf1F7F6),
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Text(
+                  const Text(
                     'Create a new password. Ensure it differs\nfrom previous ones for security',
                     style: TextStyle(
-                      color: Colors.grey[400],
-                      fontSize: 16,
+                      color: Color(0xFFAFB4B3),
+                      fontSize: 18,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -216,7 +216,7 @@ class _SetNewPasswordScreenState extends State<SetNewPasswordScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00FF7F),
+                      backgroundColor: const Color(0xFF00FF81),
                       minimumSize: const Size(double.infinity, 45),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -225,8 +225,8 @@ class _SetNewPasswordScreenState extends State<SetNewPasswordScreen> {
                     child: const Text(
                       'Reset password',
                       style: TextStyle(
-                        fontSize: 16,
-                        color: Color(0xFF002B2A),
+                        fontSize: 19,
+                        color: Color(0xFF021B1A),
                       ),
                     ),
                   ),
@@ -240,7 +240,7 @@ class _SetNewPasswordScreenState extends State<SetNewPasswordScreen> {
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.arrow_back, size: 20),
+                        Icon(Icons.arrow_back, size: 20, color:Colors.white),
                         SizedBox(width: 8),
                         Text(
                           'Back',
