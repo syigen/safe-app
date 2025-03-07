@@ -210,7 +210,7 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
                     Flexible(
                       child: Text(
                         currentAddress,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.black,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -218,14 +218,14 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     GestureDetector(
                       onTap: () {
                         setState(() {
                           showCustomWindow = false;
                         });
                       },
-                      child: Icon(
+                      child: const Icon(
                         Icons.close,
                         size: 18,
                         color: Colors.black,
@@ -239,7 +239,7 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
           // Floating Action Button
           Positioned(
             right: 16,
-            top: 80,
+            top: 150,
             child: FloatingActionButton(
               onPressed: () async {
                 // Fetch the latest location
