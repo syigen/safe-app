@@ -23,8 +23,8 @@ class SuccessAlertPage extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF032E2C),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF032E2C),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
