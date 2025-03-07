@@ -14,13 +14,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF002B2A),
+      backgroundColor: const Color(0xFF021B1A),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             children: [
-              const SizedBox(height: 100),
+              const SizedBox(height: 20),
 
               Row(
                 children: [
@@ -66,8 +66,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               const Text(
                 'Forgot Password ?',
                 style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 36,
+                  color: Color(0xFFf1F7F6),
+                  fontSize: 32,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -96,6 +96,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     prefixIcon: Icon(
                       Icons.mail_outline,
                       color: Colors.grey[400],
+                      size: 24,
                     ),
                     border: InputBorder.none,
                     isDense: true,
@@ -119,7 +120,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00FF7F),
+                  backgroundColor: const Color(0xFF00FF81),
                   minimumSize: const Size(double.infinity, 45),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -145,7 +146,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.arrow_back, size: 20),
+                    Icon(Icons.arrow_back, size: 20, color: Colors.white,),
                     SizedBox(width: 8),
                     Text(
                       'Back',
