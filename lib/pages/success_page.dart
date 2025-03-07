@@ -7,7 +7,7 @@ class SuccessScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF002B2A),
+      backgroundColor: const Color(0xFF021B1A),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -37,11 +37,11 @@ class SuccessScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              Text(
+              const Text(
                 'Congratulations! Your password has\nbeen changed. Click continue to login',
                 style: TextStyle(
-                  color: Colors.grey[400],
-                  fontSize: 16,
+                  color: Color(0xFF989898),
+                  fontSize: 18,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -67,8 +67,8 @@ class SuccessScreen extends StatelessWidget {
                 child: const Text(
                   'Continue',
                   style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFF002B2A),
+                    fontSize: 19,
+                    color: Color(0xFF021B1A),
                   ),
                 ),
               ),
