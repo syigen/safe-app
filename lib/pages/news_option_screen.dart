@@ -124,7 +124,7 @@ class NewsOptionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF001A13),
+      backgroundColor: const Color(0xFF021B1A),
       appBar:_buildAppBar(context) ,
       body: SafeArea(
         child: ScrollConfiguration(
@@ -198,8 +198,8 @@ class NewsOptionScreen extends StatelessWidget {
                       Text(
                         news.title,
                         style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
+                          color: Color(0xFFF1F7F6 ),
+                          fontSize: 28,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -215,8 +215,8 @@ class NewsOptionScreen extends StatelessWidget {
                         child: Text(
                           news.description,
                           style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 16,
+                            color: Color(0xFFB4BDBD ),
+                            fontSize: 18,
                             height: 1.5,
                           ),
                         ),
@@ -263,7 +263,7 @@ class NewsOptionScreen extends StatelessWidget {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00483B),
+                      backgroundColor: const Color(0xFF0B453A),
                       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 16), // Reduced vertical padding
                       elevation: 0,
                       shape: const RoundedRectangleBorder(
@@ -288,7 +288,7 @@ class NewsOptionScreen extends StatelessWidget {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00483B),
+                      backgroundColor: const Color(0xFF0B453A),
                       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 16), // Reduced vertical padding
                       elevation: 0,
                       shape: const RoundedRectangleBorder(
