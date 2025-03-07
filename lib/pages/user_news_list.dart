@@ -165,8 +165,9 @@ class _NewsListViewState extends ConsumerState<UserNewsListView> {
       title: const Text(
         'NEWS LIST',
         style: TextStyle(
-          color: Colors.white,
+          color: Color(0xFFF1F7F6),
           fontWeight: FontWeight.bold,
+          fontSize: 24,
         ),
       ),
 
@@ -247,7 +248,7 @@ class _NewsListViewState extends ConsumerState<UserNewsListView> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        double horizontalPadding = constraints.maxWidth < 600 ? 16.0 : 32.0;
+        double horizontalPadding = constraints.maxWidth < 600 ? 8.0 : 20.0;
 
         return ScrollConfiguration(
           behavior: CustomScrollBehavior(),
