@@ -11,19 +11,19 @@ class VerificationScreen extends StatefulWidget {
 class _VerificationScreenState extends State<VerificationScreen> {
   final List<TextEditingController> _controllers = List.generate(
     4,
-        (index) => TextEditingController(),
+    (index) => TextEditingController(),
   );
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF002B2A),
+      backgroundColor: const Color(0xFF021B1A),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             children: [
-              const SizedBox(height: 40),
+              const SizedBox(height: 20),
 
               Row(
                 children: [
@@ -76,49 +76,49 @@ class _VerificationScreenState extends State<VerificationScreen> {
               const Text(
                 'Check your mail',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Color(0xFFf1F7F6),
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 12),
-              Text(
+              const Text(
                 'We have sent the verification code to your email address',
                 style: TextStyle(
-                  color: Colors.grey[400],
-                  fontSize: 16,
+                  color: Color(0xFFAFB4B3),
+                  fontSize: 18,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 30),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: List.generate(
                   4,
-                      (index) => SizedBox(
+                  (index) => SizedBox(
                     width: 64,
                     child: TextField(
                       controller: _controllers[index],
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                      ),
+                          color: Color(0xFF00DF81),
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold),
                       keyboardType: TextInputType.number,
                       maxLength: 1,
                       decoration: InputDecoration(
                         counterText: '',
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(20),
                           borderSide: const BorderSide(
-                            color: Color(0xFF00FF7F),
+                            color: Color(0xFF757575),
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(20),
                           borderSide: const BorderSide(
-                            color: Color(0xFF00FF7F),
+                            color: Color(0xFF00DF81),
                             width: 2,
                           ),
                         ),
@@ -144,7 +144,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00FF7F),
+                  backgroundColor: const Color(0xFF00FF81),
                   minimumSize: const Size(double.infinity, 45),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -153,8 +153,8 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 child: const Text(
                   'Continue',
                   style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFF002B2A),
+                    fontSize: 19,
+                    color: Color(0xFF021B1A),
                   ),
                 ),
               ),
@@ -165,7 +165,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 children: [
                   Text(
                     'Haven\'t got the email yet? ',
-                    style: TextStyle(color: Colors.grey[400]),
+                    style: TextStyle(color: Colors.grey[400], fontSize: 15),
                   ),
                   TextButton(
                     onPressed: () {
@@ -173,9 +173,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                     },
                     child: const Text(
                       'Resend email',
-                      style: TextStyle(
-                        color: Color(0xFF00FF7F),
-                      ),
+                      style: TextStyle(color: Color(0xFF00FF7F), fontSize: 15),
                     ),
                   ),
                 ],
@@ -185,12 +183,17 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 onPressed: () => Navigator.pop(context),
                 style: TextButton.styleFrom(
                   foregroundColor: const Color(0xFF00FF7F),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.arrow_back, size: 20),
+                    Icon(
+                      Icons.arrow_back,
+                      size: 20,
+                      color: Colors.white,
+                    ),
                     SizedBox(width: 8),
                     Text(
                       'Back',
