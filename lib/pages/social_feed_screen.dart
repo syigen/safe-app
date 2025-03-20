@@ -2,20 +2,35 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import '../model/news_data.dart';
+import '../services/auth_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SocialFeedScreen extends StatefulWidget {
+// Add this provider at the top of the file, similar to the home screen
+final userProfileProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
+  final authService = AuthService(authClient: SupabaseAuthClient());
+  return authService.getUserProfile();
+});
+
+class SocialFeedScreen extends ConsumerStatefulWidget {
   final News news;
 
   const SocialFeedScreen({Key? key, required this.news}) : super(key: key);
 
   @override
-  State<SocialFeedScreen> createState() => _SocialFeedScreenState();
+  ConsumerState<SocialFeedScreen> createState() => _SocialFeedScreenState();
 }
 
-class _SocialFeedScreenState extends State<SocialFeedScreen> {
+class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
   bool _showCommentBox = false;
   final TextEditingController _commentController = TextEditingController();
   final List<String> _comments = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Refresh the user profile when the screen loads
+    ref.refresh(userProfileProvider);
+  }
 
   @override
   void dispose() {
@@ -207,6 +222,8 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
   }
 
   Widget _buildCommentsList() {
+    final userProfileAsync = ref.watch(userProfileProvider);
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
@@ -228,43 +245,122 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: _comments.length,
             itemBuilder: (context, index) {
-              return Container(
-                margin: const EdgeInsets.only(bottom: 8.0),
-                padding: const EdgeInsets.all(12.0),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0B453A),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Row(
+              return userProfileAsync.when(
+                data: (profileData) {
+                  final String fullName = profileData?['fullName'] ?? 'User';
+                  final String avatarUrl = profileData?['avatarUrl'] ?? '';
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8.0),
+                    padding: const EdgeInsets.all(12.0),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0B453A),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CircleAvatar(
-                          radius: 16,
-                          backgroundColor: Color(0xFF00CC66),
-                          child: Icon(
-                            Icons.person,
-                            size: 18,
-                            color: Colors.white,
-                          ),
+                        Row(
+                          children: [
+                            // Use profile image if available, otherwise use default
+                            avatarUrl.isNotEmpty
+                                ? CircleAvatar(
+                              radius: 20,
+                              backgroundImage: NetworkImage(avatarUrl),
+                              onBackgroundImageError: (exception, stackTrace) {
+                                // Fallback to default image on error
+                              },
+                            )
+                                : const CircleAvatar(
+                              radius: 20,
+                              backgroundImage: AssetImage('assets/user/default.png'),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              fullName, // Use the user's name from profile
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(height: 8),
                         Text(
-                          'User',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          _comments[index],
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _comments[index],
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ],
+                  );
+                },
+                loading: () => Container(
+                  margin: const EdgeInsets.only(bottom: 8.0),
+                  padding: const EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0B453A),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundImage: AssetImage('assets/user/default.png'),
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Loading...',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _comments[index],
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+                error: (error, stackTrace) => Container(
+                  margin: const EdgeInsets.only(bottom: 8.0),
+                  padding: const EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0B453A),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundImage: AssetImage('assets/user/default.png'),
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'User',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _comments[index],
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -334,28 +430,3 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
     );
   }
 }
-
-// class TrianglePainter extends CustomPainter {
-//   final Color color;
-//
-//   TrianglePainter(this.color);
-//
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     final paint = Paint()
-//       ..color = color
-//       ..style = PaintingStyle.fill;
-//
-//     final path = Path()
-//       ..moveTo(0, size.height / 2)
-//       ..lineTo(size.width, 0)
-//       ..lineTo(size.width, size.height)
-//       ..close();
-//
-//     canvas.drawPath(path, paint);
-//   }
-//
-//   @override
-//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-// }
-
