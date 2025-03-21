@@ -1,14 +1,25 @@
-import 'dart:ffi';
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ *
+ */
 
 import 'package:flutter/material.dart';
 import '../model/news_data.dart';
 import '../services/auth_service.dart';
+import '../services/comment_service.dart';
+import '../model/comment_data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Add this provider at the top of the file, similar to the home screen
 final userProfileProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
   final authService = AuthService(authClient: SupabaseAuthClient());
   return authService.getUserProfile();
+});
+
+// Add a provider for comments
+final commentsProvider = FutureProvider.family<List<Comment>, int>((ref, newsId) async {
+  final commentService = CommentService();
+  return commentService.getCommentsByNewsId(newsId);
 });
 
 class SocialFeedScreen extends ConsumerStatefulWidget {
@@ -23,7 +34,8 @@ class SocialFeedScreen extends ConsumerStatefulWidget {
 class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
   bool _showCommentBox = false;
   final TextEditingController _commentController = TextEditingController();
-  final List<String> _comments = [];
+  final CommentService _commentService = CommentService();
+  bool _isPostingComment = false;
 
   @override
   void initState() {
@@ -44,12 +56,48 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
     });
   }
 
-  void _submitComment() {
+  Future<void> _submitComment() async {
     if (_commentController.text.trim().isNotEmpty) {
       setState(() {
-        _comments.add(_commentController.text);
-        _commentController.clear();
+        _isPostingComment = true;
       });
+
+      try {
+        await _commentService.addComment(
+          newsId: widget.news.id,
+          content: _commentController.text.trim(),
+        );
+
+        // Clear the input and refresh comments
+        _commentController.clear();
+        ref.refresh(commentsProvider(widget.news.id));
+
+        // Show success message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Comment posted successfully'),
+              backgroundColor: Color(0xFF00CC66),
+            ),
+          );
+        }
+      } catch (e) {
+        // Show error message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to post comment: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isPostingComment = false;
+          });
+        }
+      }
     }
   }
 
@@ -161,7 +209,7 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
             if (_showCommentBox) _buildCommentBox(),
 
             // Comments List
-            if (_comments.isNotEmpty) _buildCommentsList(),
+            _buildCommentsList(),
 
             // Social Feed
             Container(
@@ -199,7 +247,7 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
-              onPressed: _submitComment,
+              onPressed: _isPostingComment ? null : _submitComment,
               style: TextButton.styleFrom(
                 backgroundColor: const Color(0xFF00CC66),
                 shape: RoundedRectangleBorder(
@@ -207,7 +255,16 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               ),
-              child: const Text(
+              child: _isPostingComment
+                  ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.0,
+                  color: Colors.white,
+                ),
+              )
+                  : const Text(
                 'Post',
                 style: TextStyle(
                   color: Colors.white,
@@ -222,7 +279,7 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
   }
 
   Widget _buildCommentsList() {
-    final userProfileAsync = ref.watch(userProfileProvider);
+    final commentsAsync = ref.watch(commentsProvider(widget.news.id));
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -240,15 +297,31 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
               ),
             ),
           ),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _comments.length,
-            itemBuilder: (context, index) {
-              return userProfileAsync.when(
-                data: (profileData) {
-                  final String fullName = profileData?['fullName'] ?? 'User';
-                  final String avatarUrl = profileData?['avatarUrl'] ?? '';
+          commentsAsync.when(
+            data: (comments) {
+              if (comments.isEmpty) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  alignment: Alignment.center,
+                  child: Text(
+                    'No comments yet. Be the first to comment!',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: comments.length,
+                itemBuilder: (context, index) {
+                  final comment = comments[index];
+                  final profileData = comment.userProfile as Map<String, dynamic>?;
+                  final String fullName = profileData?['full_name'] ?? 'User';
+                  final String avatarUrl = profileData?['avatar_url'] ?? '';
 
                   return Container(
                     margin: const EdgeInsets.only(bottom: 8.0),
@@ -287,83 +360,30 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          _comments[index],
+                          comment.content,
                           style: const TextStyle(color: Colors.white),
                         ),
                       ],
                     ),
                   );
                 },
-                loading: () => Container(
-                  margin: const EdgeInsets.only(bottom: 8.0),
-                  padding: const EdgeInsets.all(12.0),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0B453A),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 20,
-                            backgroundImage: AssetImage('assets/user/default.png'),
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            'Loading...',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _comments[index],
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
-                error: (error, stackTrace) => Container(
-                  margin: const EdgeInsets.only(bottom: 8.0),
-                  padding: const EdgeInsets.all(12.0),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0B453A),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 20,
-                            backgroundImage: AssetImage('assets/user/default.png'),
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            'User',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _comments[index],
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
               );
             },
+            loading: () => const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: CircularProgressIndicator(
+                  color: Color(0xFF00CC66),
+                ),
+              ),
+            ),
+            error: (error, stackTrace) => Container(
+              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+              child: Text(
+                'Error loading comments: ${error.toString()}',
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
           ),
         ],
       ),
