@@ -9,6 +9,7 @@ class News {
   final String description;
   final String imageUrl;
   final DateTime createdAt;
+  final String? authorId;
 
   News({
     required this.id,
@@ -16,15 +17,17 @@ class News {
     required this.description,
     required this.imageUrl,
     required this.createdAt,
+    this.authorId,
   });
 
   factory News.fromJson(Map<String, dynamic> json) {
     return News(
-      id: json['id'] as int,
-      title: json['title'] as String,
-      description: json['description'] as String,
-      imageUrl: json['image_url'] as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      id: json['id'],
+      title: json['title'],
+      description: json['description'],
+      imageUrl: json['image_url'] ?? '',
+      createdAt: DateTime.parse(json['created_at']),
+      authorId: json['author_id'],
     );
   }
 
@@ -35,10 +38,7 @@ class News {
       'description': description,
       'image_url': imageUrl,
       'created_at': createdAt.toIso8601String(),
+      'author_id': authorId,
     };
-  }
-
-  static List<News> fromJsonList(List<dynamic> jsonList) {
-    return jsonList.map((json) => News.fromJson(json as Map<String, dynamic>)).toList();
   }
 }
