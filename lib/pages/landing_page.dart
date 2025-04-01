@@ -4,7 +4,7 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:safe_app/pages/login_page.dart';
+import 'package:safe_app/pages/welcome_page.dart';
 
 // Landing Page
 class LandingPage extends StatelessWidget {
@@ -142,7 +142,7 @@ class BottomButton extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const LoginPage()),
+            MaterialPageRoute(builder: (context) => const WelcomePage()),
           );
         },
         style: ElevatedButton.styleFrom(
