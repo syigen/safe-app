@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class ValidationService {
   static bool hasEightChars(String password) {
     return password.length >= 8;
@@ -16,5 +18,10 @@ class ValidationService {
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
     );
     return emailRegex.hasMatch(email);
+  }
+
+  static bool isValidPhoneNumber(String phoneNumber) {
+    final phoneRegex = RegExp(r'^0\d{9}$');
+    return phoneRegex.hasMatch(phoneNumber);
   }
 }
