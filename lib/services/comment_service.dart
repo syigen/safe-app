@@ -13,7 +13,7 @@ class CommentService {
   /// Get currently logged in user
   User? get currentUser => _supabase.auth.currentUser;
 
-  /// Add a new comment to the news item
+  /// Add a new comment to the news item and increment comment count
   Future<Comment> addComment({
     required int newsId,
     required String content
@@ -25,7 +25,8 @@ class CommentService {
         throw Exception('User not authenticated');
       }
 
-      // Insert the comment
+      // Start a Supabase transaction
+      // First, insert the comment
       final response = await _supabase
           .from('comments')
           .insert({
@@ -37,10 +38,39 @@ class CommentService {
           .select()
           .single();
 
+      // Then, increment the comment count for the news item
+      await _incrementCommentCount(newsId);
+
       return Comment.fromJson(response);
     } catch (e) {
       debugPrint('Error adding comment: $e');
       rethrow;
+    }
+  }
+
+  /// Increment the comment count for a news item
+  Future<void> _incrementCommentCount(int newsId) async {
+    try {
+      // Get the current comment count
+      final newsResponse = await _supabase
+          .from('news')
+          .select('comment_count')
+          .eq('id', newsId)
+          .single();
+
+      // Calculate the new count (defaults to 1 if null)
+      final currentCount = newsResponse['comment_count'] as int? ?? 0;
+      final newCount = currentCount + 1;
+
+      // Update the news item with the new count
+      await _supabase
+          .from('news')
+          .update({'comment_count': newCount})
+          .eq('id', newsId);
+    } catch (e) {
+      debugPrint('Error incrementing comment count: $e');
+      // We don't rethrow here to avoid failing the comment creation
+      // if the count update fails
     }
   }
 
@@ -62,7 +92,7 @@ class CommentService {
     }
   }
 
-  /// Delete a comment (only if user is the author)
+  /// Delete a comment (only if user is the author) and decrement comment count
   Future<void> deleteComment(int commentId) async {
     try {
       final user = currentUser;
@@ -70,13 +100,52 @@ class CommentService {
         throw Exception('User not authenticated');
       }
 
+      // First, get the news_id for this comment
+      final commentResponse = await _supabase
+          .from('comments')
+          .select('news_id')
+          .eq('id', commentId)
+          .single();
+
+      final newsId = commentResponse['news_id'] as int;
+
+      // Delete the comment
       await _supabase
           .from('comments')
           .delete()
           .match({'id': commentId, 'user_id': user.id});
+
+      // Decrement the comment count
+      await _decrementCommentCount(newsId);
     } catch (e) {
       debugPrint('Error deleting comment: $e');
       rethrow;
+    }
+  }
+
+  /// Decrement the comment count for a news item
+  Future<void> _decrementCommentCount(int newsId) async {
+    try {
+      // Get the current comment count
+      final newsResponse = await _supabase
+          .from('news')
+          .select('comment_count')
+          .eq('id', newsId)
+          .single();
+
+      // Calculate the new count (ensure it doesn't go below 0)
+      final currentCount = newsResponse['comment_count'] as int? ?? 0;
+      final newCount = currentCount > 0 ? currentCount - 1 : 0;
+
+      // Update the news item with the new count
+      await _supabase
+          .from('news')
+          .update({'comment_count': newCount})
+          .eq('id', newsId);
+    } catch (e) {
+      debugPrint('Error decrementing comment count: $e');
+      // We don't rethrow here to avoid failing the comment deletion
+      // if the count update fails
     }
   }
 
