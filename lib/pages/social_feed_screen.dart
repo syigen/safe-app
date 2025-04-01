@@ -7,19 +7,32 @@ import 'package:flutter/material.dart';
 import '../model/news_data.dart';
 import '../services/auth_service.dart';
 import '../services/comment_service.dart';
+import '../services/news_like_service.dart';
 import '../model/comment_data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Add this provider at the top of the file, similar to the home screen
-final userProfileProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
+final userProfileProvider = FutureProvider.autoDispose<Map<String, dynamic>?>((ref) async {
   final authService = AuthService(authClient: SupabaseAuthClient());
   return authService.getUserProfile();
 });
 
 // Add a provider for comments
-final commentsProvider = FutureProvider.family<List<Comment>, int>((ref, newsId) async {
+final commentsProvider = FutureProvider.autoDispose.family<List<Comment>, int>((ref, newsId) async {
   final commentService = CommentService();
   return commentService.getCommentsByNewsId(newsId);
+});
+
+// Add a provider for like status
+final hasUserLikedProvider = FutureProvider.autoDispose.family<bool, int>((ref, newsId) async {
+  final newsLikeService = NewsLikeService();
+  return newsLikeService.hasUserLiked(newsId);
+});
+
+// Add a provider for like count
+final likeCountProvider = FutureProvider.autoDispose.family<int, int>((ref, newsId) async {
+  final newsLikeService = NewsLikeService();
+  return newsLikeService.getLikeCount(newsId);
 });
 
 class SocialFeedScreen extends ConsumerStatefulWidget {
@@ -35,13 +48,19 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
   bool _showCommentBox = false;
   final TextEditingController _commentController = TextEditingController();
   final CommentService _commentService = CommentService();
+  final NewsLikeService _newsLikeService = NewsLikeService();
   bool _isPostingComment = false;
+  bool _isLikeProcessing = false;
 
   @override
   void initState() {
     super.initState();
-    // Refresh the user profile when the screen loads
-    ref.refresh(userProfileProvider);
+    // Force refresh the providers when the screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.refresh(hasUserLikedProvider(widget.news.id));
+      ref.refresh(likeCountProvider(widget.news.id));
+      ref.refresh(userProfileProvider);
+    });
   }
 
   @override
@@ -54,6 +73,48 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
     setState(() {
       _showCommentBox = !_showCommentBox;
     });
+  }
+
+  Future<void> _toggleLike() async {
+    if (_isLikeProcessing) return;
+
+    setState(() {
+      _isLikeProcessing = true;
+    });
+
+    try {
+      final isNowLiked = await _newsLikeService.toggleLike(widget.news.id);
+
+      // Refresh providers to update UI
+      ref.refresh(hasUserLikedProvider(widget.news.id));
+      ref.refresh(likeCountProvider(widget.news.id));
+
+      // Show feedback
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(isNowLiked ? 'Liked successfully' : 'Unliked successfully'),
+            backgroundColor: const Color(0xFF00CC66),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to process like: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLikeProcessing = false;
+        });
+      }
+    }
   }
 
   Future<void> _submitComment() async {
@@ -103,6 +164,9 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final hasUserLikedAsync = ref.watch(hasUserLikedProvider(widget.news.id));
+    final likeCountAsync = ref.watch(likeCountProvider(widget.news.id));
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.news.title),
@@ -151,6 +215,21 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
                       color: Colors.white.withOpacity(0.8),
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  // Like counter
+                  likeCountAsync.when(
+                    data: (count) => count > 0
+                        ? Text(
+                      '$count ${count == 1 ? 'like' : 'likes'}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withOpacity(0.6),
+                      ),
+                    )
+                        : const SizedBox.shrink(),
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, __) => const SizedBox.shrink(),
+                  ),
                 ],
               ),
             ),
@@ -166,11 +245,28 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: _buildActionButton(
-                        icon: Icons.thumb_up_outlined,
-                        label: 'Like',
-                        onPressed: () {},
-                        cornerRadius: <double>[10, 0, 10, 0],
+                      child: hasUserLikedAsync.when(
+                        data: (isLiked) => _buildActionButton(
+                          icon: isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
+                          label: isLiked ? 'Liked' : 'Like',
+                          onPressed: _toggleLike,
+                          cornerRadius: <double>[10, 0, 10, 0],
+                          isActive: isLiked,
+                          isProcessing: _isLikeProcessing,
+                        ),
+                        loading: () => _buildActionButton(
+                          icon: Icons.thumb_up_outlined,
+                          label: 'Like',
+                          onPressed: () {},
+                          cornerRadius: <double>[10, 0, 10, 0],
+                          isProcessing: true,
+                        ),
+                        error: (_, __) => _buildActionButton(
+                          icon: Icons.thumb_up_outlined,
+                          label: 'Like',
+                          onPressed: _toggleLike,
+                          cornerRadius: <double>[10, 0, 10, 0],
+                        ),
                       ),
                     ),
                     const VerticalDivider(
@@ -413,9 +509,13 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
     required String label,
     required VoidCallback onPressed,
     required List<double> cornerRadius,
+    bool isActive = false,
+    bool isProcessing = false,
   }) {
+    final color = isActive ? const Color(0xFF00CC66) : const Color(0xFF00CC66).withOpacity(0.7);
+
     return TextButton(
-      onPressed: onPressed,
+      onPressed: isProcessing ? null : onPressed,
       style: TextButton.styleFrom(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -428,21 +528,30 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
         padding: const EdgeInsets.symmetric(vertical: 16.0),
         backgroundColor: const Color(0xFF0B453A),
       ),
-      child: Row(
+      child: isProcessing
+          ? const SizedBox(
+        width: 20,
+        height: 20,
+        child: CircularProgressIndicator(
+          strokeWidth: 2.0,
+          color: Color(0xFF00CC66),
+        ),
+      )
+          : Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             icon,
-            color: const Color(0xFF00CC66),
+            color: color,
             size: 20,
           ),
           const SizedBox(width: 8),
           Text(
             label,
-            style: const TextStyle(
-              color: Color(0xFF00CC66),
+            style: TextStyle(
+              color: color,
               fontSize: 14,
-              fontWeight: FontWeight.w500,
+              fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
             ),
           ),
         ],
