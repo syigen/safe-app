@@ -11,31 +11,31 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:safe_app/pages/loading_page.dart';
-import 'package:safe_app/pages/login_page.dart';
+import 'package:safe_app/pages/welcome_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../main.dart';
 
 abstract class AuthClient {
-  Future<AuthResponse> login(String email, String password);
-  Future<AuthResponse> register(String email, String password);
+  Future<void> sendOTP(String phoneNumber);
+  Future<AuthResponse> verifyOTP(String phoneNumber, String token);
 }
 
 class SupabaseAuthClient implements AuthClient {
   @override
-  Future<AuthResponse> login(String email, String password) async {
-    return Supabase.instance.client.auth.signInWithPassword(
-      email: email,
-      password: password,
+  Future<void> sendOTP(String phoneNumber) async {
+    return Supabase.instance.client.auth.signInWithOtp(
+      phone: phoneNumber,
     );
   }
 
   @override
-  Future<AuthResponse> register(String email, String password) async {
-    return Supabase.instance.client.auth.signUp(
-      email: email,
-      password: password,
+  Future<AuthResponse> verifyOTP(String phoneNumber, String token) async {
+    return Supabase.instance.client.auth.verifyOTP(
+      phone: phoneNumber,
+      token: token,
+      type: OtpType.sms,
     );
   }
 }
@@ -52,7 +52,7 @@ class AuthService {
   }) {
     Fluttertoast.showToast(
       msg: message,
-      toastLength: Toast.LENGTH_SHORT,
+      toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.TOP,
       backgroundColor: backgroundColor,
       textColor: textColor,
@@ -60,39 +60,33 @@ class AuthService {
     );
   }
 
-  String _getErrorMessage(AuthException error) {
-    switch (error.statusCode) {
-      case '400':
-        if (error.message.contains('Invalid login credentials')) {
-          return 'Invalid email or password. Please try again.';
-        }
-        return 'Invalid request. Please check your input and try again.';
-      case '401':
-        return 'Unauthorized. Please check your credentials.';
-      case '422':
-        if (error.message
-            .contains('Password should be at least 6 characters')) {
-          return 'Password should be at least 6 characters long.';
-        }
-        return 'Invalid input. Please check your details and try again.';
-      case '429':
-        return 'Too many requests. Please try again later.';
-      default:
-        return 'An unexpected error occurred. Please try again.';
-    }
-  }
+  // String _getErrorMessage(AuthException error) {
+  //   switch (error.statusCode) {
+  //     case '400':
+  //       return 'Invalid request. Please check your input and try again.';
+  //     case '401':
+  //       return 'Unauthorized. Please check your phone number.';
+  //     case '422':
+  //       return 'Invalid input. Please check your phone number.';
+  //     case '429':
+  //       return 'Too many requests. Please try again later.';
+  //     default:
+  //       return 'An unexpected error occurred. Please try again.';
+  //   }
+  // }
 
   // Method to save user data to local storage
   Future<void> saveUserData(String userId) async {
     try {
       final userData = await supabase
           .from('profiles')
-          .select('full_name, is_admin')
+          .select('full_name, is_admin, phone_number')
           .eq('id', userId)
           .single();
 
       final String userName = userData['full_name'] as String? ?? '';
       final bool isAdmin = userData['is_admin'] as bool? ?? false;
+      final String phone = userData['phone_number'] as String? ?? '';
 
       // Save to local storage
       final prefs = await SharedPreferences.getInstance();
@@ -100,6 +94,7 @@ class AuthService {
       await prefs.setBool('isAdmin', isAdmin);
       await prefs.setString('userName', userName);
       await prefs.setString('userId', userId);
+      await prefs.setString('userPhone', phone);
     } catch (e) {
       _showToast(
         message: 'Failed to save user data: $e',
@@ -188,198 +183,6 @@ class AuthService {
         print('Error checking profile data: $e');
       }
       return false;
-    }
-  }
-
-  Future<void> login({
-    required BuildContext context,
-    required String email,
-    required String password,
-  }) async {
-    if (email.isEmpty || password.isEmpty) {
-      _showToast(
-        message: 'Email and password cannot be empty.',
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-      );
-      return;
-    }
-
-    try {
-      final response = await authClient.login(email, password);
-
-      if (response.session != null) {
-        final userId = response.user?.id;
-
-        if (userId != null) {
-          // Save user data to local storage
-          await saveUserData(userId);
-
-          // Print the isAdmin value after saving to local storage
-          final prefs = await SharedPreferences.getInstance();
-          final bool? isAdmin = prefs.getBool('isAdmin');
-          if (kDebugMode) {
-            print('Is Admin: $isAdmin');
-          }
-
-          _showToast(
-            message: 'Login successful!',
-            backgroundColor: const Color(0xFF00DF81),
-            textColor: Colors.white,
-          );
-
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const LoadingPage()),
-          );
-        } else {
-          _showToast(
-            message: 'Failed to get user information.',
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-          );
-        }
-      } else {
-        _showToast(
-          message: 'Login failed. Please check your credentials.',
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-        );
-      }
-    } on AuthException catch (e) {
-      _showToast(
-        message: _getErrorMessage(e),
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-      );
-    } catch (e) {
-      _showToast(
-        message: 'An unexpected error occurred. Error: $e.',
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-      );
-    }
-  }
-
-  Future<void> logout(BuildContext context) async {
-    try {
-      await supabase.auth.signOut();
-
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-            (route) => false,
-      );
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('isLoggedIn');
-      await prefs.remove('isAdmin');
-      await prefs.remove('userName');
-      await prefs.remove('userId');
-
-    } catch (e) {
-      _showToast(
-        message: 'Error logging out. Please try again.',
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-      );
-      debugPrint('Error logging out: $e');
-    }
-  }
-
-  Future<void> register({
-    required BuildContext context,
-    required String email,
-    required String password,
-    required bool hasEightChars,
-    required bool hasOneDigit,
-    required bool hasOneLetter,
-  }) async {
-    if (email.isEmpty || password.isEmpty) {
-      if (kDebugMode) {
-        print('Email or password is empty');
-      }
-      _showToast(
-        message: 'Email and password cannot be empty.',
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-      );
-      return;
-    }
-
-    if (!hasEightChars || !hasOneDigit || !hasOneLetter) {
-      if (kDebugMode) {
-        print('Password does not meet the required conditions');
-      }
-      _showToast(
-        message: 'Password must have at least 8 characters, one digit, and one letter.',
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-      );
-      return;
-    }
-
-    try {
-      if (kDebugMode) {
-        print('Attempting to register user with email: $email');
-      }
-      final response = await authClient.register(email, password);
-
-      if (response.user != null) {
-        if (kDebugMode) {
-          print('Registration successful! User: ${response.user!.email}');
-        }
-
-        _showToast(
-          message: 'Registration successful!',
-          backgroundColor: const Color(0xFF00DF81),
-          textColor: Colors.white,
-        );
-
-        // Navigate to the login page after successful registration.
-        if (kDebugMode) {
-          print('Navigating to LoginPage');
-        }
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
-        );
-      } else {
-        if (kDebugMode) {
-          print('Registration failed, no user returned in response');
-        }
-        _showToast(
-          message: 'Registration failed. Please try again.',
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-        );
-      }
-    } on AuthException catch (e) {
-      if (kDebugMode) {
-        print('Caught AuthException: ${e.message}, StatusCode: ${e.statusCode}');
-      }
-      if (e.statusCode == '422' && e.message.contains('already registered')) {
-        _showToast(
-          message: 'This email is already registered. Please use a different email or try logging in.',
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-        );
-      } else {
-        _showToast(
-          message: _getErrorMessage(e),
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-        );
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Caught unexpected error: $e');
-      }
-      _showToast(
-        message: 'An unexpected error occurred. Please try again.',
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-      );
     }
   }
 
@@ -486,26 +289,15 @@ class AuthService {
     }
   }
 
-  void showToast({
-    required String message,
-    required Color backgroundColor,
-    required Color textColor,
-  }) {
-    if (kDebugMode) {
-      print(message);
-    }
-  }
-
   Future<Map<String, dynamic>?> getUserProfile() async {
     try {
       final user = Supabase.instance.client.auth.currentUser;
 
       if (user == null) {
-        _showToast(
-          message: 'No user is logged in. Please login first.',
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-        );
+        await SharedPreferences.getInstance().then((prefs) {
+          prefs.clear();
+        });
+
         return null;
       }
 
@@ -515,21 +307,228 @@ class AuthService {
           .eq('id', user.id)
           .single();
 
-      // Return the profile data
       return {
         'fullName': response['full_name'] ?? '',
         'avatarUrl': response['avatar_url'] ?? '',
       };
     } catch (e) {
+      if (e is AuthException) {
+        await Supabase.instance.client.auth.signOut();
+        await SharedPreferences.getInstance().then((prefs) {
+          prefs.clear();
+        });
+      }
+
       if (kDebugMode) {
         print('Error fetching user profile: $e');
       }
+
       _showToast(
-        message: 'Failed to retrieve user profile. Please try again.',
+        message: 'Session expired. Please log in again.',
         backgroundColor: Colors.red,
         textColor: Colors.white,
       );
+
       return null;
+    }
+  }
+
+  // Request OTP for phone number authentication
+  Future<void> requestOTP({
+    required BuildContext context,
+    required String phoneNumber,
+  }) async {
+
+    try {
+      // Send OTP
+      await authClient.sendOTP(phoneNumber);
+
+      _showToast(
+        message: 'OTP sent successfully!',
+        backgroundColor: const Color(0xFF00DF81),
+        textColor: Colors.white,
+      );
+
+    // } on AuthException catch (e) {
+    //   if(kDebugMode){
+    //     print(e);
+    //   }
+    //
+    //   _showToast(
+    //     message: _getErrorMessage(e),
+    //     backgroundColor: Colors.red,
+    //     textColor: Colors.white,
+    //   );
+    //   rethrow;
+    } catch (e) {
+      // _showToast(
+      //   message: 'An unexpected error occurred. Error: $e',
+      //   backgroundColor: Colors.red,
+      //   textColor: Colors.white,
+      // );
+      rethrow;
+    }
+  }
+
+  // Verify OTP and handle user authentication/registration
+  Future<void> verifyOTP({
+    required BuildContext context,
+    required String phoneNumber,
+    required String otp,
+  }) async {
+    try {
+      final response = await authClient.verifyOTP(phoneNumber, otp);
+
+      if (response.session != null) {
+        final user = response.user;
+        if (user == null) {
+          _showToast(
+            message: 'Failed to get user information.',
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+          );
+          return;
+        }
+
+        // Check if user profile exists
+        bool profileExists = await _checkUserProfile(user.id);
+
+        if (!profileExists) {
+          // Create a new profile for the user
+          await _createUserProfile(user.id, phoneNumber);
+        }
+
+        // Save user data to local storage
+        await saveUserData(user.id);
+
+        // Check admin status
+        final prefs = await SharedPreferences.getInstance();
+        final bool? isAdmin = prefs.getBool('isAdmin');
+        if (kDebugMode) {
+          print('Is Admin: $isAdmin');
+          print('Profile Exists: $profileExists');
+        }
+
+        _showToast(
+          message: profileExists ? 'Welcome back!' : 'Account created successfully!',
+          backgroundColor: const Color(0xFF00DF81),
+          textColor: Colors.white,
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoadingPage()),
+        );
+      } else {
+        _showToast(
+          message: 'OTP verification failed.',
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+      }
+    // } on AuthException catch (e) {
+    //   _showToast(
+    //     message: _getErrorMessage(e),
+    //     backgroundColor: Colors.red,
+    //     textColor: Colors.white,
+    //   );
+    } catch (e) {
+      _showToast(
+        message: 'Authentication failed. Please try again.',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+      if (kDebugMode) {
+        print('OTP Verification Error: $e');
+      }
+      rethrow;
+    }
+  }
+
+  // Check if user profile exists
+  Future<bool> _checkUserProfile(String userId) async {
+    try {
+      final response = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', userId)
+          .single();
+      return true;
+    } catch (e) {
+      // No existing profile found
+      return false;
+    }
+  }
+
+  // Create a new user profile
+  Future<void> _createUserProfile(String userId, String phoneNumber) async {
+    try {
+      await supabase
+          .from('profiles')
+          .insert({
+        'id': userId,
+        'phone_number': phoneNumber,
+        'is_admin': false,
+        'full_name': '', // Empty initially, can be updated later
+        'avatar_url': '', // Empty initially, can be updated later
+        'created_at': DateTime.now().toIso8601String(),
+      });
+
+      if (kDebugMode) {
+        print('New user profile created for phone number: $phoneNumber');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error creating user profile: $e');
+      }
+      _showToast(
+        message: 'Failed to create user profile.',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+      rethrow;
+    }
+  }
+
+  Future<void> logout(BuildContext context) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      await prefs.remove('isLoggedIn');
+      await prefs.remove('isAdmin');
+      await prefs.remove('userName');
+      await prefs.remove('userId');
+      await prefs.remove('userPhone');
+
+      await Supabase.instance.client.auth.signOut();
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const WelcomePage()),
+            (route) => false,
+      );
+
+      _showToast(
+        message: 'Logged out successfully.',
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+    } catch (e) {
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const WelcomePage()),
+            (route) => false,
+      );
+
+      _showToast(
+        message: 'An error occurred during logout.',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     }
   }
 }
