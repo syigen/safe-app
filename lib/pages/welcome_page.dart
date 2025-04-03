@@ -78,32 +78,39 @@ class WelcomePageState extends State<WelcomePage>  {
       backgroundColor: backgroundColor,
       textColor: textColor,
       fontSize: 16.0,
-
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Use resizeToAvoidBottomInset to prevent bottom overflow
+      resizeToAvoidBottomInset: false,
       body: GestureDetector(
         onTap: () {
           // This will dismiss the keyboard when tapping outside
           FocusScope.of(context).unfocus();
         },
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return Stack(
-              children: [
-                const BackgroundImage(),
-                Center(
-                  child: Container(
-                    width: double.infinity,
+        child: Stack(
+          children: [
+            const BackgroundImage(),
+            SafeArea(
+              child: SingleChildScrollView(
+                // Make the content scrollable when keyboard appears
+                physics: const ClampingScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height -
+                        MediaQuery.of(context).padding.top -
+                        MediaQuery.of(context).padding.bottom,
+                  ),
+                  child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const SizedBox(height: 80),
+                        const SizedBox(height: 60),
                         const LogoSection(),
                         const SizedBox(height: 20),
                         const WelcomeContent(),
@@ -111,13 +118,16 @@ class WelcomePageState extends State<WelcomePage>  {
                         PhoneInputField(controller: _phoneController),
                         const SizedBox(height: 18),
                         ContinueButton(onPressed: _requestOTP),
-                      ]
-                    )
-                  )
-                )
-              ]
-            );
-          },
+                        // Add extra space at bottom to ensure button is visible with keyboard
+                        SizedBox(height: MediaQuery.of(context).viewInsets.bottom > 0 ?
+                        280 : 80),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -322,10 +332,3 @@ class PhoneNumberFormatter extends TextInputFormatter {
     );
   }
 }
-
-
-
-
-
-
-
