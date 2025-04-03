@@ -1,14 +1,18 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ *
+ */
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:safe_app/pages/welcome_page.dart';
-
 import '../services/auth_service.dart';
 
 class VerificationScreen extends StatefulWidget {
   final String phoneNumber;
-  VerificationScreen({Key? key, required this.phoneNumber}) : super(key: key);
+  const VerificationScreen({Key? key, required this.phoneNumber}) : super(key: key);
 
   @override
   _VerificationScreenState createState() => _VerificationScreenState();
@@ -94,6 +98,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    // Calculate appropriate size for OTP boxes based on screen width
+    final double boxSize = (screenWidth - 72) / 6; // 72 = padding (48) + spaces between boxes (24)
+
     return Scaffold(
       resizeToAvoidBottomInset: false, // Prevents the bottom overflow
       backgroundColor: const Color(0xFF021B1A),
@@ -146,36 +154,38 @@ class _VerificationScreenState extends State<VerificationScreen> {
                     ),
                     const SizedBox(height: 30),
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: List.generate(
-                        6,
-                            (index) => RawKeyboardListener(
-                          focusNode: FocusNode(),
-                          onKey: (RawKeyEvent event) {
-                            if (event is RawKeyDownEvent) {
-                              if (event.logicalKey == LogicalKeyboardKey.backspace) {
-                                if (_controllers[index].text.isEmpty && index > 0) {
-                                  // Move focus to previous field and clear it
-                                  _focusNodes[index - 1].requestFocus();
-                                  _controllers[index - 1].clear();
+                    // Modified OTP input row with proper spacing and responsive sizing
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: List.generate(
+                          6,
+                              (index) => RawKeyboardListener(
+                            focusNode: FocusNode(),
+                            onKey: (RawKeyEvent event) {
+                              if (event is RawKeyDownEvent) {
+                                if (event.logicalKey == LogicalKeyboardKey.backspace) {
+                                  if (_controllers[index].text.isEmpty && index > 0) {
+                                    // Move focus to previous field and clear it
+                                    _focusNodes[index - 1].requestFocus();
+                                    _controllers[index - 1].clear();
+                                  }
                                 }
                               }
-                            }
-                          },
-                          child: SizedBox(
-                            width: 60,
-                            height: 60,
-                            child: Center(
+                            },
+                            child: SizedBox(
+                              width: boxSize,
+                              height: boxSize,
                               child: TextField(
                                 controller: _controllers[index],
                                 focusNode: _focusNodes[index],
                                 showCursor: false,
                                 textAlign: TextAlign.center,
                                 textAlignVertical: TextAlignVertical.center,
-                                style: const TextStyle(
-                                  color: Color(0xFF00DF81),
-                                  fontSize: 24,
+                                style: TextStyle(
+                                  color: const Color(0xFF00DF81),
+                                  fontSize: boxSize * 0.4, // Responsive font size
                                   fontWeight: FontWeight.bold,
                                   height: 1.2,
                                 ),
@@ -184,6 +194,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                                 decoration: InputDecoration(
                                   counterText: '',
+                                  contentPadding: EdgeInsets.zero,
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
                                     borderSide: const BorderSide(
@@ -272,6 +283,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 20), // Add extra padding at bottom
                   ],
                 ),
               ),
