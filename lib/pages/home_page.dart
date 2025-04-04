@@ -114,7 +114,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
       child: Scaffold(
         backgroundColor: const Color(0xFF021B1A),
         endDrawer: AppDrawer(
-          onLogout: (context) => widget._authService.logout(context),
+          onLogout: () => widget._authService.logout(context),
           authService: widget._authService,
         ),
         body: RefreshIndicator(

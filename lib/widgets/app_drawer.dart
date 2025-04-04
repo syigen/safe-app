@@ -15,7 +15,7 @@ final isAdminProvider = FutureProvider<bool>((ref) async {
 });
 
 class AppDrawer extends ConsumerStatefulWidget {
-  final Function(BuildContext) onLogout;
+  final VoidCallback onLogout;
 
   const AppDrawer({
     super.key,
@@ -158,16 +158,13 @@ class AppDrawerState extends ConsumerState<AppDrawer> {
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton.icon(
                 onPressed: () {
-                  Navigator.pop(context);
-                  widget.onLogout(context);
+                  Navigator.pop(context); // Close the drawer
+                  widget.onLogout(); // Call logout with parent context
                 },
-                icon: const Icon(Icons.logout, color: Colors.white, size: 20,),
+                icon: const Icon(Icons.logout, color: Colors.white, size: 20),
                 label: const Text(
                   'Logout',
-                  style: TextStyle(
-                    color: Color(0xFFFFFFFF ),
-                    fontSize: 18,
-                  ),
+                  style: TextStyle(color: Color(0xFFFFFFFF), fontSize: 18),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFF1F1F),
