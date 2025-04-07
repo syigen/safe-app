@@ -39,7 +39,6 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
   Offset? customInfoWindowOffset;
 
 
-
   @override
   void initState() {
     super.initState();
@@ -243,12 +242,15 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
             child: FloatingActionButton(
               onPressed: () async {
                 // Fetch the latest location
-                await ref.read(locationProvider.notifier).getCurrentLocation();
+                final currentLocationData = ref.read(locationProvider);
 
-                // Read the updated location from the provider
+                if (currentLocationData == null || currentLocationData.latitude == null || currentLocationData.longitude == null) {
+                  await ref.read(locationProvider.notifier).getCurrentLocation();
+                }
+
                 final locationData = ref.read(locationProvider);
 
-                if (locationData != null) {
+                if (locationData != null && locationData.latitude != null && locationData.longitude != null) {
                   final LatLng newCurrentLocation = LatLng(
                     locationData.latitude!,
                     locationData.longitude!,
