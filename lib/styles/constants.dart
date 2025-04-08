@@ -14,7 +14,7 @@ TextStyle getResponsiveHeadingStyle(BuildContext context) {
   SizeConfig().init(context);
   return TextStyle(
     color: Colors.white,
-    fontSize: SizeConfig.blockSizeHorizontal * 4, // 4% of screen width
+    fontSize: SizeConfig.blockSizeHorizontal * 4,
   );
 }
 
@@ -22,6 +22,6 @@ TextStyle getResponsiveBodyStyle(BuildContext context) {
   SizeConfig().init(context);
   return TextStyle(
     color: Colors.white,
-    fontSize: SizeConfig.blockSizeHorizontal * 3.5, // 3.5% of screen width
+    fontSize: SizeConfig.blockSizeHorizontal * 3.5,
   );
 }
