@@ -1,23 +1,26 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
+ */
+
 import 'package:flutter/material.dart';
 import '../model/news_data.dart';
-import '../pages/news_option_screen.dart'; // Import the news option screen
+import '../pages/news_option_screen.dart';
 
 class NewsCard extends StatelessWidget {
   final News news;
   final int index;
 
   const NewsCard({
-    Key? key,
+    super.key,
     required this.news,
     required this.index,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    // Get screen width for responsive sizing
     final screenWidth = MediaQuery.of(context).size.width;
-
-    // Calculate dynamic height based on screen size
     final cardHeight = screenWidth < 600 ? 110.0 : 130.0;
     final imageWidth = screenWidth < 600 ? 110.0 : 130.0;
 
@@ -29,7 +32,6 @@ class NewsCard extends StatelessWidget {
             builder: (context) => NewsOptionScreen(news: news),
           ),
         );
-        // Handle refresh if needed
         if (result == true) {
           // This will be handled in the parent ListView
         }
@@ -41,7 +43,6 @@ class NewsCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: const Color(0xFF0B453A),
             borderRadius: BorderRadius.circular(16),
-            // Add subtle shadow for depth
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.1),
@@ -52,18 +53,16 @@ class NewsCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              // Image container with null handling
               Container(
                 width: imageWidth,
                 decoration: const BoxDecoration(
                   borderRadius: BorderRadius.horizontal(
                     left: Radius.circular(16),
                   ),
-                  color: Color(0xFF06302B), // Background color for empty state
+                  color: Color(0xFF06302B),
                 ),
                 child: Stack(
                   children: [
-                    // Image with error handling
                     if (news.imageUrl.isNotEmpty)
                       ClipRRect(
                         borderRadius: const BorderRadius.horizontal(
@@ -81,7 +80,6 @@ class NewsCard extends StatelessWidget {
                       )
                     else
                       _buildPlaceholder(imageWidth, cardHeight),
-                    // Index number overlay
                     Positioned(
                       top: 8,
                       left: 8,

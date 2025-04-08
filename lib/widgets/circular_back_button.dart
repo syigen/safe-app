@@ -1,6 +1,7 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
 import 'package:flutter/material.dart';
@@ -12,12 +13,12 @@ class CircularBackButton extends StatelessWidget {
   final EdgeInsets padding;
 
   const CircularBackButton({
-    Key? key,
+    super.key,
     this.onPressed,
     this.backgroundColor = Colors.white,
     this.iconColor = Colors.black,
     this.padding = const EdgeInsets.only(left: 16),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +27,10 @@ class CircularBackButton extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(25), // Increased border radius
+          borderRadius: BorderRadius.circular(25),
           onTap: onPressed ?? () => Navigator.of(context).pop(),
           child: Container(
-            padding: const EdgeInsets.all(4), // Increased padding around icon
+            padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: backgroundColor,
@@ -45,7 +46,7 @@ class CircularBackButton extends StatelessWidget {
             child: Icon(
               Icons.arrow_back,
               color: iconColor,
-              size: 30, // Kept the icon size as in your code
+              size: 30,
             ),
           ),
         ),
