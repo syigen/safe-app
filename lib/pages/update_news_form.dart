@@ -1,3 +1,9 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
+ */
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -9,13 +15,13 @@ import 'admin_view_news_list.dart';
 class UpdateNewsForm extends StatefulWidget {
   final News news;
 
-  const UpdateNewsForm({Key? key, required this.news}) : super(key: key);
+  const UpdateNewsForm({super.key, required this.news});
 
   @override
-  _UpdateNewsScreenState createState() => _UpdateNewsScreenState();
+  UpdateNewsScreenState createState() => UpdateNewsScreenState();
 }
 
-class _UpdateNewsScreenState extends State<UpdateNewsForm> {
+class UpdateNewsScreenState extends State<UpdateNewsForm> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
   final _newsService = NewsService();
@@ -149,16 +155,13 @@ class _UpdateNewsScreenState extends State<UpdateNewsForm> {
 
   @override
   Widget build(BuildContext context) {
-    // Get screen size for responsive design
     final screenSize = MediaQuery.of(context).size;
     final isLargeScreen = screenSize.width > 600;
 
-    // Calculate dynamic padding based on screen size
-    final horizontalPadding = screenSize.width * 0.05; // 5% of screen width
-    final verticalPadding = screenSize.height * 0.02; // 2% of screen height
+    final horizontalPadding = screenSize.width * 0.05;
+    final verticalPadding = screenSize.height * 0.02;
 
-    // Calculate dynamic image height
-    final imageHeight = screenSize.height * 0.25; // 25% of screen height, max 250
+    final imageHeight = screenSize.height * 0.25;
 
     return Scaffold(
       backgroundColor: const Color(0xFF001A13),
@@ -166,7 +169,7 @@ class _UpdateNewsScreenState extends State<UpdateNewsForm> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: const Text('UPDATE NEWS'),
-        toolbarHeight: screenSize.height * 0.08, // Responsive app bar height
+        toolbarHeight: screenSize.height * 0.08,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -314,7 +317,7 @@ class _UpdateNewsScreenState extends State<UpdateNewsForm> {
                   ),
                 ),
               ),
-              // Add bottom padding for keyboard
+              // Bottom padding for keyboard
               SizedBox(height: screenSize.height * 0.05),
             ],
           ),

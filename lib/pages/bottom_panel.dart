@@ -1,6 +1,7 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
 import 'dart:io';
@@ -90,8 +91,6 @@ class _BottomPanelState extends State<BottomPanel> {
     _draggableController.dispose();
     super.dispose();
   }
-
-
 
   bool _validateForm() {
     if (_selectedElephantCount <= 0) {
@@ -190,7 +189,6 @@ class _BottomPanelState extends State<BottomPanel> {
     try {
       final AlertService alertService = AlertService();
 
-      // Convert date and time to correct formats
       final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
       final DateFormat timeFormat = DateFormat('HH:mm:ss');
       final String formattedDate = dateFormat.format(DateTime.now());
@@ -209,18 +207,14 @@ class _BottomPanelState extends State<BottomPanel> {
         image: _selectedImage != null ? File(_selectedImage!.path) : null, // Assuming _selectedImage is a File
       );
 
-      // Send the alert data to the service
       await alertService.postAlert(alertData);
 
-
-      // Show success message in the UI
       _showToast(
         message: 'Alert data stored successfully!',
         backgroundColor: const Color(0xFF00DF81),
         textColor: Colors.white,
       );
 
-      // Optionally, navigate to another page after the alert is sent successfully
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -243,10 +237,9 @@ class _BottomPanelState extends State<BottomPanel> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    // Initialize SizeConfig
+
     SizeConfig().init(context);
 
     return NotificationListener<DraggableScrollableNotification>(
@@ -367,6 +360,4 @@ class _BottomPanelState extends State<BottomPanel> {
       onSendPressed: _sendAlert,
     );
   }
-
-
 }

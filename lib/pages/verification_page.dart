@@ -1,6 +1,7 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
 import 'dart:async';
@@ -12,13 +13,13 @@ import '../services/auth_service.dart';
 
 class VerificationScreen extends StatefulWidget {
   final String phoneNumber;
-  const VerificationScreen({Key? key, required this.phoneNumber}) : super(key: key);
+  const VerificationScreen({super.key, required this.phoneNumber});
 
   @override
-  _VerificationScreenState createState() => _VerificationScreenState();
+  VerificationScreenState createState() => VerificationScreenState();
 }
 
-class _VerificationScreenState extends State<VerificationScreen> {
+class VerificationScreenState extends State<VerificationScreen> {
   final AuthService _authService = AuthService(authClient: SupabaseAuthClient());
   final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
@@ -31,7 +32,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
     super.initState();
     _startTimer();
 
-    // Add listeners to handle focus and input changes
+    // Listeners to handle focus and input changes
     for (int i = 0; i < _focusNodes.length; i++) {
       _focusNodes[i].addListener(() {
         if (_focusNodes[i].hasFocus) {
@@ -99,11 +100,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    // Calculate appropriate size for OTP boxes based on screen width
-    final double boxSize = (screenWidth - 72) / 6; // 72 = padding (48) + spaces between boxes (24)
+    final double boxSize = (screenWidth - 72) / 6;
 
     return Scaffold(
-      resizeToAvoidBottomInset: false, // Prevents the bottom overflow
+      resizeToAvoidBottomInset: false,
       backgroundColor: const Color(0xFF021B1A),
       body: GestureDetector(
         onTap: () {
@@ -120,7 +120,6 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Existing widgets remain the same...
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -153,8 +152,6 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       ),
                     ),
                     const SizedBox(height: 30),
-
-                    // Modified OTP input row with proper spacing and responsive sizing
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 0),
                       child: Row(
@@ -167,7 +164,6 @@ class _VerificationScreenState extends State<VerificationScreen> {
                               if (event is RawKeyDownEvent) {
                                 if (event.logicalKey == LogicalKeyboardKey.backspace) {
                                   if (_controllers[index].text.isEmpty && index > 0) {
-                                    // Move focus to previous field and clear it
                                     _focusNodes[index - 1].requestFocus();
                                     _controllers[index - 1].clear();
                                   }
@@ -185,7 +181,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                 textAlignVertical: TextAlignVertical.center,
                                 style: TextStyle(
                                   color: const Color(0xFF00DF81),
-                                  fontSize: boxSize * 0.4, // Responsive font size
+                                  fontSize: boxSize * 0.4,
                                   fontWeight: FontWeight.bold,
                                   height: 1.2,
                                 ),
@@ -210,7 +206,6 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                   ),
                                 ),
                                 onChanged: (value) {
-                                  // Programmatically move to next field if needed
                                   if (value.length == 1) {
                                     _moveToNextField(index);
                                   }
@@ -222,7 +217,6 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       ),
                     ),
 
-                    // Rest of the existing widgets remain the same
                     const SizedBox(height: 40),
                     ElevatedButton(
                       onPressed: () {
@@ -283,7 +277,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20), // Add extra padding at bottom
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
