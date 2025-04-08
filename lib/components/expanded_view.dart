@@ -1,7 +1,9 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../components/casualties_section.dart';
@@ -35,7 +37,8 @@ class ExpandedView extends StatelessWidget {
   final Function onCasualtyOptionChanged;
   final DistanceRange selectedDistanceRange;
 
-  ExpandedView({
+  const ExpandedView({
+    super.key,
     required this.locationController,
     required this.dateController,
     required this.timeController,
@@ -76,7 +79,7 @@ class ExpandedView extends StatelessWidget {
           ),
           Container(
             decoration: BoxDecoration(
-              color: Color(0xFF032221),
+              color: const Color(0xFF032221),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Padding(
@@ -87,12 +90,12 @@ class ExpandedView extends StatelessWidget {
                     locationController: locationController,
                     primaryColor: primaryColor,
                   ),
-                  Divider(color: Colors.white, thickness: 1),
+                  const Divider(color: Colors.white, thickness: 1),
                   DateField(
                     dateController: dateController,
                     primaryColor: primaryColor,
                   ),
-                  Divider(color: Colors.white, thickness: 1),
+                  const Divider(color: Colors.white, thickness: 1),
                   TimeField(
                     timeController: timeController,
                     primaryColor: primaryColor,

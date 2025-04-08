@@ -1,6 +1,7 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
 import 'package:flutter/material.dart';
@@ -23,7 +24,7 @@ class CollapsedView extends StatelessWidget {
   final VoidCallback onSendPressed;
 
   const CollapsedView({
-    Key? key,
+    super.key,
     required this.locationController,
     required this.selectedLocationText,
     required this.selectedElephantCount,
@@ -33,7 +34,7 @@ class CollapsedView extends StatelessWidget {
     required this.selectedTimeButtonValue,
     required this.onTimeButtonSelected,
     required this.onSendPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

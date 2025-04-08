@@ -1,6 +1,7 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
 import 'package:flutter/material.dart';
@@ -16,10 +17,9 @@ Widget buildTimeButtons({
       double screenWidth = MediaQuery.of(context).size.width;
       double screenHeight = MediaQuery.of(context).size.height;
 
-      // Adjust button spacing and font size based on screen size
-      double buttonSpacing = screenWidth * 0.05; // Button spacing
-      double fontSize = screenWidth * 0.04; // Font size proportional to screen width
-      double buttonHeight = screenHeight * 0.06; // Button height based on screen height
+      double buttonSpacing = screenWidth * 0.05;
+      double fontSize = screenWidth * 0.04;
+      double buttonHeight = screenHeight * 0.06;
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
