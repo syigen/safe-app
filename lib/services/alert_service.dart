@@ -1,3 +1,9 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
+ */
+
 import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -69,7 +75,7 @@ class AlertService {
       // Upload image if available
       if (alertData.image != null) {
         String imageUrl = await _uploadImage(alertData.image!);
-        body['image_url'] = imageUrl; // Save the uploaded image URL in DB
+        body['image_url'] = imageUrl;
       }
 
       final response = await http.post(
@@ -93,8 +99,8 @@ class AlertService {
 
   // Helper function to upload an image and return the image URL
   Future<String> _uploadImage(File image) async {
-    final String fileName = image.uri.pathSegments.last; // Extract filename
-    final String storagePath = 'elephant_alerts/$fileName'; // Upload directly to bucket
+    final String fileName = image.uri.pathSegments.last;
+    final String storagePath = 'elephant_alerts/$fileName';
 
     final Uri uploadUrl = Uri.parse('$supabaseUrl/storage/v1/object/$storagePath');
 

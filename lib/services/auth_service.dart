@@ -1,12 +1,10 @@
-// ignore_for_file: use_build_context_synchronously
-
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -14,7 +12,6 @@ import 'package:safe_app/pages/loading_page.dart';
 import 'package:safe_app/pages/welcome_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import '../main.dart';
 
 abstract class AuthClient {
@@ -60,22 +57,7 @@ class AuthService {
     );
   }
 
-  // String _getErrorMessage(AuthException error) {
-  //   switch (error.statusCode) {
-  //     case '400':
-  //       return 'Invalid request. Please check your input and try again.';
-  //     case '401':
-  //       return 'Unauthorized. Please check your phone number.';
-  //     case '422':
-  //       return 'Invalid input. Please check your phone number.';
-  //     case '429':
-  //       return 'Too many requests. Please try again later.';
-  //     default:
-  //       return 'An unexpected error occurred. Please try again.';
-  //   }
-  // }
-
-  // Method to save user data to local storage
+  // Save user data to local storage
   Future<void> saveUserData(String userId) async {
     try {
       final userData = await supabase
@@ -122,8 +104,6 @@ class AuthService {
 
       final String userName = userData['full_name'] as String? ?? '';
       final bool isAdmin = userData['is_admin'] as bool? ?? false;
-
-      // Update local storage
       await prefs.setBool('isAdmin', isAdmin);
       await prefs.setString('userName', userName);
     } catch (e) {
@@ -348,24 +328,7 @@ class AuthService {
         backgroundColor: const Color(0xFF00DF81),
         textColor: Colors.white,
       );
-
-    // } on AuthException catch (e) {
-    //   if(kDebugMode){
-    //     print(e);
-    //   }
-    //
-    //   _showToast(
-    //     message: _getErrorMessage(e),
-    //     backgroundColor: Colors.red,
-    //     textColor: Colors.white,
-    //   );
-    //   rethrow;
     } catch (e) {
-      // _showToast(
-      //   message: 'An unexpected error occurred. Error: $e',
-      //   backgroundColor: Colors.red,
-      //   textColor: Colors.white,
-      // );
       rethrow;
     }
   }
@@ -394,7 +357,6 @@ class AuthService {
         bool profileExists = await _checkUserProfile(user.id);
 
         if (!profileExists) {
-          // Create a new profile for the user
           await _createUserProfile(user.id, phoneNumber);
         }
 
@@ -426,12 +388,6 @@ class AuthService {
           textColor: Colors.white,
         );
       }
-    // } on AuthException catch (e) {
-    //   _showToast(
-    //     message: _getErrorMessage(e),
-    //     backgroundColor: Colors.red,
-    //     textColor: Colors.white,
-    //   );
     } catch (e) {
       _showToast(
         message: 'Authentication failed. Please try again.',
@@ -455,7 +411,6 @@ class AuthService {
           .single();
       return true;
     } catch (e) {
-      // No existing profile found
       return false;
     }
   }
@@ -469,8 +424,8 @@ class AuthService {
         'id': userId,
         'phone_number': phoneNumber,
         'is_admin': false,
-        'full_name': '', // Empty initially, can be updated later
-        'avatar_url': '', // Empty initially, can be updated later
+        'full_name': '',
+        'avatar_url': '',
         'created_at': DateTime.now().toIso8601String(),
       });
 
