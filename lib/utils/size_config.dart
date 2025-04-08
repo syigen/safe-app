@@ -22,8 +22,8 @@ class SizeConfig {
     devicePixelRatio = _mediaQueryData.devicePixelRatio;
     textScaleFactor = _mediaQueryData.textScaleFactor;
 
-    blockSizeHorizontal = screenWidth / 100; // Percentage-based
-    blockSizeVertical = screenHeight / 100;  // Percentage-based
+    blockSizeHorizontal = screenWidth / 100;
+    blockSizeVertical = screenHeight / 100;
   }
 
   static double getTextScale(double size) {
