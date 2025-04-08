@@ -1,11 +1,11 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
+
 import 'package:flutter/material.dart';
-
 import 'admin_view_news_list.dart';
-
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
@@ -63,7 +63,6 @@ class AdminDashboard extends StatelessWidget {
                     ),
                     const SizedBox(height: 40),
 
-                    // News Management Button
                     ElevatedButton(
                       onPressed: () {
                         Navigator.push(
@@ -92,7 +91,6 @@ class AdminDashboard extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
 
-                    // Task Buttons
                     OutlinedButton(
                       onPressed: () {
                       },

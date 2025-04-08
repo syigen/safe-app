@@ -1,6 +1,7 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
 import 'package:flutter/material.dart';
@@ -11,25 +12,24 @@ import '../services/news_like_service.dart';
 import '../model/comment_data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Add this provider at the top of the file, similar to the home screen
 final userProfileProvider = FutureProvider.autoDispose<Map<String, dynamic>?>((ref) async {
   final authService = AuthService(authClient: SupabaseAuthClient());
   return authService.getUserProfile();
 });
 
-// Add a provider for comments
+// Provider for comments
 final commentsProvider = FutureProvider.autoDispose.family<List<Comment>, int>((ref, newsId) async {
   final commentService = CommentService();
   return commentService.getCommentsByNewsId(newsId);
 });
 
-// Add a provider for like status
+// Provider for like status
 final hasUserLikedProvider = FutureProvider.autoDispose.family<bool, int>((ref, newsId) async {
   final newsLikeService = NewsLikeService();
   return newsLikeService.hasUserLiked(newsId);
 });
 
-// Add a provider for like count
+// Provider for like count
 final likeCountProvider = FutureProvider.autoDispose.family<int, int>((ref, newsId) async {
   final newsLikeService = NewsLikeService();
   return newsLikeService.getLikeCount(newsId);
@@ -55,7 +55,6 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
   @override
   void initState() {
     super.initState();
-    // Force refresh the providers when the screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.refresh(hasUserLikedProvider(widget.news.id));
       ref.refresh(likeCountProvider(widget.news.id));
@@ -402,7 +401,7 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
                   child: Text(
                     'No comments yet. Be the first to comment!',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       fontStyle: FontStyle.italic,
                     ),
                   ),
@@ -431,13 +430,11 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
                       children: [
                         Row(
                           children: [
-                            // Use profile image if available, otherwise use default
                             avatarUrl.isNotEmpty
                                 ? CircleAvatar(
                               radius: 20,
                               backgroundImage: NetworkImage(avatarUrl),
                               onBackgroundImageError: (exception, stackTrace) {
-                                // Fallback to default image on error
                               },
                             )
                                 : const CircleAvatar(
@@ -446,7 +443,7 @@ class _SocialFeedScreenState extends ConsumerState<SocialFeedScreen> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              fullName, // Use the user's name from profile
+                              fullName,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,

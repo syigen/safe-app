@@ -1,3 +1,9 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
+ */
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../model/news_data.dart';
@@ -7,11 +13,11 @@ import '../widgets/user_news_card.dart';
 
 class UserNewsListView extends ConsumerStatefulWidget {
   @override
-  _NewsListViewState createState() => _NewsListViewState();
+  NewsListViewState createState() => NewsListViewState();
 
 }
 
-class _NewsListViewState extends ConsumerState<UserNewsListView> {
+class NewsListViewState extends ConsumerState<UserNewsListView> {
   final NewsService _newsService = NewsService();
   List<News> _newsList = [];
   bool _isLoading = true;
@@ -266,6 +272,4 @@ class _NewsListViewState extends ConsumerState<UserNewsListView> {
       },
     );
   }
-
-
 }
