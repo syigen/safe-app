@@ -1,6 +1,7 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
 import 'package:flutter/material.dart';
@@ -11,7 +12,8 @@ class CasualtiesSection extends StatelessWidget {
   final ValueChanged<String?>? onCasualtyOptionChanged;
   final Color primaryColor;
 
-  CasualtiesSection({
+  const CasualtiesSection({
+    super.key,
     required this.selectedCasualtyOption,
     required this.onCasualtyOptionChanged,
     required this.primaryColor,
@@ -31,15 +33,15 @@ class CasualtiesSection extends StatelessWidget {
               onChanged: onCasualtyOptionChanged,
               activeColor: primaryColor,
             ),
-            Text('Yes', style: TextStyle(color: Colors.white)),
-            SizedBox(width: 32),
+            const Text('Yes', style: TextStyle(color: Colors.white)),
+            const SizedBox(width: 32),
             Radio<String?>(
               value: 'No',
               groupValue: selectedCasualtyOption,
               onChanged: onCasualtyOptionChanged,
               activeColor: primaryColor,
             ),
-            Text('No', style: TextStyle(color: Colors.white)),
+            const Text('No', style: TextStyle(color: Colors.white)),
           ],
         ),
       ],
