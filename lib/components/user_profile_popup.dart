@@ -1,3 +1,9 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
+ */
+
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -23,7 +29,7 @@ class ProfilePopupState extends State<ProfilePopup> {
   final TextEditingController _nameController = TextEditingController();
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
-  bool _isLoading = false; // Add loading state
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -293,7 +299,7 @@ class ProfilePopupState extends State<ProfilePopup> {
 
         const SizedBox(height: 20),
 
-        // Confirm button - keeping original layout but updating function
+        // Confirm button
         Container(
           width: MediaQuery.of(context).size.width * 0.35,
           decoration: BoxDecoration(

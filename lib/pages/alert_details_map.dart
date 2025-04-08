@@ -1,10 +1,11 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/location_provider.dart';
@@ -57,7 +58,6 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
 
       // Initialize selected marker when map loads with widget.selectedLocation
       if (widget.selectedLocation != null) {
-        // Need to find the marker ID for this location after alerts are loaded
         Future.delayed(Duration(milliseconds: 500), () {
           _setInitialSelectedMarker();
         });
@@ -194,8 +194,6 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
 
   // Generate a consistent ID for each alert
   String generateMarkerId(AlertData alert) {
-    // Create a stable marker ID based on alert data
-    // This ensures the same alert always gets the same ID
     return "marker_${alert.location}_${alert.date}_${alert.time}";
   }
 
@@ -245,7 +243,6 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
                   _controller.animateCamera(
                     CameraUpdate.newLatLng(widget.selectedLocation!),
                   );
-                  // The selection of the marker is now handled in _setInitialSelectedMarker
                 } else {
                   final locationData = ref.read(locationProvider);
                   if (locationData?.latitude != null &&
@@ -291,12 +288,10 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
                             // Otherwise, select the new marker
                             tappedMarkerId = markerId;
                             selectedLocation = alertPosition;
-
                             // Animate camera to the selected marker
                             _controller.animateCamera(
                               CameraUpdate.newLatLng(alertPosition),
                             );
-
                             // Show info window for the tapped marker
                             showAlertInfoWindow(markerId, alertPosition,
                                 "Elephant Sighting", alert.date, alert.time);
@@ -339,7 +334,7 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
                       BoxShadow(
                         color: Colors.black.withOpacity(0.1),
                         blurRadius: 8,
-                        offset: Offset(0, 4),
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
@@ -353,7 +348,7 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
                             horizontal: paddingHorizontal,
                             vertical: paddingVertical,
                           ),
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: Color(0xFF00FF90),
                             borderRadius: BorderRadius.horizontal(
                                 left: Radius.circular(12)),
@@ -373,7 +368,7 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              SizedBox(height: 2),
+                              const SizedBox(height: 2),
                               Text(
                                 '${alertDate ?? ""} | ${alertTime ?? ""}',
                                 style: TextStyle(
@@ -392,7 +387,7 @@ class _AlertDetailsMapState extends ConsumerState<AlertDetailsMap> {
                       Container(
                         width: screenWidth * 0.08,
                         height: infoWindowHeight,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.red,
                           borderRadius: BorderRadius.horizontal(
                               right: Radius.circular(12)),

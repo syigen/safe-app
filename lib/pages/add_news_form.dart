@@ -1,11 +1,17 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
+ */
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dotted_border/dotted_border.dart';
-import '../services/news_service.dart';
 import 'admin_view_news_list.dart';
+import '../services/news_service.dart';
 
 class AddNewsForm extends ConsumerStatefulWidget {
   @override
@@ -288,9 +294,9 @@ class _AddNewsScreenState extends ConsumerState<AddNewsForm> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.add_photo_alternate_outlined,
-                                  color: const Color(0xFF00FF9D),
+                                  color: Color(0xFF00FF9D),
                                   size: 24,
                                 ),
                                 const SizedBox(width: 8),

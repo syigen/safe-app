@@ -1,6 +1,7 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
 import 'package:flutter/foundation.dart';
@@ -151,7 +152,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                                   radius: 20,
                                   backgroundImage: NetworkImage(avatarUrl),
                                   onBackgroundImageError: (exception, stackTrace) {
-                                    // Fallback to default image on error
                                   },
                                 )
                                     : const CircleAvatar(

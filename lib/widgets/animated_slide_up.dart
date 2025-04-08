@@ -1,18 +1,19 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
 import 'package:flutter/material.dart';
 
 class AnimatedSlideUp extends StatefulWidget {
-  const AnimatedSlideUp({Key? key}) : super(key: key);
+  const AnimatedSlideUp({super.key});
 
   @override
-  _AnimatedSlideUpState createState() => _AnimatedSlideUpState();
+  AnimatedSlideUpState createState() => AnimatedSlideUpState();
 }
 
-class _AnimatedSlideUpState extends State<AnimatedSlideUp>
+class AnimatedSlideUpState extends State<AnimatedSlideUp>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _position;
@@ -43,13 +44,11 @@ class _AnimatedSlideUpState extends State<AnimatedSlideUp>
       }
     });
 
-    // Always repeat animation
     _controller.repeat();
   }
 
   @override
   void dispose() {
-    // Properly dispose the AnimationController to prevent errors
     _controller.dispose();
     super.dispose();
   }

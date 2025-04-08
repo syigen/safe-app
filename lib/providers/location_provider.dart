@@ -1,12 +1,15 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:location/location.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:app_settings/app_settings.dart'; // Add this package for opening settings
+import 'package:app_settings/app_settings.dart';
 
 final locationProvider = StateNotifierProvider<LocationNotifier, LocationData?>((ref) {
   return LocationNotifier();
@@ -31,7 +34,9 @@ class LocationNotifier extends StateNotifier<LocationData?> {
     final prefs = await SharedPreferences.getInstance();
     final permissionGranted = prefs.getBool('locationPermissionGranted') ?? false;
     if (permissionGranted) {
-      print("Location permission previously granted.");
+      if (kDebugMode) {
+        print("Location permission previously granted.");
+      }
     }
   }
 
@@ -49,7 +54,6 @@ class LocationNotifier extends StateNotifier<LocationData?> {
         prefs.setBool('locationPermissionGranted', true);
         return true;
       } else if (permissionStatus == PermissionStatus.denied) {
-        // If denied, try requesting one more time
         permissionStatus = await _location.requestPermission();
         if (permissionStatus == PermissionStatus.granted ||
             permissionStatus == PermissionStatus.grantedLimited) {
@@ -57,8 +61,9 @@ class LocationNotifier extends StateNotifier<LocationData?> {
           return true;
         }
       } else if (permissionStatus == PermissionStatus.deniedForever) {
-        // Guide user to settings
-        print("Permission denied forever. Opening settings...");
+        if (kDebugMode) {
+          print("Permission denied forever. Opening settings...");
+        }
         await AppSettings.openAppSettings();
       }
 
@@ -83,21 +88,21 @@ class LocationNotifier extends StateNotifier<LocationData?> {
           permissionStatus == PermissionStatus.deniedForever) {
         final granted = await _handlePermissionRequest();
         if (!granted) {
-          print("Location permission not granted after request.");
+          if (kDebugMode) {
+            print("Location permission not granted after request.");
+          }
           return;
         }
       }
 
-      // Only try to get location if we have permission
       if (await _location.hasPermission() == PermissionStatus.granted ||
           await _location.hasPermission() == PermissionStatus.grantedLimited) {
         final currentLocation = await _location.getLocation();
         state = currentLocation;
       }
     } catch (e) {
-      // Retry after delay, but only if we haven't disposed
       if (!mounted) return;
-      Future.delayed(Duration(seconds: 2), getCurrentLocation);
+      Future.delayed(const Duration(seconds: 2), getCurrentLocation);
     }
   }
 
@@ -116,7 +121,7 @@ class LocationNotifier extends StateNotifier<LocationData?> {
 
   void _startPermissionCheck() {
     _permissionCheckTimer?.cancel();
-    _permissionCheckTimer = Timer.periodic(Duration(seconds: 10), (timer) async {
+    _permissionCheckTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
       if (!mounted) return;
 
       PermissionStatus permissionStatus = await _location.hasPermission();

@@ -1,6 +1,7 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
 import 'package:flutter/material.dart';
@@ -10,7 +11,6 @@ import 'package:safe_app/pages/verification_page.dart';
 import 'package:safe_app/services/auth_service.dart';
 import 'package:safe_app/services/validation_service.dart';
 
-// Welcome Page
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
 
@@ -30,7 +30,6 @@ class WelcomePageState extends State<WelcomePage>  {
 
   // Method to handle OTP request
   Future<void> _requestOTP() async {
-    // Remove spaces from the phone number
     String phoneNumber = _phoneController.text.replaceAll(' ', '');
 
     if (phoneNumber.isEmpty || !ValidationService.isValidPhoneNumber(phoneNumber)) {
@@ -48,7 +47,6 @@ class WelcomePageState extends State<WelcomePage>  {
       // Send OTP
       await _authService.requestOTP(context: context, phoneNumber: phoneNumber);
 
-      // Navigate to OTP verification page
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -56,7 +54,6 @@ class WelcomePageState extends State<WelcomePage>  {
         ),
       );
     } catch (e) {
-      // Handle any errors from OTP sending
       _showToast(
         message: 'Failed to send OTP. Please try again.',
         backgroundColor: Colors.red,
@@ -78,32 +75,36 @@ class WelcomePageState extends State<WelcomePage>  {
       backgroundColor: backgroundColor,
       textColor: textColor,
       fontSize: 16.0,
-
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: GestureDetector(
         onTap: () {
-          // This will dismiss the keyboard when tapping outside
           FocusScope.of(context).unfocus();
         },
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return Stack(
-              children: [
-                const BackgroundImage(),
-                Center(
-                  child: Container(
-                    width: double.infinity,
+        child: Stack(
+          children: [
+            const BackgroundImage(),
+            SafeArea(
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height -
+                        MediaQuery.of(context).padding.top -
+                        MediaQuery.of(context).padding.bottom,
+                  ),
+                  child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const SizedBox(height: 80),
+                        const SizedBox(height: 60),
                         const LogoSection(),
                         const SizedBox(height: 20),
                         const WelcomeContent(),
@@ -111,13 +112,15 @@ class WelcomePageState extends State<WelcomePage>  {
                         PhoneInputField(controller: _phoneController),
                         const SizedBox(height: 18),
                         ContinueButton(onPressed: _requestOTP),
-                      ]
-                    )
-                  )
-                )
-              ]
-            );
-          },
+                        SizedBox(height: MediaQuery.of(context).viewInsets.bottom > 0 ?
+                        280 : 80),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -157,7 +160,7 @@ class LogoSection extends StatelessWidget {
         ),
         child: Center(
           child: Image.asset(
-            'assets/images/logo.png', // You'll need this icon asset
+            'assets/images/logo.png',
             width: 120,
             height: 120,
           ),
@@ -293,18 +296,14 @@ class PhoneNumberFormatter extends TextInputFormatter {
       TextEditingValue oldValue,
       TextEditingValue newValue,
       ) {
-    // Remove any non-digit characters
     String cleaned = newValue.text.replaceAll(RegExp(r'\D'), '');
 
-    // Limit to 10 digits
     if (cleaned.length > 10) {
       cleaned = cleaned.substring(0, 10);
     }
 
-    // Format the number
     StringBuffer formatted = StringBuffer();
     for (int i = 0; i < cleaned.length; i++) {
-      // Add space after 3rd and 6th digits
       if (i == 3 || i == 6) {
         formatted.write(' ');
       }
@@ -322,10 +321,3 @@ class PhoneNumberFormatter extends TextInputFormatter {
     );
   }
 }
-
-
-
-
-
-
-

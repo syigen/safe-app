@@ -1,21 +1,25 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
+ */
+
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
-// Import AuthService
-import '../services/auth_service.dart'; // Update this path if needed
+import '../services/auth_service.dart';
 
 class UpdateUserProfile extends StatefulWidget {
   final Function(String name, File? image)? onConfirm;
-  final AuthService authService; // Add AuthService parameter
+  final AuthService authService;
 
   const UpdateUserProfile({
     super.key,
     this.onConfirm,
-    required this.authService, // Make it required
+    required this.authService,
   });
 
   @override
@@ -26,12 +30,12 @@ class UpdateUserProfileState extends State<UpdateUserProfile> {
   final TextEditingController _nameController = TextEditingController();
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
-  bool _isLoading = false; // Add loading state
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _loadUserProfile(); // Load current profile data
+    _loadUserProfile();
   }
 
   Future<void> _loadUserProfile() async {
@@ -66,7 +70,6 @@ class UpdateUserProfileState extends State<UpdateUserProfile> {
     }
   }
 
-  // Show toast message helper
   void _showToast({
     required String message,
     required Color backgroundColor,
@@ -242,21 +245,17 @@ class UpdateUserProfileState extends State<UpdateUserProfile> {
                     });
 
                     try {
-                      // Update profile using AuthService
                       await widget.authService.updateProfile(
                         newName: _nameController.text,
                         newAvatar: _imageFile,
                       );
 
-                      // Call the original callback if provided
                       if (widget.onConfirm != null) {
                         widget.onConfirm!(_nameController.text, _imageFile);
                       }
 
-                      // Refresh user data in shared preferences
                       await widget.authService.refreshUserData();
 
-                      // Close the popup
                       if (context.mounted) {
                         Navigator.pop(context);
                       }

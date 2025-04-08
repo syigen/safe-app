@@ -1,6 +1,7 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
 import 'package:flutter/material.dart';
@@ -9,7 +10,8 @@ class TimeField extends StatelessWidget {
   final TextEditingController timeController;
   final Color primaryColor;
 
-  TimeField({
+  const TimeField({
+    super.key,
     required this.timeController,
     required this.primaryColor,
   });
@@ -18,13 +20,12 @@ class TimeField extends StatelessWidget {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
 
-    // Font size responsive to screen width
-    double labelFontSize = screenWidth * 0.045; // 4.5% of screen width for label font size
-    double inputFontSize = screenWidth * 0.04;  // 4% of screen width for input font size
-    double paddingHorizontal = screenWidth * 0.05; // Horizontal padding proportional to screen width
+    double labelFontSize = screenWidth * 0.045;
+    double inputFontSize = screenWidth * 0.04;
+    double paddingHorizontal = screenWidth * 0.05;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: paddingHorizontal), // Add horizontal padding
+      padding: EdgeInsets.symmetric(horizontal: paddingHorizontal),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -54,10 +55,10 @@ class TimeField extends StatelessWidget {
       child: TextField(
         controller: timeController,
         style: TextStyle(color: Colors.white, fontSize: fontSize),
-        enabled: false, // Disable the input field
-        textAlign: TextAlign.end, // Align text inside the input to the right
-        decoration: InputDecoration(
-          border: InputBorder.none, // Remove underline
+        enabled: false,
+        textAlign: TextAlign.end,
+        decoration: const InputDecoration(
+          border: InputBorder.none,
         ),
       ),
     );

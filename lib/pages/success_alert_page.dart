@@ -1,3 +1,9 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
+ */
+
 import 'package:flutter/material.dart';
 
 class SuccessAlertPage extends StatelessWidget {
@@ -5,10 +11,10 @@ class SuccessAlertPage extends StatelessWidget {
   final VoidCallback onClose;
 
   const SuccessAlertPage({
-    Key? key,
+    super.key,
     required this.alertId,
     required this.onClose,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

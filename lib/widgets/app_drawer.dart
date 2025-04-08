@@ -1,3 +1,9 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
+ */
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:safe_app/pages/admin_dashboard.dart';
@@ -31,7 +37,6 @@ class AppDrawerState extends ConsumerState<AppDrawer> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Refresh user profile and admin status every time the drawer opens
     ref.refresh(userProfileProvider);
     ref.refresh(isAdminProvider);
   }
@@ -63,7 +68,6 @@ class AppDrawerState extends ConsumerState<AppDrawer> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Fetch and display user profile
                       Consumer(
                         builder: (context, ref, child) {
                           final userProfileAsync = ref.watch(userProfileProvider);
@@ -158,8 +162,8 @@ class AppDrawerState extends ConsumerState<AppDrawer> {
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton.icon(
                 onPressed: () {
-                  Navigator.pop(context); // Close the drawer
-                  widget.onLogout(); // Call logout with parent context
+                  Navigator.pop(context);
+                  widget.onLogout();
                 },
                 icon: const Icon(Icons.logout, color: Colors.white, size: 20),
                 label: const Text(

@@ -1,8 +1,10 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -23,18 +25,19 @@ final selectedLocationProvider = StateProvider<LatLng?>((ref) => null);
 final addressProvider = StateProvider<String>((ref) => '');
 
 class GoogleMapsScreen extends ConsumerStatefulWidget {
+  const GoogleMapsScreen({super.key});
+
   @override
-  _GoogleMapsScreenState createState() => _GoogleMapsScreenState();
+  GoogleMapsScreenState createState() => GoogleMapsScreenState();
 }
 
-class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
+class GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
   late GoogleMapController _controller;
   BitmapDescriptor customIcon = BitmapDescriptor.defaultMarker;
   String visibleMarkerId = 'current_location';
    LatLng? currentLocation;
   bool showCustomWindow = false;
   LatLng? selectedLocation;
-  bool _isBottomPanelExpanded = false;
   double _bottomSheetExtent = 0.35;
   Offset? customInfoWindowOffset;
 
@@ -105,7 +108,9 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
 
       await updateCustomInfoWindowPosition();
     } catch (e) {
-      print("Error getting address: $e");
+      if (kDebugMode) {
+        print("Error getting address: $e");
+      }
     }
   }
 
@@ -126,7 +131,7 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0, // Remove shadow
-        leading: CircularBackButton(
+        leading: const CircularBackButton(
           backgroundColor: Colors.white,
           iconColor: Colors.black,
           padding: EdgeInsets.only(left: 16),
@@ -153,7 +158,7 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
             },
             markers: {
               Marker(
-                markerId: MarkerId('current_location'),
+                markerId: const MarkerId('current_location'),
                 position: currentLocation!,
                 icon: customIcon,
                 visible: visibleMarkerId == 'current_location',
@@ -163,7 +168,7 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
               ),
               if (selectedLocation != null)
                 Marker(
-                  markerId: MarkerId('selected_location'),
+                  markerId: const MarkerId('selected_location'),
                   position: selectedLocation!,
                   icon: customIcon,
                   visible: visibleMarkerId == 'selected_location',
@@ -191,15 +196,15 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
                 constraints: BoxConstraints(
                   maxWidth: MediaQuery.of(context).size.width * 0.6,
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Color(0xFF00FF90),
+                  color: const Color(0xFF00FF90),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.1),
                       blurRadius: 4,
-                      offset: Offset(0, 2),
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
@@ -241,7 +246,6 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
             top: 150,
             child: FloatingActionButton(
               onPressed: () async {
-                // Fetch the latest location
                 final currentLocationData = ref.read(locationProvider);
 
                 if (currentLocationData == null || currentLocationData.latitude == null || currentLocationData.longitude == null) {
@@ -273,8 +277,8 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
                   );
                 }
               },
-              backgroundColor: Color(0xFF021B1A),
-              child: Icon(Icons.my_location, color: Colors.white),
+              backgroundColor: const Color(0xFF021B1A),
+              child: const Icon(Icons.my_location, color: Colors.white),
             ),
           ),
 
@@ -283,7 +287,7 @@ class _GoogleMapsScreenState extends ConsumerState<GoogleMapsScreen> {
             left: 0,
             right: 0,
             bottom: _bottomSheetExtent * MediaQuery.of(context).size.height,
-            child: AnimatedSlideUp(),
+            child: const AnimatedSlideUp(),
           ),
 
 

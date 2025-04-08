@@ -1,9 +1,11 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class NewsService {
@@ -16,7 +18,9 @@ class NewsService {
       await supabase.storage.from('news_images').upload(imageName, imageFile);
       return supabase.storage.from('news_images').getPublicUrl(imageName);
     } catch (e) {
-      print('Image upload failed: $e');
+      if (kDebugMode) {
+        print('Image upload failed: $e');
+      }
       return null;
     }
   }
@@ -37,7 +41,9 @@ class NewsService {
 
       return true;
     } catch (e) {
-      print('Error adding news: $e');
+      if (kDebugMode) {
+        print('Error adding news: $e');
+      }
       return false;
     }
   }
@@ -47,7 +53,9 @@ class NewsService {
       final response = await supabase.from('news').select().order('created_at', ascending: false);
       return response;
     } catch (e) {
-      print('Error fetching news: $e');
+      if (kDebugMode) {
+        print('Error fetching news: $e');
+      }
       return [];
     }
   }
@@ -57,7 +65,9 @@ class NewsService {
       final response = await supabase.from('news').select().eq('id', id).single();
       return response;
     } catch (e) {
-      print('Error fetching news by ID: $e');
+      if (kDebugMode) {
+        print('Error fetching news by ID: $e');
+      }
       return null;
     }
   }
@@ -77,7 +87,9 @@ class NewsService {
 
       return true;
     } catch (e) {
-      print('Error updating news: $e');
+      if (kDebugMode) {
+        print('Error updating news: $e');
+      }
       return false;
     }
   }
@@ -87,11 +99,10 @@ class NewsService {
       await supabase.from('news').delete().eq('id', id);
       return true;
     } catch (e) {
-      print('Error deleting news: $e');
+      if (kDebugMode) {
+        print('Error deleting news: $e');
+      }
       return false;
     }
   }
 }
-
-
-

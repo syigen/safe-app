@@ -1,6 +1,7 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
 import 'package:flutter/material.dart';
@@ -10,7 +11,7 @@ class DateTimeFields extends StatelessWidget {
   final TextEditingController timeController;
   final Color primaryColor;
 
-  DateTimeFields({
+  const DateTimeFields({super.key,
     required this.dateController,
     required this.timeController,
     required this.primaryColor,
@@ -21,15 +22,15 @@ class DateTimeFields extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Date & time', style: TextStyle(color: Colors.white, fontSize: 16)),
+        const Text('Date & time', style: TextStyle(color: Colors.white, fontSize: 16)),
         Row(
           children: [
             Expanded(
               child: TextField(
                 controller: dateController,
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  enabledBorder: UnderlineInputBorder(
+                  enabledBorder: const UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.grey),
                   ),
                   focusedBorder: UnderlineInputBorder(
@@ -39,13 +40,13 @@ class DateTimeFields extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: TextField(
                 controller: timeController,
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  enabledBorder: UnderlineInputBorder(
+                  enabledBorder: const UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.grey),
                   ),
                   focusedBorder: UnderlineInputBorder(

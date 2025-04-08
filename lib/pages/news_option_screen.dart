@@ -1,6 +1,7 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
 import 'package:flutter/material.dart';
@@ -11,12 +12,11 @@ import '../services/news_service.dart';
 import '../widgets/CustomScroll.dart';
 import 'admin_view_news_list.dart';
 
-
 class NewsOptionScreen extends StatelessWidget {
   final News news;
   final NewsService _newsService = NewsService();
 
-  NewsOptionScreen({Key? key, required this.news}) : super(key: key);
+  NewsOptionScreen({super.key, required this.news});
 
   Future<void> _deleteNews(BuildContext context) async {
     final navigator = Navigator.of(context);
@@ -56,7 +56,6 @@ class NewsOptionScreen extends StatelessWidget {
       fontSize: 16.0,
     );
   }
-
 
   void _showDeleteConfirmation(BuildContext context) {
     showDialog(
@@ -120,7 +119,6 @@ class NewsOptionScreen extends StatelessWidget {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,13 +135,12 @@ class NewsOptionScreen extends StatelessWidget {
                   children: [
                     if (news.imageUrl.isNotEmpty)
                       Container(
-                        margin: const EdgeInsets.all(8.0), // Add margin around the image
+                        margin: const EdgeInsets.all(8.0),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16), // Add border radius
-                      // Ensure the image fits the rounded corners
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16), // Ensure the corners are rounded
+                          borderRadius: BorderRadius.circular(16),
                           child: Image.network(
                             news.imageUrl,
                             width: double.infinity,
@@ -175,26 +172,23 @@ class NewsOptionScreen extends StatelessWidget {
                           size: 50,
                         ),
                       ),
-                    // Back button with semi-transparent background
                     Positioned(
                       top: 16,
                       left: 16,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: const Color(0xFF06302B).withOpacity(0.7),
+                          color: const Color(0xFF06302B).withValues(alpha: 0.7),
                           borderRadius: BorderRadius.circular(50),
                         ),
                       ),
                     ),
                   ],
                 ),
-
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Title with proper styling
                       Text(
                         news.title,
                         style: const TextStyle(
@@ -204,13 +198,11 @@ class NewsOptionScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // Description with proper styling
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: const Color(0xFF032221),
                           borderRadius: BorderRadius.circular(12),
-                          // border: Border.all(color: const Color(0xFF00DF81).withOpacity(0.3)),
                         ),
                         child: Text(
                           news.description,
@@ -229,7 +221,8 @@ class NewsOptionScreen extends StatelessWidget {
           ),
         ),
       ),
-      // Bottom navigation bar with UPDATE and DELETE buttons
+
+      // Bottom navigation bar
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         decoration: const BoxDecoration(
@@ -238,7 +231,7 @@ class NewsOptionScreen extends StatelessWidget {
 
         //UpdateNewsScreen(news: news)
           child: Container(
-            margin: const EdgeInsets.only(bottom: 15, left: 16, right: 16), // Added more bottom margin
+            margin: const EdgeInsets.only(bottom: 15, left: 16, right: 16),
             child: Row(
               children: [
                 Expanded(
@@ -251,7 +244,7 @@ class NewsOptionScreen extends StatelessWidget {
                         ),
                       );
                       if (result == true) {
-                        Navigator.pop(context, true); // Return true to trigger refresh
+                        Navigator.pop(context, true);
                       }
                     },
                     icon: const Icon(Icons.edit, color: Colors.white),
@@ -264,7 +257,7 @@ class NewsOptionScreen extends StatelessWidget {
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF0B453A),
-                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 16), // Reduced vertical padding
+                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 16),
                       elevation: 0,
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.only(
@@ -275,7 +268,7 @@ class NewsOptionScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12), // Reduced spacing between buttons
+                const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () => _showDeleteConfirmation(context),
@@ -289,7 +282,7 @@ class NewsOptionScreen extends StatelessWidget {
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF0B453A),
-                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 16), // Reduced vertical padding
+                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 16),
                       elevation: 0,
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.only(
@@ -303,8 +296,6 @@ class NewsOptionScreen extends StatelessWidget {
               ],
             ),
           ),
-
-
       ),
     );
   }

@@ -1,6 +1,7 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
 import 'package:flutter/material.dart';
@@ -9,7 +10,8 @@ class LocationField extends StatelessWidget {
   final TextEditingController locationController;
   final Color primaryColor;
 
-  LocationField({
+  const LocationField({
+    super.key,
     required this.locationController,
     required this.primaryColor,
   });
@@ -19,13 +21,12 @@ class LocationField extends StatelessWidget {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    // Font size responsive to screen width
-    double labelFontSize = screenWidth * 0.045; // 4.5% of screen width
-    double inputFontSize = screenWidth * 0.04;  // 4% of screen width
-    double paddingHorizontal = screenWidth * 0.05; // Horizontal padding proportional to screen width
+    double labelFontSize = screenWidth * 0.045;
+    double inputFontSize = screenWidth * 0.04;
+    double paddingHorizontal = screenWidth * 0.05;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: paddingHorizontal), // Add horizontal padding
+      padding: EdgeInsets.symmetric(horizontal: paddingHorizontal),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -56,7 +57,7 @@ class LocationField extends StatelessWidget {
         controller: locationController,
         style: TextStyle(color: Colors.white, fontSize: fontSize),
         textAlign: TextAlign.end,
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           border: InputBorder.none,
         ),
         enabled: false,

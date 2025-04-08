@@ -1,3 +1,10 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
+ */
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -10,13 +17,13 @@ import 'main_page.dart';
 class NotificationsPage extends StatefulWidget {
   final String type;
 
-  NotificationsPage({super.key, required this.type});
+  const NotificationsPage({super.key, required this.type});
 
   @override
-  _NotificationsPageState createState() => _NotificationsPageState();
+  NotificationsPageState createState() => NotificationsPageState();
 }
 
-class _NotificationsPageState extends State<NotificationsPage> {
+class NotificationsPageState extends State<NotificationsPage> {
   String currentFilter = 'All';
 
   late Future<List<AlertData>> futureAlerts;
@@ -31,10 +38,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Future<String> getCityFromCoordinates(double latitude, double longitude) async {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
-      Placemark place = placemarks.isNotEmpty ? placemarks.first : Placemark();
+      Placemark place = placemarks.isNotEmpty ? placemarks.first : const Placemark();
       return place.locality ?? place.subLocality ?? place.name ?? "Unknown place";
     } catch (e) {
-      print("Error fetching address: $e");
+      if (kDebugMode) {
+        print("Error fetching address: $e");
+      }
       return "Unknown place";
     }
   }
@@ -140,12 +149,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         final ScrollController scrollController = ScrollController();
 
                         return Scrollbar(
-                          controller: scrollController, // Assign the controller
-                          thickness: 6, // Customize the scrollbar thickness
-                          radius: const Radius.circular(3), // Round the corners of the scrollbar
-                          thumbVisibility: true, // Always show the scrollbar
+                          controller: scrollController,
+                          thickness: 6,
+                          radius: const Radius.circular(3),
+                          thumbVisibility: true,
                           child: ListView.builder(
-                            controller: scrollController, // Assign the same controller to ListView
+                            controller: scrollController,
                             itemCount: filteredNotifications.length,
                             itemBuilder: (context, index) {
                               final notification = filteredNotifications[index];
@@ -159,7 +168,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                 showMapButton: notification['showMapButton'],
                                 location: LatLng(latitude, longitude),
                                 onTap: () {
-                                  // Handle tap action here
+                                 // Handle tap action here
                                 },
                               );
                             },

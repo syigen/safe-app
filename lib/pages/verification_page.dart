@@ -1,20 +1,25 @@
+/*
+ * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
+ */
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:safe_app/pages/welcome_page.dart';
-
 import '../services/auth_service.dart';
 
 class VerificationScreen extends StatefulWidget {
   final String phoneNumber;
-  VerificationScreen({Key? key, required this.phoneNumber}) : super(key: key);
+  const VerificationScreen({super.key, required this.phoneNumber});
 
   @override
-  _VerificationScreenState createState() => _VerificationScreenState();
+  VerificationScreenState createState() => VerificationScreenState();
 }
 
-class _VerificationScreenState extends State<VerificationScreen> {
+class VerificationScreenState extends State<VerificationScreen> {
   final AuthService _authService = AuthService(authClient: SupabaseAuthClient());
   final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
@@ -27,7 +32,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
     super.initState();
     _startTimer();
 
-    // Add listeners to handle focus and input changes
+    // Listeners to handle focus and input changes
     for (int i = 0; i < _focusNodes.length; i++) {
       _focusNodes[i].addListener(() {
         if (_focusNodes[i].hasFocus) {
@@ -94,8 +99,11 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final double boxSize = (screenWidth - 72) / 6;
+
     return Scaffold(
-      resizeToAvoidBottomInset: false, // Prevents the bottom overflow
+      resizeToAvoidBottomInset: false,
       backgroundColor: const Color(0xFF021B1A),
       body: GestureDetector(
         onTap: () {
@@ -112,7 +120,6 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Existing widgets remain the same...
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -145,37 +152,36 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       ),
                     ),
                     const SizedBox(height: 30),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: List.generate(
-                        6,
-                            (index) => RawKeyboardListener(
-                          focusNode: FocusNode(),
-                          onKey: (RawKeyEvent event) {
-                            if (event is RawKeyDownEvent) {
-                              if (event.logicalKey == LogicalKeyboardKey.backspace) {
-                                if (_controllers[index].text.isEmpty && index > 0) {
-                                  // Move focus to previous field and clear it
-                                  _focusNodes[index - 1].requestFocus();
-                                  _controllers[index - 1].clear();
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: List.generate(
+                          6,
+                              (index) => RawKeyboardListener(
+                            focusNode: FocusNode(),
+                            onKey: (RawKeyEvent event) {
+                              if (event is RawKeyDownEvent) {
+                                if (event.logicalKey == LogicalKeyboardKey.backspace) {
+                                  if (_controllers[index].text.isEmpty && index > 0) {
+                                    _focusNodes[index - 1].requestFocus();
+                                    _controllers[index - 1].clear();
+                                  }
                                 }
                               }
-                            }
-                          },
-                          child: SizedBox(
-                            width: 60,
-                            height: 60,
-                            child: Center(
+                            },
+                            child: SizedBox(
+                              width: boxSize,
+                              height: boxSize,
                               child: TextField(
                                 controller: _controllers[index],
                                 focusNode: _focusNodes[index],
                                 showCursor: false,
                                 textAlign: TextAlign.center,
                                 textAlignVertical: TextAlignVertical.center,
-                                style: const TextStyle(
-                                  color: Color(0xFF00DF81),
-                                  fontSize: 24,
+                                style: TextStyle(
+                                  color: const Color(0xFF00DF81),
+                                  fontSize: boxSize * 0.4,
                                   fontWeight: FontWeight.bold,
                                   height: 1.2,
                                 ),
@@ -184,6 +190,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                                 decoration: InputDecoration(
                                   counterText: '',
+                                  contentPadding: EdgeInsets.zero,
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
                                     borderSide: const BorderSide(
@@ -199,7 +206,6 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                   ),
                                 ),
                                 onChanged: (value) {
-                                  // Programmatically move to next field if needed
                                   if (value.length == 1) {
                                     _moveToNextField(index);
                                   }
@@ -211,7 +217,6 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       ),
                     ),
 
-                    // Rest of the existing widgets remain the same
                     const SizedBox(height: 40),
                     ElevatedButton(
                       onPressed: () {
@@ -272,6 +277,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
