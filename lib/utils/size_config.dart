@@ -1,6 +1,7 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
 import 'package:flutter/material.dart';
@@ -25,12 +26,10 @@ class SizeConfig {
     blockSizeVertical = screenHeight / 100;  // Percentage-based
   }
 
-  // You can use this function to scale text sizes based on screen density
   static double getTextScale(double size) {
     return size * textScaleFactor;
   }
 
-  // For higher resolution devices, you can consider the devicePixelRatio
   static double getScaledSize(double size) {
     return size * devicePixelRatio;
   }
