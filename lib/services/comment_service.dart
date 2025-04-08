@@ -1,6 +1,7 @@
 /*
  * Copyright 2024-Present, Syigen Ltd. and Syigen Private Limited. All rights reserved.
- *
+ * Licensed under the GNU GENERAL PUBLIC LICENSE
+ *                      Version 3  (See LICENSE.md orhttps://www.gnu.org/licenses/gpl-3.0.en.html).
  */
 
 import 'package:flutter/foundation.dart';
@@ -10,23 +11,20 @@ import 'package:safe_app/model/comment_data.dart';
 class CommentService {
   final SupabaseClient _supabase = Supabase.instance.client;
 
-  /// Get currently logged in user
+  // Get currently logged in user
   User? get currentUser => _supabase.auth.currentUser;
 
-  /// Add a new comment to the news item and increment comment count
+  // Add a new comment to the news item and increment comment count
   Future<Comment> addComment({
     required int newsId,
     required String content
   }) async {
     try {
-      // Check if user is authenticated
       final user = currentUser;
       if (user == null) {
         throw Exception('User not authenticated');
       }
 
-      // Start a Supabase transaction
-      // First, insert the comment
       final response = await _supabase
           .from('comments')
           .insert({
@@ -38,7 +36,6 @@ class CommentService {
           .select()
           .single();
 
-      // Then, increment the comment count for the news item
       await _incrementCommentCount(newsId);
 
       return Comment.fromJson(response);
@@ -48,33 +45,28 @@ class CommentService {
     }
   }
 
-  /// Increment the comment count for a news item
+  // Increment the comment count for a news item
   Future<void> _incrementCommentCount(int newsId) async {
     try {
-      // Get the current comment count
       final newsResponse = await _supabase
           .from('news')
           .select('comment_count')
           .eq('id', newsId)
           .single();
 
-      // Calculate the new count (defaults to 1 if null)
       final currentCount = newsResponse['comment_count'] as int? ?? 0;
       final newCount = currentCount + 1;
 
-      // Update the news item with the new count
       await _supabase
           .from('news')
           .update({'comment_count': newCount})
           .eq('id', newsId);
     } catch (e) {
       debugPrint('Error incrementing comment count: $e');
-      // We don't rethrow here to avoid failing the comment creation
-      // if the count update fails
     }
   }
 
-  /// Get all comments for a specific news item
+  // Get all comments for a specific news item
   Future<List<Comment>> getCommentsByNewsId(int newsId) async {
     try {
       final response = await _supabase
@@ -92,7 +84,7 @@ class CommentService {
     }
   }
 
-  /// Delete a comment (only if user is the author) and decrement comment count
+  // Delete a comment (only if user is the author) and decrement comment count
   Future<void> deleteComment(int commentId) async {
     try {
       final user = currentUser;
@@ -100,7 +92,6 @@ class CommentService {
         throw Exception('User not authenticated');
       }
 
-      // First, get the news_id for this comment
       final commentResponse = await _supabase
           .from('comments')
           .select('news_id')
@@ -109,13 +100,11 @@ class CommentService {
 
       final newsId = commentResponse['news_id'] as int;
 
-      // Delete the comment
       await _supabase
           .from('comments')
           .delete()
           .match({'id': commentId, 'user_id': user.id});
 
-      // Decrement the comment count
       await _decrementCommentCount(newsId);
     } catch (e) {
       debugPrint('Error deleting comment: $e');
@@ -123,33 +112,28 @@ class CommentService {
     }
   }
 
-  /// Decrement the comment count for a news item
+  // Decrement the comment count for a news item
   Future<void> _decrementCommentCount(int newsId) async {
     try {
-      // Get the current comment count
       final newsResponse = await _supabase
           .from('news')
           .select('comment_count')
           .eq('id', newsId)
           .single();
 
-      // Calculate the new count (ensure it doesn't go below 0)
       final currentCount = newsResponse['comment_count'] as int? ?? 0;
       final newCount = currentCount > 0 ? currentCount - 1 : 0;
 
-      // Update the news item with the new count
       await _supabase
           .from('news')
           .update({'comment_count': newCount})
           .eq('id', newsId);
     } catch (e) {
       debugPrint('Error decrementing comment count: $e');
-      // We don't rethrow here to avoid failing the comment deletion
-      // if the count update fails
     }
   }
 
-  /// Update a comment (only if user is the author)
+  // Update a comment (only if user is the author)
   Future<Comment> updateComment({
     required int commentId,
     required String content
