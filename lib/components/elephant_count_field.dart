@@ -3,6 +3,7 @@
  *
  */
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../utils/size_config.dart';
 
 class ElephantCountField extends StatelessWidget {
@@ -22,17 +23,26 @@ class ElephantCountField extends StatelessWidget {
         Text('No. of elephants', style: TextStyle(color: Colors.white, fontSize:SizeConfig.blockSizeHorizontal * 3.5)),
         TextField(
           controller: elephantCountController,
-          style: TextStyle(color: Colors.white),
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            // Ensure only digits are allowed
+            FilteringTextInputFormatter.digitsOnly,
+          ],
           decoration: InputDecoration(
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey),
+            hintText: 'Enter number of elephants...',
+            hintStyle: TextStyle(color: Colors.grey),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF00FF9D)),
+              borderRadius: BorderRadius.circular(8),
             ),
-            focusedBorder: UnderlineInputBorder(
+            focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(color: primaryColor),
+              borderRadius: BorderRadius.circular(8),
             ),
             suffixIcon: Icon(Icons.edit, color: primaryColor),
           ),
-          keyboardType: TextInputType.number,
+          style: TextStyle(color: Colors.white),
+          maxLines: 1,
         ),
       ],
     );
